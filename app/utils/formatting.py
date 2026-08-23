@@ -4,7 +4,7 @@ label/color mapping here replaces the scattered if/elif badge-coloring
 chains that were copy-pasted into almost every template in the original
 app (`{% if b.status == 'Booked' %}bg-success{% elif ... %}`).
 """
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from app.models.enums import BookingStatus, Difficulty, StaffStatus, TrekStatus
 
@@ -84,4 +84,4 @@ def register_template_helpers(app):
     app.jinja_env.filters["format_datetime"] = format_datetime
     app.jinja_env.filters["format_currency"] = format_currency
     app.jinja_env.filters["time_until"] = time_until
-    app.jinja_env.globals["now"] = datetime.utcnow
+    app.jinja_env.globals["now"] = lambda: datetime.now(timezone.utc)

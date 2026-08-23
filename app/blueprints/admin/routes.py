@@ -121,8 +121,14 @@ def add_trek():
     form = TrekForm()
     if form.validate_on_submit():
         trek = Trek(status=TrekStatus.DRAFT, created_by_id=current_user.id)
-        trek_service.apply_form_to_trek(trek, form)
-        trek.slug = trek_service.generate_slug(trek.name)
+        # apply_form_to_trek()/generate_slug() both run SELECT queries
+        # (location lookup, slug-collision check) while `trek` is only
+        # half-built — no_autoflush stops SQLAlchemy from trying to
+        # prematurely INSERT it (missing NOT NULL fields) or warning about
+        # it dangling off Location.treks before it's actually ready.
+        with db.session.no_autoflush:
+            trek_service.apply_form_to_trek(trek, form)
+            trek.slug = trek_service.generate_slug(trek.name)
         db.session.add(trek)
         db.session.flush()
 
@@ -165,7 +171,7 @@ def edit_trek(trek_id):
 
     image_form = TrekImageForm()
     status_form = _build_admin_status_form(trek)
-    assign_form = _build_assign_form(trek)
+    assign_form = _build_assign_form(trek, preselect_current=True)
 
     return render_template(
         "admin/trek_form.html",
@@ -582,10 +588,17 @@ def _build_admin_status_form(trek):
     return form
 
 
-def _build_assign_form(trek):
+def _build_assign_form(trek, preselect_current=False):
+    """`preselect_current` should only be True when building the form to
+    *render* (GET) — setting .data pre-selects the trek's current guide
+    in the dropdown for display. It must stay False when building the
+    form to *validate a submission against* (assign_trek's POST
+    handler), otherwise it clobbers the just-submitted staff_user_id
+    with the trek's still-unchanged current value before validation
+    ever runs, silently turning every reassignment into a no-op."""
     approved_staff = User.query.join(User.staff_profile).filter(Staff.staff_status == StaffStatus.APPROVED).order_by(User.name).all()
     form = AssignStaffForm()
     form.staff_user_id.choices = [(s.id, s.name) for s in approved_staff]
-    if trek.assigned_staff_id:
+    if preselect_current and trek.assigned_staff_id:
         form.staff_user_id.data = trek.assigned_staff_id
     return form
