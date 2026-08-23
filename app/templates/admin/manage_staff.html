@@ -26,7 +26,8 @@
                 <td data-label="Contact" class="cell-muted">{{ staff.contact or '—' }}</td>
                 <td data-label="Applied">{{ staff.applied_at | format_date }}</td>
                 <td data-label="Status">{{ m.status_badge(staff.staff_status) }}</td>
-                <td data-label="" class="d-flex gap-2 flex-wrap">
+                <td data-label="">
+                  <div class="d-flex gap-2">
                   {% if staff.staff_status.value != 'approved' %}
                     {{ m.confirm_button(url_for('admin.approve_staff', staff_id=staff.id), 'Approve', 'Approve ' ~ staff.user.name ~ ' as staff?', confirm_form.hidden_tag(), variant='btn-tma--outline') }}
                   {% endif %}
@@ -34,6 +35,7 @@
                     {{ m.confirm_button(url_for('admin.reject_staff', staff_id=staff.id), 'Reject', 'Reject ' ~ staff.user.name ~ '\'s staff application?', confirm_form.hidden_tag()) }}
                   {% endif %}
                   {{ m.confirm_button(url_for('admin.delete_staff', staff_id=staff.id), 'Delete', 'Permanently delete ' ~ staff.user.name ~ '\'s account?', confirm_form.hidden_tag()) }}
+                  </div>
                 </td>
               </tr>
             {% endfor %}

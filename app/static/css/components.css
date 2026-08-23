@@ -81,6 +81,38 @@
   border: 2px solid var(--color-surface);
 }
 
+/* ---------------------------------- Dropdowns ---------------------------- */
+/* Bootstrap's .dropdown-menu defaults its background to --bs-body-bg,
+   which tokens.css deliberately points at the page background color for
+   everywhere else Bootstrap reads it — but that meant every dropdown
+   (profile menu, notification bell) rendered in the *same* off-white as
+   the page behind it, with no shadow, so it had almost no visible
+   separation ("blends into the theme"). Give it its own real surface. */
+.dropdown-menu {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+  margin-top: 10px !important;
+}
+.dropdown-item {
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.9375rem;
+  color: var(--color-body);
+}
+.dropdown-item:hover, .dropdown-item:focus {
+  background: var(--color-primary-50);
+  color: var(--color-primary-900);
+}
+.dropdown-item.text-danger:hover, .dropdown-item.text-danger:focus {
+  background: var(--color-danger-100);
+  color: var(--color-danger-700);
+}
+.dropdown-item.fw-semibold { background: var(--color-primary-50); }
+.dropdown-divider { border-top-color: var(--color-border); margin: 6px 4px; }
+
 /* ---------------------------------- Footer ------------------------------ */
 .site-footer {
   background: var(--color-primary-900);
@@ -197,6 +229,16 @@
   border-color: var(--color-primary-600);
   box-shadow: var(--shadow-focus);
 }
+/* Tells the browser this control's *closed* state is a light theme, so it
+   picks light-appropriate system chrome. This is also the only lever CSS
+   has over a native <select>'s *open* popup list in Chrome/Edge — the
+   popup itself is drawn by the OS, not the page, so its row-hover colors
+   stay OS blue there regardless. Firefox does honor <option> background/
+   color, so the two declarations below are for that. There is no
+   pure-CSS way to fully theme the open dropdown in every browser; a
+   matching visual would need a JS-built custom listbox. */
+.form-select { color-scheme: light; }
+.form-select option { background: var(--color-surface); color: var(--color-ink); }
 .form-text-tma { font-size: 0.8125rem; color: var(--color-muted); margin-top: 4px; }
 .field-error { color: var(--color-danger-700); font-size: 0.8125rem; margin-top: 4px; }
 .form-control.is-invalid, .form-select.is-invalid { border-color: var(--color-danger-600); }
@@ -233,6 +275,23 @@
 .table-tma tbody tr:hover { background: var(--color-primary-50); }
 .table-tma .cell-muted { color: var(--color-muted); font-size: 0.8125rem; }
 
+/* Every admin table puts an actions column (buttons, usually an empty
+   <th></th>) last. Table auto-layout hands that column whatever width
+   is "left over" once other columns claim theirs — with a couple of
+   small buttons and no content in the header, that leftover was
+   routinely 250-300px of dead whitespace, which is what actually read
+   as "broken lines / gaps" in the table: not a border bug, an
+   absurdly oversized last column. width:1% is the standard shrink-
+   to-content trick for table cells; nowrap keeps their buttons from
+   wrapping mid-word while that width collapses down to fit them. */
+.table-tma th:last-child, .table-tma td:last-child {
+  width: 1%;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .table-tma td:last-child { width: auto; white-space: normal; } /* card layout below overrides this anyway */
+}
+
 @media (max-width: 767px) {
   .table-tma thead { display: none; }
   .table-tma, .table-tma tbody, .table-tma tr, .table-tma td { display: block; width: 100%; }
@@ -266,6 +325,22 @@
 
 .rating-stars { color: var(--color-gold-500); letter-spacing: 1px; font-size: 0.875rem; }
 .rating-stars .star-empty { color: var(--color-border-strong); }
+
+/* The review form's 1-5 rating picker (Bootstrap btn-check + btn-outline-
+   secondary radios) — restyled off raw Bootstrap gray onto the gold
+   token used for ratings everywhere else on the site. */
+.btn-check + .btn-outline-secondary {
+  border-color: var(--color-border-strong);
+  color: var(--color-body);
+  border-radius: var(--radius-sm);
+}
+.btn-check:checked + .btn-outline-secondary,
+.btn-check:active + .btn-outline-secondary {
+  background: var(--color-gold-500);
+  border-color: var(--color-gold-500);
+  color: var(--color-ink);
+}
+.btn-check:focus-visible + .btn-outline-secondary { box-shadow: var(--shadow-focus); }
 
 /* ---------------------------------- Alerts / toasts ---------------------- */
 .alert {
@@ -376,10 +451,28 @@
   box-shadow: var(--shadow-lg);
   padding: var(--space-3);
   display: flex;
+  align-items: center;
   gap: var(--space-2);
   flex-wrap: wrap;
+  /* With enough filters to wrap onto a second row (common at laptop
+     widths), square-cornered children sitting flush against the bottom
+     edge poked straight through this container's rounded corners with
+     nothing clipping them — that hard rectangular line cutting across
+     under the search bar was that, not a border/shadow bug. */
+  overflow: hidden;
 }
 .search-bar .form-control, .search-bar .form-select { border: none; background: var(--color-surface-sunken); }
+.search-bar .form-check {
+  /* Every other control in this bar is a solid pill/box; a bare
+     transparent checkbox+label here read as an unstyled gap in the
+     middle of an otherwise uniform row. Give it the same treatment —
+     matching padding (not a hardcoded height) so it stays the same
+     size as its siblings regardless of font rendering/box-sizing. */
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin: 0;
+}
 
 /* ---------------------------------- Sections ------------------------------ */
 .section { padding-block: var(--space-8); }

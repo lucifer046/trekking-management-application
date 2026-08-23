@@ -35,7 +35,7 @@
         <option value="duration" {{ 'selected' if filters.sort == 'duration' }}>Shortest first</option>
         <option value="newest" {{ 'selected' if filters.sort == 'newest' }}>Newest listed</option>
       </select>
-      <div class="form-check d-flex align-items-center gap-2 px-3">
+      <div class="form-check d-flex align-items-center gap-2">
         <input type="checkbox" class="form-check-input mt-0" id="available" name="available" value="1" {{ 'checked' if filters.available }}>
         <label class="form-check-label fs-sm" for="available">Available only</label>
       </div>

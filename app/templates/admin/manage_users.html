@@ -22,13 +22,15 @@
                 <td data-label="Email">{{ u.email }}</td>
                 <td data-label="Joined">{{ u.created_at | format_date }}</td>
                 <td data-label="Status">{% if u.is_blocked %}<span class="badge-tma badge-tone-danger">Blacklisted</span>{% else %}<span class="badge-tma badge-tone-success">Active</span>{% endif %}</td>
-                <td data-label="" class="d-flex gap-2 flex-wrap">
+                <td data-label="">
+                  <div class="d-flex gap-2">
                   {% if u.is_blocked %}
                     {{ m.confirm_button(url_for('admin.unblacklist_user', user_id=u.id), 'Unblacklist', 'Restore access for ' ~ u.name ~ '?', confirm_form.hidden_tag(), variant='btn-tma--outline') }}
                   {% else %}
                     {{ m.confirm_button(url_for('admin.blacklist_user', user_id=u.id), 'Blacklist', 'Blacklist ' ~ u.name ~ '? They will be signed out and unable to log in.', confirm_form.hidden_tag()) }}
                   {% endif %}
                   {{ m.confirm_button(url_for('admin.delete_user', user_id=u.id), 'Delete', 'Permanently delete ' ~ u.name ~ '\'s account?', confirm_form.hidden_tag()) }}
+                  </div>
                 </td>
               </tr>
             {% endfor %}
