@@ -243,6 +243,29 @@
 .field-error { color: var(--color-danger-700); font-size: 0.8125rem; margin-top: 4px; }
 .form-control.is-invalid, .form-select.is-invalid { border-color: var(--color-danger-600); }
 
+/* Bootstrap's compiled CSS hardcodes .form-check-input:checked to a
+   literal rgb(13,110,253) — Bootstrap blue — rather than referencing
+   var(--bs-primary) the way its buttons/links do, so remapping that
+   token in tokens.css never reached checkboxes/radios anywhere on the
+   site. Override explicitly instead of relying on the token cascade. */
+.form-check-input { border-color: var(--color-border-strong); }
+.form-check-input:checked {
+  background-color: var(--color-primary-700);
+  border-color: var(--color-primary-700);
+}
+.form-check-input:focus {
+  border-color: var(--color-primary-600);
+  box-shadow: var(--shadow-focus);
+}
+/* Bootstrap's default .form-check-input carries `margin-left: -1.5em`,
+   designed for its own block-layout .form-check (padding-left: 1.5em
+   on the parent, input pulled back over that padding). That negative
+   margin has no such padding to sit inside wherever a .form-check is
+   instead laid out as a flex row (gap-based spacing, no padding-left)
+   — the checkbox rendered ~24px too far left, spilling outside its own
+   pill container. Neutralize it specifically for that combination. */
+.form-check.d-flex .form-check-input { margin: 0; flex-shrink: 0; }
+
 .password-field { position: relative; }
 .password-toggle {
   position: absolute;
