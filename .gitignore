@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+instance/
+.env
+app/static/uploads/
+!app/static/uploads/.gitkeep
+.pytest_cache/
+*.egg-info/

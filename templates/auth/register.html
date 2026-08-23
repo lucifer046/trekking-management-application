@@ -1,0 +1,79 @@
+{% extends "base_template.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1 class="text-center">Create Your Account</h1>
+    <p class="text-muted text-center">Join Trekking Management Association to explore and book your next adventure.</p>
+    <!-- putting everything in a grid so it looks clean -->
+    <form method="post" class="mt-4">
+        <div class="row">
+            <!-- User details and role selection -->
+            <div class="col-md-6 mb-3">
+                <label for="name" class="form-label">Name:</label>
+                <input type="text" name="name" class="form-control" id="name" placeholder="Enter your full name" required />
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="exampleInputEmail1" class="form-label">Email:</label>
+                <input type="email" name="email" class="form-control" id="exampleInputEmail1" placeholder="name@example.com" required />
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="phone" class="form-label">Contact Number:</label>
+                <input type="text" name="phone" class="form-control" id="phone" placeholder="Enter contact number (e.g. 99345XXXXX)" />
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Register as:</label>
+                <select name="role" class="form-select">
+                    <option value="user">Trekker (User)</option>
+                    <option value="staff">Trek Staff</option>
+                </select>
+            </div>
+
+            <!-- Password and password confirmation inputs -->
+            <div class="col-md-6 mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" name="password" class="form-control" id="password" placeholder="Create a password" required />
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="confirm_password" class="form-label">Confirm Password:</label>
+                <input type="password" name="confirm_password" class="form-control" id="confirm_password" placeholder="Confirm your password" required />
+            </div>
+        </div>
+
+        <!-- Register submit button -->
+        <div class="mb-3 mt-3 text-center">
+            <input type="submit" value="Register" class="btn btn-success w-100 py-2">
+        </div>
+    </form>
+    <p class="text-center mt-3 mb-0">Already registered? <a href="{{url_for('login')}}">Login</a></p>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* making the register box wider because it has more fields */
+    .glass-card{
+        background: rgba(255,255,255,0.95);
+        border-radius:20px;
+        padding:35px;
+        box-shadow:0 10px 30px rgba(0,0,0,.12);
+        max-width: 800px;
+        margin: auto;
+    }
+    .form-control,
+    .form-select{
+        border-radius:10px;
+        padding:10px 14px;
+    }
+    .form-control:focus,
+    .form-select:focus{
+        box-shadow:none;
+        border-color:#198754;
+    }
+</style>
+{% endblock %}

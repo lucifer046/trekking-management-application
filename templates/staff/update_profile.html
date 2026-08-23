@@ -1,0 +1,99 @@
+{% extends "base_template.html" %}
+{% block title %}Update Profile{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1 text-black">Update Profile</h2>
+        <p class="text-white">
+            Manage your personal details and experience as a Trek Staff member.
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('staffDashboard') }}" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="container py-3">
+    <div class="glass-card">
+        <h4 class="fw-bold mb-4">Profile Information</h4>
+        <!-- form where they can add their bio and update phone number -->
+        <form method="POST" action="{{ url_for('staffUpdateProfile') }}">
+            <!-- details fields input group -->
+            <div class="row g-3">
+                <!-- Name -->
+                <div class="col-md-6">
+                    <label for="name" class="form-label">Full Name:</label>
+                    <input type="text" name="name" id="name" class="form-control" 
+                           value="{{ user.name }}" placeholder="Enter full name" required>
+                </div>
+                
+                <!-- Email -->
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email Address:</label>
+                    <input type="email" name="email" id="email" class="form-control" 
+                           value="{{ user.email }}" placeholder="Enter email address" required>
+                </div>
+                
+                <!-- Contact Number -->
+                <div class="col-md-6">
+                    <label for="contact" class="form-label">Contact Number:</label>
+                    <input type="text" name="contact" id="contact" class="form-control" 
+                           value="{{ staff.contact or user.phone or '' }}" placeholder="Enter contact number">
+                </div>
+                
+                <div class="col-md-6 d-none d-md-block"></div> <!-- Spacer to align password fields on a new row -->
+                
+                <!-- password updates inputs -->
+                <!-- Password Fields -->
+                <div class="col-md-6">
+                    <label for="password" class="form-label">New Password:</label>
+                    <input type="password" name="password" id="password" class="form-control" 
+                           placeholder="Leave blank to keep current password">
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="confirm_password" class="form-label">Confirm New Password:</label>
+                    <input type="password" name="confirm_password" id="confirm_password" class="form-control" 
+                           placeholder="Confirm new password">
+                </div>
+                
+                <!-- Experience -->
+                <div class="col-12 mt-3">
+                    <label for="experience" class="form-label">Professional Experience / Bio:</label>
+                    <textarea name="experience" id="experience" class="form-control" rows="4" 
+                              placeholder="Describe your background and trekking experience...">{{ staff.experience or '' }}</textarea>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-outline-success px-4">
+                    <i class="bi bi-check2-circle me-1"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* basic card styling for the staff profile */
+    .glass-card {
+        max-width: 800px;
+        margin: auto;
+        padding: 30px;
+        border-radius: 20px;
+    }
+    .form-control {
+        border-radius: 10px;
+        padding: 10px 14px;
+    }
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #198754;
+    }
+</style>
+{% endblock %}

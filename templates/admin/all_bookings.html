@@ -1,0 +1,94 @@
+{% extends "base_template.html" %}
+{% block title %}All Trekking Bookings{% endblock %}
+
+{% block content %}
+<!-- huge table of all the bookings ever made -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1 text-black">All Trek Bookings</h2>
+        <p class="text-white">
+            Comprehensive history of all booking records and trekker participation.
+        </p>
+    </div>
+    <div>
+        <a href="/admin/dashboard" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="container py-3">
+    <div class="glass-card">
+        <h4 class="fw-bold mb-4 text-dark"><i class="bi bi-journal-bookmark-fill me-2"></i>Global Booking Records</h4>
+        <!-- check if bookings exist and show table, else show a placeholder -->
+        {% if bookings %}
+            <div class="table-responsive rounded-4 shadow">
+                <table class="table table-striped table-hover align-middle mb-0 bg-white">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-center">Booking ID</th>
+                            <th>Trek Name</th>
+                            <th>Trekker Name</th>
+                            <th>Email Address</th>
+                            <th class="text-center">Booking Date</th>
+                            <th class="text-center">Booking Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- loop through all system bookings -->
+                        {% for b in bookings %}
+                            <tr>
+                                <td class="text-center font-monospace">{{ b.id }}</td>
+                                <td>
+                                    <strong class="text-dark">{{ b.trek.name }}</strong>
+                                </td>
+                                <td>{{ b.trekker.name }}</td>
+                                <td>{{ b.trekker.email }}</td>
+                                <td class="text-center small">
+                                    {{ b.date_booked.strftime('%d %b %Y, %I:%M %p') if b.date_booked else 'N/A' }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge {% if b.status == 'Booked' %}bg-success{% elif b.status == 'Cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                        {{ b.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-journal-x fs-1 d-block mb-3 text-secondary"></i>
+                <h5 class="fw-bold">No Booking Records</h5>
+                <p class="mb-0">No booking transactions have been logged in the system yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* making sure the table text is centered */
+    .glass-card {
+        max-width: 1200px;
+        margin: auto;
+        padding: 35px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+    }
+    th {
+        text-align: center;
+    }
+    .overflow-hidden.rounded-4, .table-responsive.rounded-4 {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        -webkit-mask-image: -webkit-radial-gradient(white, black);
+        mask-image: radial-gradient(white, black);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+</style>
+{% endblock %}

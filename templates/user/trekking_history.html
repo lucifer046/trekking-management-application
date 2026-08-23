@@ -1,0 +1,128 @@
+{% extends "base_template.html" %}
+{% block title %}Trekking History{% endblock %}
+
+{% block content %}
+<!-- wrapper for the history table stuff -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1 text-black">Trekking History</h2>
+        <p class="text-white">
+            Review your past, current, and cancelled trekking adventures.
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('userDashboard') }}" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="container py-3">
+    <div class="glass-card">
+        <h4 class="fw-bold mb-4"><i class="bi bi-clock-history me-2"></i>My Adventure Records</h4>
+        {% if bookings %}
+            <!-- responsive table for all the old trips -->
+            <div class="table-responsive rounded-4 shadow">
+                <table class="table table-striped table-hover align-middle mb-0 bg-white">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-center">Booking ID</th>
+                            <th>Trek Details</th>
+                            <th>Location & Difficulty</th>
+                            <th class="text-center">Dates & Duration</th>
+                            <th>Guide / Staff</th>
+                            <th class="text-center">Booking Date</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- loop through historical booking records -->
+                        {% for b in bookings %}
+                            <tr>
+                                <td class="text-center font-monospace">{{ b.id }}</td>
+                                <td>
+                                    <strong class="text-dark">{{ b.trek.name }}</strong>
+                                    {% if b.trek.status == 'ongoing' %}
+                                        <span class="badge bg-primary ms-1">Ongoing</span>
+                                    {% elif b.trek.status == 'completed' %}
+                                        <span class="badge bg-secondary ms-1">Completed</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ b.trek.location }}
+                                    <br>
+                                    <span class="badge 
+                                                {% if b.trek.difficulty == 'Easy' %}bg-success
+                                                {% elif b.trek.difficulty == 'Moderate' %}bg-warning text-dark
+                                                {% else %}bg-danger{% endif %} mt-1">
+                                        {{ b.trek.difficulty }}
+                                    </span>
+                                </td>
+                                <td class="text-center small">
+                                    {{ b.trek.start_date.strftime('%d %b %Y') }} to {{ b.trek.end_date.strftime('%d %b %Y') }}
+                                    <br>
+                                    <span class="text-muted">({{ b.trek.days }} Days)</span>
+                                </td>
+                                <td>
+                                    {% if b.trek.assigned_staff %}
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-person-badge-fill text-success me-2 fs-5"></i>
+                                            <div>
+                                                <span class="fw-semibold">{{ b.trek.assigned_staff.name }}</span>
+                                                {% if b.trek.assigned_staff.staff_profile and b.trek.assigned_staff.staff_profile.contact %}
+                                                    <br><small class="text-muted font-monospace">{{ b.trek.assigned_staff.staff_profile.contact }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted italic">Not Assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center small">
+                                    {{ b.date_booked.strftime('%d %b %Y, %I:%M %p') }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge {% if b.status == 'Booked' %}bg-success{% elif b.status == 'Cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                        {{ b.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-calendar-x fs-1 d-block mb-3 text-secondary"></i>
+                <h5 class="fw-bold">No History Found</h5>
+                <p class="mb-0">You have no active or completed bookings on record.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* trekking history table layout and container style */
+    .glass-card {
+        max-width: 1150px;
+        margin: auto;
+        padding: 35px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+    }
+    th {
+        text-align: center;
+    }
+    .overflow-hidden.rounded-4, .table-responsive.rounded-4 {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        -webkit-mask-image: -webkit-radial-gradient(white, black);
+        mask-image: radial-gradient(white, black);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base_template.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <h1 class="text-center">Sign In to TMA</h1>
+    <p class="text-muted text-center">Access your account, view bookings, and manage your trekking plans.</p>
+    <!-- the form where they actually login -->
+    <form method="post" class="mt-4">
+        <!-- Email and password inputs -->
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Email:</label>
+            <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
+            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Password:</label>
+            <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+        </div>
+        <!-- Submit login button -->
+        <div class="mb-3 text-center">
+            <input type="submit" value="Login" class="btn btn-success w-100">
+        </div>
+    </form>
+    <p class="text-center mt-3 mb-0">No account? <a href="{{url_for('register')}}">Register here</a></p>
+</div>
+{% endblock %}
+
+{% block style %}
+
+<style>
+    /* basic styling for the login box so it doesnt look boring */
+    .glass-card{
+        background: rgba(255,255,255,0.95);
+        border-radius:20px;
+        padding:35px;
+        box-shadow:0 10px 30px rgba(0,0,0,.12);
+    }
+    .form-control,
+    .form-select{
+        border-radius:10px;
+        padding:10px 14px;
+    }
+    .form-control:focus,
+    .form-select:focus{
+        box-shadow:none;
+        border-color:#198754;
+    }
+</style>
+{% endblock %}

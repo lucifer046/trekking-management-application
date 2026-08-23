@@ -1,0 +1,21 @@
+<!-- simplified navbar shown only on login/register pages -->
+<nav class="navbar navbar-expand bg-body-tertiary">
+    <div class="container-fluid justify-content-end px-4">
+        <ul class="navbar-nav gap-2">
+            <li class="nav-item">
+                <a class="nav-link {% if request.endpoint == 'login' %}active fw-bold{% endif %}" href="{{url_for('login')}}">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.endpoint == 'register' %}active fw-bold{% endif %}" href="{{url_for('register')}}">Register</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<style>
+    /* basic styling override for the auth navbar */
+    .navbar {
+        width: 100%;
+        padding: 0.5rem 0;
+    }
+</style>

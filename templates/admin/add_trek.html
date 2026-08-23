@@ -1,0 +1,109 @@
+{% extends "base_template.html" %}
+
+{% block title %}Add Trek{% endblock %}
+
+{% block content %}
+<!-- form to create a brand new trek in the db -->
+<div class="container py-4">
+    <div class="glass-card mx-auto" style="max-width:1000px;">
+        <div class="mb-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1">Add New Trek</h2>
+                <p class="text-muted mb-0">Enter the trek name, difficulty, slots, dates, and other details to create a new trek.</p>
+            </div>
+            <a href="/admin/treks" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+        <form method="POST">
+
+            <!--Trek Details-->
+            <div class="row">
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Trek Name</label>
+                    <input type="text" class="form-control" name="name" placeholder="e.g. Everest Base Camp Trek" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" name="location" placeholder="e.g. Solukhumbu, Nepal" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Difficulty</label>
+                    <select name="difficulty" class="form-select" required>
+                        <option value="">Select Difficulty</option>
+                        <option value="Easy">Easy</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Maximum Slots</label>
+                    <input type="number" class="form-control" name="max_people" min="1" placeholder="e.g. 15" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Stay Duration (Days)</label>
+                    <input type="number" class="form-control" name="days" min="1" placeholder="e.g. 12" required>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" name="status">
+                        <option value="open" selected>Open</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-control" name="start_date" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" class="form-control" name="end_date" required>
+                </div>
+
+                <div class="col-12 mb-4">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" rows="4" class="form-control" placeholder="Provide details about the difficulty, route, highlights, and itinerary..." required></textarea>
+                </div>
+            </div>
+
+            <!-- Submit/Reject button. -->
+             <div class="d-flex justify-content-end gap-2">
+                <a href="{{ url_for('adminTreks') }}" class="btn btn-outline-secondary  px-3">Cancel</a>
+                <button type="submit" class="btn btn-outline-success px-2">Add Trek</button>
+             </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block style %}
+
+<style>
+    /* basic admin form spacing */
+    .glass-card{
+        background: rgba(255,255,255,0.95);
+        border-radius:20px;
+        padding:35px;
+        box-shadow:0 10px 30px rgba(0,0,0,.12);
+    }
+    .form-control,
+    .form-select{
+        border-radius:10px;
+        padding:10px 14px;
+    }
+    .form-control:focus,
+    .form-select:focus{
+        box-shadow:none;
+        border-color:#198754;
+    }
+
+    textarea{
+        resize:none;
+    }
+
+</style>
+{% endblock %}
