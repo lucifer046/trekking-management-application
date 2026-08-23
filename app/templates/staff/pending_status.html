@@ -1,0 +1,21 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Application status{% endblock %}
+{% block content %}
+<section class="section d-flex justify-content-center">
+  <div class="card-tma" style="max-width: 520px; width: 100%;">
+    <div class="card-tma__body p-5 text-center">
+      {% if profile and profile.staff_status.value == 'rejected' %}
+        <div class="empty-state__icon mx-auto mb-3" style="background:var(--color-danger-100);color:var(--color-danger-700);"><i class="bi bi-x-circle"></i></div>
+        <h1 class="h4 mb-2">Application not approved</h1>
+        <p class="text-muted-tma">Your staff application wasn't approved this time. If you have questions, please contact the platform admin.</p>
+      {% else %}
+        <div class="empty-state__icon mx-auto mb-3"><i class="bi bi-hourglass-split"></i></div>
+        <h1 class="h4 mb-2">Application pending review</h1>
+        <p class="text-muted-tma">Thanks for applying to guide with TMA! An admin is reviewing your application — you'll be notified as soon as it's approved.</p>
+      {% endif %}
+      <a href="{{ url_for('staff.profile') }}" class="btn-tma btn-tma--outline mt-3">Update your profile</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

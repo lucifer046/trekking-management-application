@@ -1,0 +1,65 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Booking {{ booking.booking_reference }}{% endblock %}
+{% block content %}
+<section class="section-tight">
+  <div class="container-tma" style="max-width: 760px;">
+    {{ m.breadcrumb([("Dashboard", url_for('user.dashboard')), ("My bookings", url_for('user.booking_history')), (booking.booking_reference or 'Booking', none)]) }}
+
+    <div class="card-tma card-tma__body p-5">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+          {% if booking.status.value == 'booked' %}
+            <div class="empty-state__icon mb-3" style="width:56px;height:56px;font-size:1.5rem;background:var(--color-success-100);color:var(--color-success-700);"><i class="bi bi-check-lg"></i></div>
+            <h1 class="h3 mb-1">Booking confirmed</h1>
+          {% elif booking.status.value == 'cancelled' %}
+            <div class="empty-state__icon mb-3" style="width:56px;height:56px;font-size:1.5rem;background:var(--color-danger-100);color:var(--color-danger-700);"><i class="bi bi-x-lg"></i></div>
+            <h1 class="h3 mb-1">Booking cancelled</h1>
+          {% else %}
+            <div class="empty-state__icon mb-3" style="width:56px;height:56px;font-size:1.5rem;"><i class="bi bi-trophy"></i></div>
+            <h1 class="h3 mb-1">Trek completed</h1>
+          {% endif %}
+          <p class="text-muted-tma mb-0">Reference <span class="text-mono">{{ booking.booking_reference or booking.id }}</span></p>
+        </div>
+        {{ m.status_badge(booking.status) }}
+      </div>
+
+      <hr class="my-4">
+
+      <div class="row g-4 mb-4">
+        <div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Trek</div><a href="{{ url_for('public.trek_detail', slug=booking.trek.slug) }}" class="fw-semibold">{{ booking.trek.name }}</a></div>
+        <div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Location</div><div class="fw-semibold">{{ booking.trek.location.display_name }}</div></div>
+        <div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Dates</div><div class="fw-semibold">{{ booking.trek.start_date | format_date }} – {{ booking.trek.end_date | format_date }}</div></div>
+        <div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Trekker</div><div class="fw-semibold">{{ booking.trekker.name }}</div></div>
+        <div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Guide</div><div class="fw-semibold">{{ booking.trek.assigned_staff.name if booking.trek.assigned_staff else 'To be assigned' }}</div></div>
+        <div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Participants</div><div class="fw-semibold">{{ booking.participant_count }}</div></div>
+        <div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Booked on</div><div class="fw-semibold">{{ booking.booked_at | format_datetime }}</div></div>
+        <div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Current trek status</div>{{ m.status_badge(booking.trek.status) }}</div>
+        <div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Total price</div><div class="fw-semibold text-brand">{{ booking.total_price | format_currency(booking.trek.currency) }}</div></div>
+        {% if booking.special_requests %}
+          <div class="col-12"><div class="fs-xs text-muted-tma text-uppercase">Special requests</div><div>{{ booking.special_requests }}</div></div>
+        {% endif %}
+        {% if booking.status.value == 'cancelled' %}
+          <div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Cancelled on</div><div class="fw-semibold">{{ booking.cancelled_at | format_datetime }}</div></div>
+          {% if booking.cancellation_reason %}<div class="col-sm-6"><div class="fs-xs text-muted-tma text-uppercase">Reason</div><div>{{ booking.cancellation_reason }}</div></div>{% endif %}
+        {% endif %}
+      </div>
+
+      {% if booking.trek.cancellation_policy %}
+        <div class="alert alert-info fs-sm"><i class="bi bi-info-circle"></i> <strong>Cancellation policy:</strong> {{ booking.trek.cancellation_policy }}</div>
+      {% endif %}
+
+      <div class="d-flex gap-3 flex-wrap mt-4">
+        {% if booking.status.value == 'booked' and booking.trek.status.value not in ('started', 'completed') %}
+          <form method="POST" action="{{ url_for('user.cancel_booking', booking_id=booking.id) }}" data-confirm="Cancel this booking? Your slot will be released back to the trek." data-confirm-title="Cancel booking">
+            {{ cancel_form.hidden_tag() }}
+            <button type="submit" class="btn-tma btn-tma--danger-outline">Cancel booking</button>
+          </form>
+        {% endif %}
+        <a href="{{ url_for('public.trek_detail', slug=booking.trek.slug) }}" class="btn-tma btn-tma--outline">View trek</a>
+        <a href="{{ url_for('user.booking_history') }}" class="btn-tma btn-tma--ghost">Back to my bookings</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

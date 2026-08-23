@@ -1,0 +1,103 @@
+{% extends "admin/_shell.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Admin dashboard{% endblock %}
+{% block admin_content %}
+<section class="section-tight">
+  <div class="container-tma">
+    <h1 class="mb-1">Control center</h1>
+    <p class="text-muted-tma mb-5">Platform-wide overview, powered by live data.</p>
+
+    <div class="row g-4 mb-6">
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-people"></i></div><div class="stat-card__value">{{ stats.total_users }}</div><div class="stat-card__label">Trekkers</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-person-badge"></i></div><div class="stat-card__value">{{ stats.total_staff }}</div><div class="stat-card__label">Staff</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-map"></i></div><div class="stat-card__value">{{ stats.total_treks }}</div><div class="stat-card__label">Treks</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-journal-bookmark"></i></div><div class="stat-card__value">{{ stats.total_bookings }}</div><div class="stat-card__label">Bookings</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-check-circle"></i></div><div class="stat-card__value">{{ stats.active_bookings }}</div><div class="stat-card__label">Active bookings</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-signpost-split"></i></div><div class="stat-card__value">{{ stats.upcoming_treks }}</div><div class="stat-card__label">Upcoming treks</div></div></div>
+      <div class="col-6 col-lg-3">
+        <a href="{{ url_for('admin.manage_staff', status='pending') }}" class="text-decoration-none">
+          <div class="stat-card {{ 'border-warning' if stats.pending_staff }}"><div class="stat-card__icon" style="background:var(--color-warning-100);color:var(--color-warning-700);"><i class="bi bi-hourglass-split"></i></div><div class="stat-card__value">{{ stats.pending_staff }}</div><div class="stat-card__label">Pending staff</div></div>
+        </a>
+      </div>
+      <div class="col-6 col-lg-3">
+        <a href="{{ url_for('admin.add_trek') }}" class="stat-card d-flex flex-column align-items-center justify-content-center text-decoration-none h-100" style="background: var(--color-primary-900); color: #fff;">
+          <i class="bi bi-plus-circle fs-3 mb-2"></i>
+          <span class="fw-semibold">Add new trek</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-6">
+      <div class="col-lg-6">
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-3">Booking trends (last 12 months)</h2>
+          <div class="chart-wrap" style="height:260px;"><canvas data-chart="booking-trends" data-chart-type="line" data-chart-label="Bookings"></canvas></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-3">Most popular treks</h2>
+          <div class="chart-wrap" style="height:260px;"><canvas data-chart="trek-popularity" data-chart-type="bar" data-chart-label="Bookings"></canvas></div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-3">Difficulty distribution</h2>
+          <div class="chart-wrap" style="height:220px;"><canvas data-chart="difficulty-distribution" data-chart-type="doughnut"></canvas></div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-3">Booking status breakdown</h2>
+          <div class="chart-wrap" style="height:220px;"><canvas data-chart="booking-status" data-chart-type="doughnut"></canvas></div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-3">Capacity utilization</h2>
+          <div class="chart-wrap" style="height:220px;"><canvas data-chart="capacity-utilization" data-chart-type="bar" data-chart-label="% full"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-5">
+      <div class="col-lg-7">
+        <div class="section-heading"><h2 class="h5 mb-0">Latest bookings</h2><a href="{{ url_for('admin.manage_bookings') }}" class="btn-tma btn-tma--outline btn-tma--sm">View all</a></div>
+        {% if latest_bookings %}
+          <div class="table-tma-wrap">
+            <table class="table-tma">
+              <thead><tr><th>Trekker</th><th>Trek</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody>
+                {% for b in latest_bookings %}
+                  <tr><td data-label="Trekker">{{ b.trekker.name }}</td><td data-label="Trek">{{ b.trek.name }}</td><td data-label="Date">{{ b.booked_at | format_date }}</td><td data-label="Status">{{ m.status_badge(b.status) }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          {{ m.empty_state('journal-x', 'No bookings yet', 'Bookings will show up here as trekkers book treks.') }}
+        {% endif %}
+      </div>
+      <div class="col-lg-5">
+        <div class="section-heading"><h2 class="h5 mb-0">Recent activity</h2><a href="{{ url_for('admin.activity_log') }}" class="btn-tma btn-tma--outline btn-tma--sm">View log</a></div>
+        {% if latest_activity %}
+          <ul class="timeline">
+            {% for entry in latest_activity %}
+              <li><span class="fs-sm">{{ entry.description }}</span><div class="fs-xs text-muted-tma">{{ entry.created_at | format_datetime }}</div></li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          {{ m.empty_state('activity', 'No activity yet', 'Platform actions will be logged here.') }}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts_pre %}
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block extra_scripts %}
+<script defer src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

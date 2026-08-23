@@ -1,0 +1,62 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Staff dashboard{% endblock %}
+{% block content %}
+<section class="section-tight">
+  <div class="container-tma">
+    <h1 class="mb-1">Welcome, {{ current_user.name.split(' ')[0] }}</h1>
+    <p class="text-muted-tma mb-5">Here's an overview of your assigned treks.</p>
+
+    <div class="row g-4 mb-6">
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-map"></i></div><div class="stat-card__value">{{ stats.assigned_count }}</div><div class="stat-card__label">Assigned treks</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-signpost-split"></i></div><div class="stat-card__value">{{ stats.upcoming_count }}</div><div class="stat-card__label">Upcoming</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-person-walking"></i></div><div class="stat-card__value">{{ stats.active_count }}</div><div class="stat-card__label">Ongoing</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-people"></i></div><div class="stat-card__value">{{ stats.total_participants }}</div><div class="stat-card__label">Total participants</div></div></div>
+    </div>
+
+    <div class="section-heading"><h2 class="h4 mb-0">Assigned treks</h2></div>
+    {% if assigned_treks %}
+      <div class="table-tma-wrap mb-6">
+        <table class="table-tma">
+          <thead><tr><th>Trek</th><th>Dates</th><th>Capacity</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            {% for trek in assigned_treks %}
+              <tr>
+                <td data-label="Trek"><span class="fw-semibold">{{ trek.name }}</span><div class="cell-muted">{{ trek.location.display_name }}</div></td>
+                <td data-label="Dates">{{ trek.start_date | format_date }}</td>
+                <td data-label="Capacity">{{ trek.booked_slots }} / {{ trek.capacity }}</td>
+                <td data-label="Status">{{ m.status_badge(trek.status) }}</td>
+                <td data-label=""><a href="{{ url_for('staff.view_trek', trek_id=trek.id) }}" class="btn-tma btn-tma--outline btn-tma--sm">Manage</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {{ m.empty_state('signpost-2', 'No treks assigned yet', 'Once an admin assigns you to a trek, it will appear here.') }}
+    {% endif %}
+
+    <div class="section-heading"><h2 class="h4 mb-0">Recent bookings on your treks</h2></div>
+    {% if recent_bookings %}
+      <div class="table-tma-wrap">
+        <table class="table-tma">
+          <thead><tr><th>Trekker</th><th>Trek</th><th>Participants</th><th>Booked on</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for booking in recent_bookings %}
+              <tr>
+                <td data-label="Trekker">{{ booking.trekker.name }}</td>
+                <td data-label="Trek">{{ booking.trek.name }}</td>
+                <td data-label="Participants">{{ booking.participant_count }}</td>
+                <td data-label="Booked on">{{ booking.booked_at | format_date }}</td>
+                <td data-label="Status">{{ m.status_badge(booking.status) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {{ m.empty_state('journal-x', 'No bookings yet', 'Bookings on your assigned treks will show up here.') }}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

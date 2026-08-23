@@ -1,0 +1,28 @@
+{% extends "layout/base.html" %}
+{# Shared shell for every admin page: adds the admin sub-nav strip, then
+   defers to {% block admin_content %} for the page body. Individual
+   admin templates extend this instead of layout/base.html directly. #}
+{% block content %}
+<section class="section-tight pb-0">
+  <div class="container-tma">
+    <div class="d-flex gap-2 flex-wrap mb-5 pb-3" style="border-bottom: 1px solid var(--color-border);">
+      {% set admin_links = [
+        ('admin.dashboard', 'Dashboard', 'speedometer2'),
+        ('admin.manage_treks', 'Treks', 'map'),
+        ('admin.assignments', 'Assignments', 'diagram-3'),
+        ('admin.manage_staff', 'Staff', 'person-badge'),
+        ('admin.manage_users', 'Users', 'people'),
+        ('admin.manage_bookings', 'Bookings', 'journal-bookmark'),
+        ('admin.activity_log', 'Activity', 'clock-history'),
+      ] %}
+      {% for endpoint, label, icon in admin_links %}
+        <a href="{{ url_for(endpoint) }}" class="btn-tma btn-tma--sm {{ 'btn-tma--primary' if request.endpoint == endpoint else 'btn-tma--ghost' }}"><i class="bi bi-{{ icon }}"></i> {{ label }}</a>
+      {% endfor %}
+      <form method="GET" action="{{ url_for('admin.search') }}" class="ms-auto d-flex" style="min-width:220px;">
+        <input type="search" name="q" class="form-control form-control-sm" placeholder="Search users, staff, treks…" aria-label="Admin search">
+      </form>
+    </div>
+  </div>
+</section>
+{% block admin_content %}{% endblock %}
+{% endblock %}

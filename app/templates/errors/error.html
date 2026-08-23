@@ -1,0 +1,18 @@
+{% extends "layout/base.html" %}
+{% block title %}{{ code }} · {{ title }}{% endblock %}
+{% block content %}
+<div class="container-tma section text-center">
+  <div class="mx-auto" style="max-width: 480px;">
+    <div class="empty-state__icon mx-auto mb-4" style="width:88px;height:88px;font-size:2.25rem;">
+      <i class="bi bi-{{ icon }}"></i>
+    </div>
+    <p class="text-mono text-muted-tma mb-2">Error {{ code }}</p>
+    <h1 class="mb-3">{{ title }}</h1>
+    <p class="text-muted-tma mb-4">{{ text }}</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="{{ url_for('public.home') }}" class="btn-tma btn-tma--primary"><i class="bi bi-house"></i> Back to home</a>
+      <a href="{{ url_for('public.explore') }}" class="btn-tma btn-tma--outline"><i class="bi bi-compass"></i> Explore treks</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

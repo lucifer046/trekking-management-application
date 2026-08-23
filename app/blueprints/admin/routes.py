@@ -77,7 +77,7 @@ def search():
     if id_match is not None:
         staff_filters.append(Staff.id == id_match)
         staff_filters.append(User.id == id_match)
-    staffs = Staff.query.join(User).filter(or_(*staff_filters)).limit(25).all()
+    staffs = Staff.query.join(Staff.user).filter(or_(*staff_filters)).limit(25).all()
 
     return render_template("admin/search_results.html", query=query, treks=treks, users=users, staffs=staffs)
 
@@ -357,7 +357,7 @@ def manage_staff():
     status_filter = request.args.get("status", "pending")
     page = request.args.get("page", 1, type=int)
 
-    query = Staff.query.join(User)
+    query = Staff.query.join(Staff.user)
     if status_filter in {s.value for s in StaffStatus}:
         query = query.filter(Staff.staff_status == StaffStatus(status_filter))
 

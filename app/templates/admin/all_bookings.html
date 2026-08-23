@@ -1,0 +1,41 @@
+{% extends "admin/_shell.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}All bookings{% endblock %}
+{% block admin_content %}
+<section class="section-tight">
+  <div class="container-tma">
+    <h1 class="mb-4">All bookings</h1>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+      <ul class="nav nav-pills gap-2">
+        {% for key, label in [('all','All'), ('booked','Active'), ('completed','Completed'), ('cancelled','Cancelled')] %}
+          <li class="nav-item"><a class="btn-tma btn-tma--sm {{ 'btn-tma--primary' if current_status == key else 'btn-tma--outline' }}" href="{{ url_for('admin.manage_bookings', status=key) }}">{{ label }} ({{ status_counts[key] }})</a></li>
+        {% endfor %}
+      </ul>
+      <form method="GET" class="d-flex gap-2"><input type="hidden" name="status" value="{{ current_status }}"><input type="search" name="q" value="{{ query_text }}" class="form-control form-control-sm" placeholder="Trek or reference"><button class="btn-tma btn-tma--sm btn-tma--outline">Search</button></form>
+    </div>
+
+    {% if bookings %}
+      <div class="table-tma-wrap">
+        <table class="table-tma">
+          <thead><tr><th>Reference</th><th>Trekker</th><th>Trek</th><th>Participants</th><th>Booked</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for b in bookings %}
+              <tr>
+                <td data-label="Reference" class="text-mono">{{ b.booking_reference or '—' }}</td>
+                <td data-label="Trekker">{{ b.trekker.name }}</td>
+                <td data-label="Trek">{{ b.trek.name }}</td>
+                <td data-label="Participants">{{ b.participant_count }}</td>
+                <td data-label="Booked">{{ b.booked_at | format_date }}</td>
+                <td data-label="Status">{{ m.status_badge(b.status) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {{ m.pagination(pagination, 'admin.manage_bookings', status=current_status, q=query_text) }}
+    {% else %}
+      {{ m.empty_state('journal-x', 'No bookings found', '') }}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

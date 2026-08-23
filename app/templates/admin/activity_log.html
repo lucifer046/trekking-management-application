@@ -1,0 +1,26 @@
+{% extends "admin/_shell.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Activity log{% endblock %}
+{% block admin_content %}
+<section class="section-tight">
+  <div class="container-tma">
+    <h1 class="mb-4">Activity log</h1>
+    {% if entries %}
+      <ul class="timeline">
+        {% for entry in entries %}
+          <li>
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+              <span>{{ entry.description }}</span>
+              <span class="fs-xs text-muted-tma">{{ entry.created_at | format_datetime }}</span>
+            </div>
+            <div class="fs-xs text-muted-tma">by {{ entry.actor_name_snapshot }} &middot; <span class="text-mono">{{ entry.action }}</span></div>
+          </li>
+        {% endfor %}
+      </ul>
+      {{ m.pagination(pagination, 'admin.activity_log') }}
+    {% else %}
+      {{ m.empty_state('activity', 'No activity yet', 'Actions taken across the platform will be recorded here.') }}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

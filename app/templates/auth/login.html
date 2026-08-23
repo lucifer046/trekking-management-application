@@ -1,0 +1,36 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<div class="container-tma section d-flex justify-content-center">
+  <div class="card-tma" style="max-width: 440px; width: 100%;">
+    <div class="card-tma__body p-5">
+      <div class="text-center mb-4">
+        <span class="empty-state__icon mx-auto mb-3" style="width:56px;height:56px;font-size:1.5rem;"><i class="bi bi-triangle-fill"></i></span>
+        <h1 class="h3 mb-1">Welcome back</h1>
+        <p class="text-muted-tma mb-0">Log in to continue your next adventure.</p>
+      </div>
+
+      <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next')) }}" novalidate>
+        {{ form.hidden_tag() }}
+        {{ m.render_field(form.email, placeholder="you@example.com", autocomplete="email") }}
+        <div class="password-field">
+          {{ m.render_field(form.password, id="password-input", autocomplete="current-password") }}
+          <button type="button" class="password-toggle" data-target="password-input" aria-label="Show password" style="top: 38px;"><i class="bi bi-eye"></i></button>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="form-check">
+            {{ form.remember_me(class_="form-check-input") }}
+            {{ form.remember_me.label(class_="form-check-label fs-sm") }}
+          </div>
+        </div>
+        <button type="submit" class="btn-tma btn-tma--primary btn-tma--block btn-tma--lg">Log in</button>
+      </form>
+
+      <p class="text-center fs-sm text-muted-tma mt-4 mb-0">
+        New to TMA? <a href="{{ url_for('auth.register') }}" class="fw-medium">Create an account</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

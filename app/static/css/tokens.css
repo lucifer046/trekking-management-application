@@ -1,0 +1,117 @@
+/*
+  Design tokens — the single source of truth for color, type, spacing,
+  radius, shadow and motion. Everything else in base.css/components.css/
+  utilities.css consumes these custom properties rather than hardcoding
+  values, which is what makes a future rebrand/retune a one-file change
+  instead of a hunt through every template's old bespoke <style> block.
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap");
+
+:root {
+  /* ---- Brand: deep pine + burnt terracotta. An outdoor-premium palette,
+     deliberately NOT the default "trekking site" Bootstrap green. ---- */
+  --color-primary-900: #12331f;
+  --color-primary-700: #1b4332;
+  --color-primary-600: #2d6a4f;
+  --color-primary-500: #3f8a65;
+  --color-primary-100: #d8e8df;
+  --color-primary-50: #eef4f0;
+
+  --color-accent-700: #a6431f;
+  --color-accent-600: #c1502e;
+  --color-accent-500: #d46744;
+  --color-accent-100: #f3ded4;
+  --color-accent-50: #faf1ec;
+
+  --color-gold-600: #b8853a;
+  --color-gold-500: #d4a24c;
+  --color-gold-100: #f6e8cf;
+
+  /* ---- Neutrals: warm stone, not clinical gray ---- */
+  --color-ink: #0f1a14;
+  --color-heading: #23291f;
+  --color-body: #4d5347;
+  --color-muted: #7c8374;
+  --color-border: #dfdfd3;
+  --color-border-strong: #c7c8b8;
+  --color-page-bg: #f6f5ef;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f0efe6;
+
+  /* ---- Semantic — kept distinct from brand pine so "success" never
+     visually collides with "primary action" ---- */
+  --color-success-700: #276749;
+  --color-success-600: #2f855a;
+  --color-success-100: #e0f2e9;
+  --color-warning-700: #92610c;
+  --color-warning-600: #c98a1f;
+  --color-warning-100: #fbecd2;
+  --color-danger-700: #8f241d;
+  --color-danger-600: #b3261e;
+  --color-danger-100: #fbe3e1;
+  --color-info-700: #29527a;
+  --color-info-600: #3a6ea5;
+  --color-info-100: #e3edf7;
+  --color-neutral-100: #eceae0;
+  --color-neutral-600: #6b6f61;
+
+  /* ---- Typography ---- */
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  --text-display-xl: 700 clamp(2.5rem, 2rem + 2.2vw, 3.75rem) / 1.08 var(--font-display);
+  --text-display-lg: 600 clamp(2rem, 1.7rem + 1.3vw, 2.75rem) / 1.12 var(--font-display);
+  --text-heading-lg: 600 1.75rem/1.25 var(--font-display);
+  --text-heading-md: 700 1.375rem/1.3 var(--font-body);
+  --text-heading-sm: 700 1.125rem/1.35 var(--font-body);
+  --text-body-lg: 400 1.125rem/1.6 var(--font-body);
+  --text-body: 400 1rem/1.6 var(--font-body);
+  --text-label: 600 0.8125rem/1.2 var(--font-body);
+  --text-caption: 400 0.8125rem/1.4 var(--font-body);
+
+  /* ---- Spacing scale (rem) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+
+  /* ---- Radii / shadow / motion ---- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 26, 20, 0.06), 0 1px 3px rgba(15, 26, 20, 0.08);
+  --shadow-md: 0 4px 14px rgba(15, 26, 20, 0.08), 0 2px 6px rgba(15, 26, 20, 0.06);
+  --shadow-lg: 0 18px 40px rgba(15, 26, 20, 0.14), 0 6px 16px rgba(15, 26, 20, 0.08);
+  --shadow-focus: 0 0 0 3px rgba(45, 106, 79, 0.35);
+
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-base: 240ms;
+  --duration-slow: 420ms;
+
+  --container-max: 1240px;
+
+  /* Bootstrap variable remap — lets native Bootstrap components (buttons
+     we don't override, form validation states, etc.) inherit the new
+     palette instead of shipping Bootstrap's default blue/green. */
+  --bs-primary: var(--color-primary-700);
+  --bs-primary-rgb: 27, 67, 50;
+  --bs-success: var(--color-success-600);
+  --bs-warning: var(--color-warning-600);
+  --bs-danger: var(--color-danger-600);
+  --bs-info: var(--color-info-600);
+  --bs-link-color: var(--color-primary-700);
+  --bs-link-hover-color: var(--color-primary-600);
+  --bs-body-font-family: var(--font-body);
+  --bs-body-color: var(--color-body);
+  --bs-body-bg: var(--color-page-bg);
+}

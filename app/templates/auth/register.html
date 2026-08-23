@@ -1,0 +1,63 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Create an account{% endblock %}
+{% block content %}
+<div class="container-tma section d-flex justify-content-center">
+  <div class="card-tma" style="max-width: 520px; width: 100%;">
+    <div class="card-tma__body p-5">
+      <div class="text-center mb-4">
+        <span class="empty-state__icon mx-auto mb-3" style="width:56px;height:56px;font-size:1.5rem;"><i class="bi bi-person-plus"></i></span>
+        <h1 class="h3 mb-1">Join TMA</h1>
+        <p class="text-muted-tma mb-0">Book guided treks, or apply to lead them as staff.</p>
+      </div>
+
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="row">
+          <div class="col-md-6">{{ m.render_field(form.name, autocomplete="name") }}</div>
+          <div class="col-md-6">{{ m.render_field(form.phone, placeholder="Optional") }}</div>
+        </div>
+        {{ m.render_field(form.email, autocomplete="email") }}
+        {{ m.render_field(form.role, help="Staff applications require admin approval before dashboard access.") }}
+
+        <div id="experience-field" style="display:none;">
+          {{ m.render_field(form.experience, rows=3, placeholder="Tell us about your guiding background (optional).") }}
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 password-field">
+            {{ m.render_field(form.password, id="password-input", autocomplete="new-password") }}
+            <button type="button" class="password-toggle" data-target="password-input" aria-label="Show password" style="top: 38px;"><i class="bi bi-eye"></i></button>
+          </div>
+          <div class="col-md-6 password-field">
+            {{ m.render_field(form.confirm_password, id="confirm-password-input", autocomplete="new-password") }}
+            <button type="button" class="password-toggle" data-target="confirm-password-input" aria-label="Show password" style="top: 38px;"><i class="bi bi-eye"></i></button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-tma btn-tma--primary btn-tma--block btn-tma--lg mt-2">Create account</button>
+      </form>
+
+      <p class="text-center fs-sm text-muted-tma mt-4 mb-0">
+        Already have an account? <a href="{{ url_for('auth.login') }}" class="fw-medium">Log in</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    var roleSelect = document.getElementById("role");
+    var experienceField = document.getElementById("experience-field");
+    function sync() {
+      experienceField.style.display = roleSelect.value === "staff" ? "block" : "none";
+    }
+    if (roleSelect && experienceField) {
+      roleSelect.addEventListener("change", sync);
+      sync();
+    }
+  })();
+</script>
+{% endblock %}

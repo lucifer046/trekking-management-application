@@ -1,0 +1,50 @@
+{% extends "admin/_shell.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Staff assignments{% endblock %}
+{% block admin_content %}
+<section class="section-tight">
+  <div class="container-tma">
+    <h1 class="mb-5">Staff assignments &amp; workload</h1>
+
+    <div class="row g-5">
+      <div class="col-lg-7">
+        <div class="section-heading"><h2 class="h5 mb-0">Staff workload</h2></div>
+        {% if workload %}
+          <div class="table-tma-wrap">
+            <table class="table-tma">
+              <thead><tr><th>Guide</th><th>Active assignments</th><th></th></tr></thead>
+              <tbody>
+                {% for staff_user, count in workload %}
+                  <tr>
+                    <td data-label="Guide"><div class="d-flex align-items-center gap-2"><span class="avatar-circle">{{ staff_user.name[:1]|upper }}</span> {{ staff_user.name }}</div></td>
+                    <td data-label="Assignments">{{ count }}</td>
+                    <td data-label=""><a href="{{ url_for('admin.search', q=staff_user.name) }}" class="btn-tma btn-tma--outline btn-tma--sm">View</a></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          {{ m.empty_state('person-badge', 'No approved staff yet', 'Approve staff applications to start assigning treks.') }}
+        {% endif %}
+      </div>
+
+      <div class="col-lg-5">
+        <div class="section-heading"><h2 class="h5 mb-0">Unassigned treks</h2></div>
+        {% if unassigned_treks %}
+          <div class="d-flex flex-column gap-2">
+            {% for trek in unassigned_treks %}
+              <a href="{{ url_for('admin.edit_trek', trek_id=trek.id) }}" class="card-tma card-tma__body d-flex flex-row justify-content-between align-items-center text-decoration-none hover-lift">
+                <div><div class="fw-semibold fs-sm">{{ trek.name }}</div><div class="fs-xs text-muted-tma">{{ trek.start_date | format_date }}</div></div>
+                {{ m.status_badge(trek.status) }}
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          {{ m.empty_state('check2-circle', 'All treks are assigned', 'Every active trek currently has a guide.') }}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

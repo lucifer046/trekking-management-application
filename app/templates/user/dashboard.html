@@ -1,0 +1,70 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}My dashboard{% endblock %}
+
+{% block content %}
+<section class="section-tight">
+  <div class="container-tma">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-5">
+      <div>
+        <h1 class="mb-1">Welcome back, {{ current_user.name.split(' ')[0] }} 👋</h1>
+        <p class="text-muted-tma mb-0">Here's what's happening with your treks.</p>
+      </div>
+      <a href="{{ url_for('public.explore') }}" class="btn-tma btn-tma--primary"><i class="bi bi-compass"></i> Explore treks</a>
+    </div>
+
+    <div class="row g-4 mb-6">
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-journal-bookmark"></i></div><div class="stat-card__value">{{ stats.total_bookings }}</div><div class="stat-card__label">Total bookings</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-signpost-split"></i></div><div class="stat-card__value">{{ stats.upcoming }}</div><div class="stat-card__label">Upcoming</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-trophy"></i></div><div class="stat-card__value">{{ stats.completed }}</div><div class="stat-card__label">Completed</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-card__icon"><i class="bi bi-heart"></i></div><div class="stat-card__value">{{ stats.wishlist_count }}</div><div class="stat-card__label">Saved treks</div></div></div>
+    </div>
+
+    <div class="row g-5">
+      <div class="col-lg-8">
+        <div class="section-heading">
+          <h2 class="mb-0 h4">Upcoming bookings</h2>
+          <a href="{{ url_for('user.booking_history') }}" class="btn-tma btn-tma--outline btn-tma--sm">View all bookings</a>
+        </div>
+        {% if upcoming %}
+          <div class="d-flex flex-column gap-3 mb-6">
+            {% for booking in upcoming %}
+              <a href="{{ url_for('user.booking_detail', booking_id=booking.id) }}" class="card-tma card-tma__body d-flex flex-row justify-content-between align-items-center flex-wrap gap-3 text-decoration-none hover-lift">
+                <div>
+                  <div class="fw-semibold">{{ booking.trek.name }}</div>
+                  <div class="fs-sm text-muted-tma"><i class="bi bi-geo-alt"></i> {{ booking.trek.location.display_name }} &middot; <i class="bi bi-calendar3"></i> {{ booking.trek.start_date | format_date }}</div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <span class="text-mono fs-sm text-muted-tma">{{ booking.booking_reference }}</span>
+                  {{ m.status_badge(booking.status) }}
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          {{ m.empty_state('signpost-2', 'No upcoming treks yet', 'Once you book a trek, it will show up here with all the details.', 'Explore treks', url_for('public.explore')) }}
+        {% endif %}
+      </div>
+
+      <div class="col-lg-4">
+        <div class="section-heading"><h2 class="mb-0 h5">Recommended for you</h2></div>
+        <div class="d-flex flex-column gap-3">
+          {% for trek in recommended %}
+            <a href="{{ url_for('public.trek_detail', slug=trek.slug) }}" class="card-tma d-flex flex-row align-items-center gap-3 p-3 text-decoration-none hover-lift">
+              <div style="width:64px;height:64px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;">
+                {% if trek.primary_image %}<img src="{{ url_for('static', filename=trek.primary_image.file_path) }}" class="object-cover" alt="">{% else %}{% include "components/trek_placeholder_art.html" %}{% endif %}
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-semibold fs-sm">{{ trek.name }}</div>
+                <div class="fs-xs text-muted-tma">{{ trek.location.name }} &middot; {{ trek.price | format_currency(trek.currency) }}</div>
+              </div>
+            </a>
+          {% else %}
+            <p class="text-muted-tma fs-sm">No open treks right now — check back soon.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "admin/_shell.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}{{ 'Edit ' ~ trek.name if trek else 'Add trek' }}{% endblock %}
+{% block admin_content %}
+<section class="section-tight">
+  <div class="container-tma">
+    {{ m.breadcrumb([("Treks", url_for('admin.manage_treks')), (trek.name if trek else 'Add trek', none)]) }}
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-5">
+      <h1 class="mb-0">{{ 'Edit trek' if trek else 'Add a new trek' }}</h1>
+      {% if trek %}{{ m.status_badge(trek.status) }}{% endif %}
+    </div>
+
+    <div class="row g-5">
+      <div class="col-lg-8">
+        <div class="card-tma card-tma__body mb-4">
+          <h2 class="h6 mb-4">Trek details</h2>
+          <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+            {{ m.render_field(form.name) }}
+            <div class="row"><div class="col-md-8">{{ m.render_field(form.location_name) }}</div><div class="col-md-4">{{ m.render_field(form.location_state) }}</div></div>
+            <div class="row">
+              <div class="col-md-4">{{ m.render_field(form.difficulty) }}</div>
+              <div class="col-md-4">{{ m.render_field(form.duration_days) }}</div>
+              <div class="col-md-4">{{ m.render_field(form.capacity) }}</div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">{{ m.render_field(form.start_date) }}</div>
+              <div class="col-md-4">{{ m.render_field(form.end_date) }}</div>
+              <div class="col-md-4">{{ m.render_field(form.price) }}</div>
+            </div>
+            {{ m.render_field(form.meeting_point) }}
+            {{ m.render_field(form.description, rows=4) }}
+            {{ m.render_field(form.highlights, rows=3, help="One highlight per line.") }}
+            {{ m.render_field(form.itinerary, rows=5, help="One line per day — rendered as Day 1, Day 2, …") }}
+            {{ m.render_field(form.requirements, rows=3, help="One item per line.") }}
+            {{ m.render_field(form.safety_info, rows=3) }}
+            {{ m.render_field(form.cancellation_policy, rows=3) }}
+            {{ m.render_field(form.is_featured) }}
+            <button type="submit" class="btn-tma btn-tma--primary">{{ 'Save changes' if trek else 'Create trek' }}</button>
+          </form>
+        </div>
+
+        {% if trek %}
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-4">Photos</h2>
+          <div class="row g-3 mb-4">
+            {% for image in trek.images %}
+              <div class="col-6 col-md-4">
+                <div class="position-relative rounded-tma-md overflow-hidden aspect-1-1">
+                  <img src="{{ url_for('static', filename=image.file_path) }}" alt="{{ image.alt_text or '' }}" class="object-cover">
+                  {% if image.is_primary %}<span class="badge-tma badge-tone-brand position-absolute" style="top:8px;left:8px;">Primary</span>{% endif %}
+                </div>
+                <div class="d-flex gap-2 mt-2">
+                  {% if not image.is_primary %}
+                    <form method="POST" action="{{ url_for('admin.set_primary_trek_image', trek_id=trek.id, image_id=image.id) }}">{{ confirm_form.hidden_tag() }}<button class="btn-tma btn-tma--ghost btn-tma--sm">Set primary</button></form>
+                  {% endif %}
+                  {{ m.confirm_button(url_for('admin.delete_trek_image', trek_id=trek.id, image_id=image.id), 'Delete', 'Remove this photo?', confirm_form.hidden_tag()) }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <form method="POST" action="{{ url_for('admin.upload_trek_image', trek_id=trek.id) }}" enctype="multipart/form-data">
+            {{ image_form.hidden_tag() }}
+            <div class="row align-items-end g-2">
+              <div class="col-md-5">{{ m.render_field(image_form.image, accept="image/jpeg,image/png,image/webp") }}</div>
+              <div class="col-md-5">{{ m.render_field(image_form.alt_text, placeholder="Short description") }}</div>
+              <div class="col-md-2 mb-3"><button type="submit" class="btn-tma btn-tma--outline btn-tma--block">Upload</button></div>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="col-lg-4 d-flex flex-column gap-4">
+        {% if trek %}
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-3">Status</h2>
+          {% if status_form.new_status.choices %}
+            <form method="POST" action="{{ url_for('admin.change_trek_status', trek_id=trek.id) }}">
+              {{ status_form.hidden_tag() }}
+              {{ m.render_field(status_form.new_status) }}
+              <button type="submit" class="btn-tma btn-tma--accent btn-tma--block btn-tma--sm">Update status</button>
+            </form>
+          {% else %}
+            <p class="fs-sm text-muted-tma mb-0">This is a terminal status — no further changes possible.</p>
+          {% endif %}
+        </div>
+
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-3">Assigned guide</h2>
+          {% if trek.assigned_staff %}
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="avatar-circle">{{ trek.assigned_staff.name[:1] | upper }}</span>
+              <span class="fw-semibold fs-sm">{{ trek.assigned_staff.name }}</span>
+            </div>
+            <form method="POST" action="{{ url_for('admin.unassign_trek', trek_id=trek.id) }}">{{ confirm_form.hidden_tag() }}<button class="btn-tma btn-tma--ghost btn-tma--sm">Unassign</button></form>
+          {% else %}
+            <p class="fs-sm text-muted-tma">No guide assigned yet.</p>
+          {% endif %}
+          {% if assign_form.staff_user_id.choices %}
+            <form method="POST" action="{{ url_for('admin.assign_trek', trek_id=trek.id) }}" class="mt-3">
+              {{ assign_form.hidden_tag() }}
+              {{ m.render_field(assign_form.staff_user_id) }}
+              <button type="submit" class="btn-tma btn-tma--primary btn-tma--sm btn-tma--block">{{ 'Reassign' if trek.assigned_staff else 'Assign' }}</button>
+            </form>
+          {% else %}
+            <p class="fs-xs text-muted-tma mb-0">No approved staff available to assign.</p>
+          {% endif %}
+        </div>
+
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-3">Danger zone</h2>
+          <p class="fs-sm text-muted-tma">Deleting is only possible for treks with no booking history.</p>
+          {{ m.confirm_button(url_for('admin.delete_trek', trek_id=trek.id), 'Delete trek', 'Delete \'' ~ trek.name ~ '\' permanently?', confirm_form.hidden_tag(), variant='btn-tma--danger-outline') }}
+        </div>
+        {% else %}
+        <div class="card-tma card-tma__body">
+          <p class="fs-sm text-muted-tma mb-0"><i class="bi bi-info-circle"></i> Save the trek first to upload photos, assign a guide, and change its status.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

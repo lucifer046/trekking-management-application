@@ -1,0 +1,90 @@
+/* Reset + base element styling. Loads after tokens.css, before
+   components.css. Nothing component-specific belongs in this file. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-page-bg);
+  color: var(--color-body);
+  font: var(--text-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--color-heading);
+  margin: 0 0 var(--space-3);
+}
+
+h1 { font: var(--text-display-lg); }
+h2 { font: var(--text-heading-lg); }
+h3 { font: var(--text-heading-md); font-family: var(--font-body); }
+h4, h5, h6 { font: var(--text-heading-sm); font-family: var(--font-body); }
+
+p { margin: 0 0 var(--space-4); }
+
+a {
+  color: var(--color-primary-700);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+a:hover { color: var(--color-primary-600); }
+
+img, svg { max-width: 100%; display: block; }
+
+.container-tma {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-5);
+}
+
+/* Consistent, visible keyboard focus everywhere — buttons, links, form
+   controls, cards acting as links. Never remove outline without
+   replacing it (accessibility regression). */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--radius-sm);
+}
+
+::selection {
+  background: var(--color-primary-100);
+  color: var(--color-primary-900);
+}
+
+/* Respect the OS-level reduced motion preference everywhere animations
+   are used (components.css / utilities.css / JS modules all gate on
+   this same rule via the .motion-safe-* class toggled by reveal.js, or
+   directly here for anything CSS-only). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--color-ink);
+  color: #fff;
+  padding: var(--space-3) var(--space-4);
+  z-index: 1000;
+  border-radius: 0 0 var(--radius-sm) 0;
+}
+.skip-link:focus {
+  left: 0;
+}

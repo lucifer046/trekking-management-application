@@ -1,0 +1,62 @@
+/* Small escape-hatch utilities — the direct replacement for the ~17
+   bespoke inline <style> blocks the original app had, one per template.
+   Reach for these before writing new one-off CSS in a template. */
+
+.text-muted-tma { color: var(--color-muted) !important; }
+.text-brand { color: var(--color-primary-700) !important; }
+.text-accent { color: var(--color-accent-600) !important; }
+.text-mono { font-family: var(--font-mono); letter-spacing: 0.03em; }
+.text-display { font-family: var(--font-display); }
+.fw-medium { font-weight: 500; }
+.fs-sm { font-size: 0.875rem; }
+.fs-xs { font-size: 0.75rem; }
+
+.bg-surface { background: var(--color-surface); }
+.bg-sunken { background: var(--color-surface-sunken); }
+.bg-brand-tint { background: var(--color-primary-50); }
+
+.rounded-tma-sm { border-radius: var(--radius-sm); }
+.rounded-tma-md { border-radius: var(--radius-md); }
+.rounded-tma-lg { border-radius: var(--radius-lg); }
+
+.shadow-tma-sm { box-shadow: var(--shadow-sm); }
+.shadow-tma-md { box-shadow: var(--shadow-md); }
+
+.gap-tma-2 { gap: var(--space-2); }
+.gap-tma-3 { gap: var(--space-3); }
+.gap-tma-4 { gap: var(--space-4); }
+
+.section-tight { padding-block: var(--space-6); }
+.max-w-prose { max-width: 68ch; }
+
+.hover-lift { transition: transform var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard); }
+.hover-lift:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+.count-up { font-variant-numeric: tabular-nums; }
+
+.vr-tma { width: 1px; align-self: stretch; background: var(--color-border); }
+
+.sticky-sidebar { position: sticky; top: calc(64px + var(--space-4)); }
+
+.aspect-16-9 { aspect-ratio: 16 / 9; overflow: hidden; }
+.aspect-1-1 { aspect-ratio: 1 / 1; overflow: hidden; }
+.object-cover { object-fit: cover; width: 100%; height: 100%; }
+
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+.visually-hidden-tma {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 44px minimum touch target on small screens (spec's responsive
+   guidance) without changing visual size on desktop. */
+@media (max-width: 767px) {
+  .btn-tma, .nav-links-tma a, .pagination-tma a { min-height: 44px; }
+}

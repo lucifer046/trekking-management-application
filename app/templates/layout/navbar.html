@@ -1,0 +1,71 @@
+<header class="site-header">
+  <nav class="navbar-tma container-tma" aria-label="Main navigation">
+    <a class="navbar-brand-tma" href="{{ url_for('public.home') }}">
+      <span class="brand-mark" aria-hidden="true"><i class="bi bi-triangle-fill"></i></span>
+      TMA
+    </a>
+
+    <button class="navbar-toggler d-lg-none ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse d-lg-flex flex-lg-row align-items-lg-center flex-grow-1" id="navbarMain">
+      <ul class="nav-links-tma flex-column flex-lg-row mt-3 mt-lg-0">
+        <li><a href="{{ url_for('public.home') }}" class="{{ 'active' if request.endpoint == 'public.home' }}">Home</a></li>
+        <li><a href="{{ url_for('public.explore') }}" class="{{ 'active' if request.endpoint == 'public.explore' }}">Explore Treks</a></li>
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+            <li><a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.blueprint == 'admin' }}">Admin Console</a></li>
+          {% elif current_user.is_staff %}
+            <li><a href="{{ url_for('staff.dashboard') if current_user.is_approved_staff else url_for('staff.pending_status') }}" class="{{ 'active' if request.blueprint == 'staff' }}">Staff Dashboard</a></li>
+          {% else %}
+            <li><a href="{{ url_for('user.dashboard') }}" class="{{ 'active' if request.endpoint == 'user.dashboard' }}">My Dashboard</a></li>
+            <li><a href="{{ url_for('user.wishlist') }}" class="{{ 'active' if request.endpoint == 'user.wishlist' }}">Wishlist</a></li>
+          {% endif %}
+        {% endif %}
+      </ul>
+
+      <div class="navbar-actions mt-3 mt-lg-0">
+        {% if current_user.is_authenticated %}
+          <div class="dropdown">
+            <button class="btn-tma btn-tma--ghost btn-tma--icon notification-bell" type="button" data-bs-toggle="dropdown" data-notification-toggle aria-expanded="false" aria-label="Notifications">
+              <i class="bi bi-bell"></i>
+              {% if unread_notification_count > 0 %}<span class="dot" aria-hidden="true"></span>{% endif %}
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-0" style="width: 320px;" data-notification-panel>
+              <div class="p-3 border-bottom fw-semibold fs-sm">Notifications</div>
+              <div class="skeleton skeleton-line mx-3 my-2"></div>
+              <div class="skeleton skeleton-line mx-3 my-2" style="width: 70%;"></div>
+              <a href="{{ url_for('user.notifications') }}" class="dropdown-item text-center border-top py-2 fs-sm text-brand">View all</a>
+            </div>
+          </div>
+
+          <div class="dropdown">
+            <button class="btn-tma btn-tma--outline dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="avatar-circle" style="width:26px;height:26px;font-size:0.7rem;">{{ current_user.name[:1] | upper }}</span>
+              <span class="d-none d-sm-inline">{{ current_user.name.split(' ')[0] }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              {% if current_user.is_trekker %}
+                <li><a class="dropdown-item" href="{{ url_for('user.profile') }}"><i class="bi bi-person me-2"></i>Profile</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('user.booking_history') }}"><i class="bi bi-journal-bookmark me-2"></i>My Bookings</a></li>
+              {% elif current_user.is_staff %}
+                <li><a class="dropdown-item" href="{{ url_for('staff.profile') }}"><i class="bi bi-person me-2"></i>Profile</a></li>
+              {% endif %}
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="POST" action="{{ url_for('auth.logout') }}">
+                  {{ confirm_form.hidden_tag() }}
+                  <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="btn-tma btn-tma--ghost">Log in</a>
+          <a href="{{ url_for('auth.register') }}" class="btn-tma btn-tma--primary">Sign up</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+</header>

@@ -1,0 +1,60 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Explore treks{% endblock %}
+
+{% block content %}
+<section class="hero hero--compact">
+  <div class="container-tma hero__content">
+    <span class="hero__eyebrow">{{ pagination.total }} trek{{ 's' if pagination.total != 1 }} found</span>
+    <h1 class="hero__title mt-2" style="font-size: clamp(2rem, 1.7rem + 1vw, 2.75rem);">Explore treks</h1>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container-tma">
+    <form method="GET" class="search-bar mb-5" data-explore-form>
+      <input type="search" name="q" class="form-control flex-grow-1" placeholder="Search by name or location" value="{{ filters.q }}" style="min-width: 200px;">
+      <select name="difficulty" class="form-select" style="max-width:160px;">
+        <option value="">Any difficulty</option>
+        {% for d in difficulties %}<option value="{{ d.value }}" {{ 'selected' if filters.difficulty == d.value }}>{{ d.value.capitalize() }}</option>{% endfor %}
+      </select>
+      <select name="location" class="form-select" style="max-width:180px;">
+        <option value="">Any location</option>
+        {% for loc in locations %}<option value="{{ loc.name }}" {{ 'selected' if filters.location == loc.name }}>{{ loc.name }}</option>{% endfor %}
+      </select>
+      <select name="duration" class="form-select" style="max-width:160px;">
+        <option value="">Any duration</option>
+        <option value="short" {{ 'selected' if filters.duration == 'short' }}>1–3 days</option>
+        <option value="medium" {{ 'selected' if filters.duration == 'medium' }}>4–7 days</option>
+        <option value="long" {{ 'selected' if filters.duration == 'long' }}>8+ days</option>
+      </select>
+      <select name="sort" class="form-select" style="max-width:180px;">
+        <option value="start_date" {{ 'selected' if filters.sort == 'start_date' }}>Soonest departure</option>
+        <option value="price_low" {{ 'selected' if filters.sort == 'price_low' }}>Price: low to high</option>
+        <option value="price_high" {{ 'selected' if filters.sort == 'price_high' }}>Price: high to low</option>
+        <option value="duration" {{ 'selected' if filters.sort == 'duration' }}>Shortest first</option>
+        <option value="newest" {{ 'selected' if filters.sort == 'newest' }}>Newest listed</option>
+      </select>
+      <div class="form-check d-flex align-items-center gap-2 px-3">
+        <input type="checkbox" class="form-check-input mt-0" id="available" name="available" value="1" {{ 'checked' if filters.available }}>
+        <label class="form-check-label fs-sm" for="available">Available only</label>
+      </div>
+      <button type="submit" class="btn-tma btn-tma--primary">Filter</button>
+      {% if filters.q or filters.difficulty or filters.location or filters.duration or filters.available %}
+        <a href="{{ url_for('public.explore') }}" class="btn-tma btn-tma--ghost btn-tma--sm">Clear</a>
+      {% endif %}
+    </form>
+
+    {% if treks %}
+      <div class="row g-4">
+        {% for trek in treks %}
+          <div class="col-md-6 col-lg-4">{{ m.trek_card(trek, show_save=(current_user.is_authenticated and current_user.is_trekker), csrf_field=confirm_form.hidden_tag()) }}</div>
+        {% endfor %}
+      </div>
+      {{ m.pagination(pagination, 'public.explore', q=filters.q, difficulty=filters.difficulty, location=filters.location, duration=filters.duration, sort=filters.sort, available=('1' if filters.available else none)) }}
+    {% else %}
+      {{ m.empty_state('binoculars', 'No treks match your search', 'Try adjusting your filters or browse everything we currently offer.', 'Clear filters', url_for('public.explore')) }}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

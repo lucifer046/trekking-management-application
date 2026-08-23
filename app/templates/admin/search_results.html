@@ -1,0 +1,34 @@
+{% extends "admin/_shell.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Search results{% endblock %}
+{% block admin_content %}
+<section class="section-tight">
+  <div class="container-tma">
+    <h1 class="mb-5">Search results for &ldquo;{{ query }}&rdquo;</h1>
+
+    <div class="section-heading"><h2 class="h5 mb-0">Treks ({{ treks|length }})</h2></div>
+    {% if treks %}
+      <div class="table-tma-wrap mb-6">
+        <table class="table-tma"><thead><tr><th>ID</th><th>Name</th><th>Status</th><th></th></tr></thead>
+        <tbody>{% for t in treks %}<tr><td data-label="ID" class="text-mono">{{ t.id }}</td><td data-label="Name">{{ t.name }}</td><td data-label="Status">{{ m.status_badge(t.status) }}</td><td data-label=""><a href="{{ url_for('admin.edit_trek', trek_id=t.id) }}" class="btn-tma btn-tma--outline btn-tma--sm">Open</a></td></tr>{% endfor %}</tbody></table>
+      </div>
+    {% else %}<p class="text-muted-tma mb-6">No matching treks.</p>{% endif %}
+
+    <div class="section-heading"><h2 class="h5 mb-0">Users ({{ users|length }})</h2></div>
+    {% if users %}
+      <div class="table-tma-wrap mb-6">
+        <table class="table-tma"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th></th></tr></thead>
+        <tbody>{% for u in users %}<tr><td data-label="ID" class="text-mono">{{ u.id }}</td><td data-label="Name">{{ u.name }}</td><td data-label="Email">{{ u.email }}</td><td data-label=""><a href="{{ url_for('admin.manage_users') }}" class="btn-tma btn-tma--outline btn-tma--sm">Open</a></td></tr>{% endfor %}</tbody></table>
+      </div>
+    {% else %}<p class="text-muted-tma mb-6">No matching users.</p>{% endif %}
+
+    <div class="section-heading"><h2 class="h5 mb-0">Staff ({{ staffs|length }})</h2></div>
+    {% if staffs %}
+      <div class="table-tma-wrap">
+        <table class="table-tma"><thead><tr><th>ID</th><th>Name</th><th>Status</th><th></th></tr></thead>
+        <tbody>{% for s in staffs %}<tr><td data-label="ID" class="text-mono">{{ s.id }}</td><td data-label="Name">{{ s.user.name }}</td><td data-label="Status">{{ m.status_badge(s.staff_status) }}</td><td data-label=""><a href="{{ url_for('admin.manage_staff') }}" class="btn-tma btn-tma--outline btn-tma--sm">Open</a></td></tr>{% endfor %}</tbody></table>
+      </div>
+    {% else %}<p class="text-muted-tma">No matching staff.</p>{% endif %}
+  </div>
+</section>
+{% endblock %}

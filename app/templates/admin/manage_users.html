@@ -1,0 +1,44 @@
+{% extends "admin/_shell.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Manage users{% endblock %}
+{% block admin_content %}
+<section class="section-tight">
+  <div class="container-tma">
+    <h1 class="mb-4">Manage users</h1>
+    <ul class="nav nav-pills gap-2 mb-4">
+      {% for key, label in [('all','All'), ('active','Active'), ('blacklisted','Blacklisted')] %}
+        <li class="nav-item"><a class="btn-tma btn-tma--sm {{ 'btn-tma--primary' if current_status == key else 'btn-tma--outline' }}" href="{{ url_for('admin.manage_users', status=key) }}">{{ label }} ({{ status_counts[key] }})</a></li>
+      {% endfor %}
+    </ul>
+
+    {% if users %}
+      <div class="table-tma-wrap">
+        <table class="table-tma">
+          <thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            {% for u in users %}
+              <tr>
+                <td data-label="Name">{{ u.name }}<div class="cell-muted text-mono">#{{ u.id }}</div></td>
+                <td data-label="Email">{{ u.email }}</td>
+                <td data-label="Joined">{{ u.created_at | format_date }}</td>
+                <td data-label="Status">{% if u.is_blocked %}<span class="badge-tma badge-tone-danger">Blacklisted</span>{% else %}<span class="badge-tma badge-tone-success">Active</span>{% endif %}</td>
+                <td data-label="" class="d-flex gap-2 flex-wrap">
+                  {% if u.is_blocked %}
+                    {{ m.confirm_button(url_for('admin.unblacklist_user', user_id=u.id), 'Unblacklist', 'Restore access for ' ~ u.name ~ '?', confirm_form.hidden_tag(), variant='btn-tma--outline') }}
+                  {% else %}
+                    {{ m.confirm_button(url_for('admin.blacklist_user', user_id=u.id), 'Blacklist', 'Blacklist ' ~ u.name ~ '? They will be signed out and unable to log in.', confirm_form.hidden_tag()) }}
+                  {% endif %}
+                  {{ m.confirm_button(url_for('admin.delete_user', user_id=u.id), 'Delete', 'Permanently delete ' ~ u.name ~ '\'s account?', confirm_form.hidden_tag()) }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {{ m.pagination(pagination, 'admin.manage_users', status=current_status) }}
+    {% else %}
+      {{ m.empty_state('people', 'No users in this category', '') }}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

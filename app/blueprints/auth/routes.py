@@ -1,3 +1,5 @@
+from urllib.parse import urlsplit
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
@@ -16,6 +18,19 @@ def _role_home_endpoint(user):
     if user.role == UserRole.STAFF:
         return "staff.dashboard" if user.is_approved_staff else "staff.pending_status"
     return "user.dashboard"
+
+
+def _safe_next_url():
+    """Only ever follow a same-site relative path (e.g. '/treks/foo') from
+    ?next=... — never an absolute URL, which would make this an
+    open-redirect an attacker could use in a phishing link."""
+    target = request.args.get("next") or request.form.get("next")
+    if not target:
+        return None
+    parts = urlsplit(target)
+    if parts.netloc or parts.scheme or not target.startswith("/"):
+        return None
+    return target
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -39,7 +54,7 @@ def login():
 
         login_user(user, remember=form.remember_me.data)
         flash(f"Welcome back, {user.name.split(' ')[0]}!", "success")
-        return redirect(url_for(_role_home_endpoint(user)))
+        return redirect(_safe_next_url() or url_for(_role_home_endpoint(user)))
 
     return render_template("auth/login.html", form=form)
 

@@ -1,0 +1,152 @@
+{# Shared Jinja macros — the reusable visual vocabulary of the app.
+   Import with: {% import "components/macros.html" as m %}
+   None of these read the request context directly (current_user, flashed
+   messages, ...) — anything they need is passed in explicitly as a
+   parameter, so they stay simple to reason about and don't require
+   `with context` on the import. #}
+
+{# Jinja macros can't declare **kwargs in their signature — any extra
+   keyword args passed at the call site (placeholder=, autocomplete=, …)
+   are automatically available inside the macro body via the implicit
+   `kwargs` dict, with no need to declare it here. #}
+{% macro render_field(field, help=none, rows=4) %}
+  <div class="mb-3">
+    {% if field.type == 'BooleanField' %}
+      <div class="form-check">
+        {{ field(class_="form-check-input" + (" is-invalid" if field.errors else ""), **kwargs) }}
+        {{ field.label(class_="form-check-label") }}
+      </div>
+    {% else %}
+      {{ field.label(class_="form-label-tma") }}
+      {% if field.type == 'SelectField' %}
+        {{ field(class_="form-select" + (" is-invalid" if field.errors else ""), **kwargs) }}
+      {% elif field.type == 'TextAreaField' %}
+        {{ field(class_="form-control" + (" is-invalid" if field.errors else ""), rows=rows, **kwargs) }}
+      {% else %}
+        {{ field(class_="form-control" + (" is-invalid" if field.errors else ""), **kwargs) }}
+      {% endif %}
+    {% endif %}
+    {% if help %}<div class="form-text-tma">{{ help }}</div>{% endif %}
+    {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro status_badge(value) %}
+  {% set meta = value | status_meta %}
+  <span class="badge-tma badge-tone-{{ meta.tone }}">{{ meta.label }}</span>
+{% endmacro %}
+
+{% macro difficulty_pill(difficulty) %}
+  {% set meta = difficulty | status_meta %}
+  <span class="d-inline-flex align-items-center gap-1 fs-sm">
+    <span class="difficulty-dot difficulty-dot--{{ difficulty.value if difficulty.value is defined else difficulty }}"></span>
+    {{ meta.label }}
+  </span>
+{% endmacro %}
+
+{% macro rating_stars(rating, count=none) %}
+  {% set rating = rating or 0 %}
+  <span class="rating-stars" aria-label="{{ rating }} out of 5 stars">
+    {% for i in range(1, 6) %}{% if i <= rating|round(0, 'floor') %}★{% else %}<span class="star-empty">★</span>{% endif %}{% endfor %}
+  </span>
+  {% if count is not none %}<span class="fs-xs text-muted-tma">({{ count }})</span>{% endif %}
+{% endmacro %}
+
+{% macro breadcrumb(items) %}
+  <nav class="breadcrumb-tma" aria-label="Breadcrumb">
+    {% for label, url in items %}
+      {% if not loop.first %}<span class="sep" aria-hidden="true">/</span>{% endif %}
+      {% if url and not loop.last %}<a href="{{ url }}">{{ label }}</a>{% else %}<span class="current">{{ label }}</span>{% endif %}
+    {% endfor %}
+  </nav>
+{% endmacro %}
+
+{% macro empty_state(icon, title, text, action_label=none, action_url=none) %}
+  <div class="empty-state">
+    <div class="empty-state__icon" aria-hidden="true"><i class="bi bi-{{ icon }}"></i></div>
+    <p class="empty-state__title">{{ title }}</p>
+    <p class="mb-3">{{ text }}</p>
+    {% if action_label and action_url %}
+      <a href="{{ action_url }}" class="btn-tma btn-tma--primary btn-tma--sm">{{ action_label }}</a>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro pagination(pagination_obj, endpoint) %}
+  {% if pagination_obj and pagination_obj.pages > 1 %}
+    <ul class="pagination-tma">
+      <li class="{{ 'is-disabled' if not pagination_obj.has_prev }}">
+        {% if pagination_obj.has_prev %}
+          <a href="{{ url_for(endpoint, page=pagination_obj.prev_num, **kwargs) }}" aria-label="Previous page"><i class="bi bi-chevron-left"></i></a>
+        {% else %}<span aria-hidden="true"><i class="bi bi-chevron-left"></i></span>{% endif %}
+      </li>
+      {% for page_num in pagination_obj.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+        <li class="{{ 'is-active' if page_num == pagination_obj.page }}">
+          {% if page_num %}
+            <a href="{{ url_for(endpoint, page=page_num, **kwargs) }}">{{ page_num }}</a>
+          {% else %}<span>&hellip;</span>{% endif %}
+        </li>
+      {% endfor %}
+      <li class="{{ 'is-disabled' if not pagination_obj.has_next }}">
+        {% if pagination_obj.has_next %}
+          <a href="{{ url_for(endpoint, page=pagination_obj.next_num, **kwargs) }}" aria-label="Next page"><i class="bi bi-chevron-right"></i></a>
+        {% else %}<span aria-hidden="true"><i class="bi bi-chevron-right"></i></span>{% endif %}
+      </li>
+    </ul>
+  {% endif %}
+{% endmacro %}
+
+{% macro confirm_button(action, label, message, csrf_field, variant="btn-tma--danger-outline", icon=none, title="Please confirm") %}
+  <form method="POST" action="{{ action }}" data-confirm="{{ message }}" data-confirm-title="{{ title }}" class="d-inline">
+    {{ csrf_field }}
+    <button type="submit" class="btn-tma {{ variant }} btn-tma--sm">{% if icon %}<i class="bi bi-{{ icon }}"></i>{% endif %} {{ label }}</button>
+  </form>
+{% endmacro %}
+
+{% macro trek_card(trek, is_saved=false, show_save=false, csrf_field=none) %}
+  <article class="trek-card reveal">
+    <div class="trek-card__media">
+      {% if trek.primary_image %}
+        <img src="{{ url_for('static', filename=trek.primary_image.file_path) }}" alt="{{ trek.primary_image.alt_text or trek.name }}" loading="lazy">
+      {% else %}
+        {% include "components/trek_placeholder_art.html" %}
+      {% endif %}
+      <div class="trek-card__badges">
+        {{ status_badge(trek.difficulty) }}
+        {% if trek.is_featured %}<span class="badge-tma badge-tone-brand"><i class="bi bi-stars"></i> Featured</span>{% endif %}
+      </div>
+      {% if show_save %}
+        <form method="POST" action="{{ url_for('user.wishlist_toggle', trek_id=trek.id) }}" data-wishlist-toggle data-trek-id="{{ trek.id }}" class="trek-card__save">
+          {{ csrf_field }}
+          <button type="submit" class="btn-tma btn-tma--icon bg-surface shadow-tma-sm" aria-label="Save trek" style="--btn-fg: var(--color-accent-600);">
+            <i class="bi {{ 'bi-heart-fill' if is_saved else 'bi-heart' }}" data-wishlist-icon data-trek-id-ref="{{ trek.id }}"></i>
+          </button>
+        </form>
+      {% endif %}
+    </div>
+    <div class="trek-card__body">
+      <div class="trek-card__meta">
+        <span><i class="bi bi-geo-alt"></i> {{ trek.location.display_name }}</span>
+        <span><i class="bi bi-calendar3"></i> {{ trek.duration_days }} day{{ 's' if trek.duration_days != 1 }}</span>
+      </div>
+      <h3 class="trek-card__title"><a href="{{ url_for('public.trek_detail', slug=trek.slug) }}">{{ trek.name }}</a></h3>
+      <div class="d-flex align-items-center gap-2 fs-sm text-muted-tma">
+        <span><i class="bi bi-calendar-event"></i> {{ trek.start_date | format_date }}</span>
+        {% if trek.average_rating %}
+          <span class="divider-dot"></span>
+          {{ rating_stars(trek.average_rating) }} <span class="fs-xs">{{ trek.average_rating }}</span>
+        {% endif %}
+      </div>
+      <div class="trek-card__footer">
+        <div class="trek-card__price">{{ trek.price | format_currency(trek.currency) }}<small> / person</small></div>
+        {% if trek.status.value == 'open' and trek.available_slots > 0 %}
+          <span class="badge-tma badge-tone-success">{{ trek.available_slots }} slots left</span>
+        {% elif trek.status.value == 'open' %}
+          <span class="badge-tma badge-tone-danger">Full</span>
+        {% else %}
+          {{ status_badge(trek.status) }}
+        {% endif %}
+      </div>
+    </div>
+  </article>
+{% endmacro %}

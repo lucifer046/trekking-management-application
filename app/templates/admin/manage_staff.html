@@ -1,0 +1,49 @@
+{% extends "admin/_shell.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Manage staff{% endblock %}
+{% block admin_content %}
+<section class="section-tight">
+  <div class="container-tma">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+      <h1 class="mb-0">Manage staff</h1>
+      <a href="{{ url_for('admin.add_staff') }}" class="btn-tma btn-tma--primary"><i class="bi bi-plus-lg"></i> Add staff</a>
+    </div>
+
+    <ul class="nav nav-pills gap-2 mb-4">
+      {% for key, label in [('all','All'), ('pending','Pending'), ('approved','Approved'), ('rejected','Rejected')] %}
+        <li class="nav-item"><a class="btn-tma btn-tma--sm {{ 'btn-tma--primary' if current_status == key else 'btn-tma--outline' }}" href="{{ url_for('admin.manage_staff', status=key) }}">{{ label }} ({{ status_counts[key] }})</a></li>
+      {% endfor %}
+    </ul>
+
+    {% if staffs %}
+      <div class="table-tma-wrap">
+        <table class="table-tma">
+          <thead><tr><th>Name</th><th>Contact</th><th>Applied</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            {% for staff in staffs %}
+              <tr>
+                <td data-label="Name">{{ staff.user.name }}<div class="cell-muted">{{ staff.user.email }}</div></td>
+                <td data-label="Contact" class="cell-muted">{{ staff.contact or '—' }}</td>
+                <td data-label="Applied">{{ staff.applied_at | format_date }}</td>
+                <td data-label="Status">{{ m.status_badge(staff.staff_status) }}</td>
+                <td data-label="" class="d-flex gap-2 flex-wrap">
+                  {% if staff.staff_status.value != 'approved' %}
+                    {{ m.confirm_button(url_for('admin.approve_staff', staff_id=staff.id), 'Approve', 'Approve ' ~ staff.user.name ~ ' as staff?', confirm_form.hidden_tag(), variant='btn-tma--outline') }}
+                  {% endif %}
+                  {% if staff.staff_status.value != 'rejected' %}
+                    {{ m.confirm_button(url_for('admin.reject_staff', staff_id=staff.id), 'Reject', 'Reject ' ~ staff.user.name ~ '\'s staff application?', confirm_form.hidden_tag()) }}
+                  {% endif %}
+                  {{ m.confirm_button(url_for('admin.delete_staff', staff_id=staff.id), 'Delete', 'Permanently delete ' ~ staff.user.name ~ '\'s account?', confirm_form.hidden_tag()) }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {{ m.pagination(pagination, 'admin.manage_staff', status=current_status) }}
+    {% else %}
+      {{ m.empty_state('person-badge', 'No staff in this category', 'Staff applications will appear here as people register.') }}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

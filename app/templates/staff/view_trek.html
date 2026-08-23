@@ -1,0 +1,77 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}{{ trek.name }} · Manage{% endblock %}
+{% block content %}
+<section class="section-tight">
+  <div class="container-tma">
+    {{ m.breadcrumb([("Dashboard", url_for('staff.dashboard')), (trek.name, none)]) }}
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-5">
+      <div>
+        <h1 class="mb-1">{{ trek.name }}</h1>
+        <div class="d-flex gap-2 flex-wrap text-muted-tma fs-sm">
+          <span><i class="bi bi-geo-alt"></i> {{ trek.location.display_name }}</span>
+          <span><i class="bi bi-calendar3"></i> {{ trek.start_date | format_date }} – {{ trek.end_date | format_date }}</span>
+        </div>
+      </div>
+      {{ m.status_badge(trek.status) }}
+    </div>
+
+    <div class="row g-5">
+      <div class="col-lg-8">
+        <div class="section-heading"><h2 class="h5 mb-0">Participants ({{ bookings | selectattr('status.value', 'equalto', 'booked') | list | length }})</h2></div>
+        {% if bookings %}
+          <div class="table-tma-wrap mb-5">
+            <table class="table-tma">
+              <thead><tr><th>Trekker</th><th>Contact</th><th>Participants</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                {% for booking in bookings %}
+                  <tr>
+                    <td data-label="Trekker">{{ booking.trekker.name }}</td>
+                    <td data-label="Contact" class="cell-muted">{{ booking.trekker.email }}{% if booking.trekker.phone %}<br>{{ booking.trekker.phone }}{% endif %}</td>
+                    <td data-label="Participants">{{ booking.participant_count }}</td>
+                    <td data-label="Status">{{ m.status_badge(booking.status) }}</td>
+                    <td data-label="">
+                      {% if booking.status.value == 'booked' %}
+                        {{ m.confirm_button(url_for('staff.remove_participant', trek_id=trek.id, booking_id=booking.id), 'Remove', 'Remove ' ~ booking.trekker.name ~ ' from this trek? Their slot will be released.', confirm_form.hidden_tag(), title='Remove participant') }}
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          {{ m.empty_state('people', 'No participants yet', 'Bookings for this trek will appear here.') }}
+        {% endif %}
+      </div>
+
+      <div class="col-lg-4 d-flex flex-column gap-4">
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-3">Availability</h2>
+          <div class="progress-track mb-2"><div class="progress-fill" style="width: {{ trek.occupancy_pct }}%;"></div></div>
+          <p class="fs-sm text-muted-tma mb-3">{{ trek.available_slots }} of {{ trek.capacity }} slots available</p>
+          <form method="POST" action="{{ url_for('staff.update_trek', trek_id=trek.id) }}">
+            {{ operational_form.hidden_tag() }}
+            {{ m.render_field(operational_form.available_slots, min=0, max=trek.capacity) }}
+            <button type="submit" class="btn-tma btn-tma--primary btn-tma--block btn-tma--sm">Update availability</button>
+          </form>
+        </div>
+
+        <div class="card-tma card-tma__body">
+          <h2 class="h6 mb-3">Trek status</h2>
+          {% if status_form.new_status.choices %}
+            <form method="POST" action="{{ url_for('staff.change_trek_status', trek_id=trek.id) }}">
+              {{ status_form.hidden_tag() }}
+              {{ m.render_field(status_form.new_status) }}
+              <button type="submit" class="btn-tma btn-tma--accent btn-tma--block btn-tma--sm">Update status</button>
+            </form>
+          {% else %}
+            <p class="fs-sm text-muted-tma mb-0">No further status changes are available for this trek.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

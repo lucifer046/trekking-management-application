@@ -1,0 +1,200 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Discover guided treks worth remembering{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container-tma hero__content">
+    <span class="hero__eyebrow">Trekking Management Association</span>
+    <h1 class="hero__title mt-2 mb-3">Conquer the unexplored, guided by people who know the trail.</h1>
+    <p class="hero__lead mb-5">Discover vetted treks across India's most iconic ranges, book in minutes, and travel with certified guides — from the Himalayas to the Western Ghats.</p>
+
+    <form action="{{ url_for('public.explore') }}" method="GET" class="search-bar" role="search" aria-label="Search treks">
+      <input type="search" name="q" class="form-control flex-grow-1" placeholder="Search by trek name or location (e.g. Kedarkantha)" aria-label="Search treks">
+      <select name="difficulty" class="form-select" style="max-width: 180px;" aria-label="Difficulty">
+        <option value="">Any difficulty</option>
+        <option value="easy">Easy</option>
+        <option value="moderate">Moderate</option>
+        <option value="hard">Hard</option>
+      </select>
+      <button type="submit" class="btn-tma btn-tma--accent"><i class="bi bi-search"></i> Search treks</button>
+    </form>
+
+    <div class="d-flex gap-3 mt-4 flex-wrap">
+      <a href="{{ url_for('public.explore') }}" class="btn-tma btn-tma--outline" style="--btn-fg:#fff; border-color: rgba(255,255,255,0.4);">Explore all treks <i class="bi bi-arrow-right"></i></a>
+      {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('auth.register') }}" class="btn-tma btn-tma--ghost" style="--btn-fg:#fff;">Become a guide <i class="bi bi-person-badge"></i></a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% if featured_treks %}
+<section class="section">
+  <div class="container-tma">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Handpicked</span>
+        <h2 class="mb-0">Featured treks</h2>
+      </div>
+      <a href="{{ url_for('public.explore') }}" class="btn-tma btn-tma--outline btn-tma--sm">View all treks</a>
+    </div>
+    <div class="row g-4">
+      {% for trek in featured_treks %}
+        <div class="col-md-6 col-lg-4">{{ m.trek_card(trek, show_save=(current_user.is_authenticated and current_user.is_trekker), is_saved=false, csrf_field=confirm_form.hidden_tag()) }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section section-tinted">
+  <div class="container-tma">
+    <div class="section-heading">
+      <div><span class="eyebrow">Pick your pace</span><h2 class="mb-0">Explore by difficulty</h2></div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <a href="{{ url_for('public.explore', difficulty='easy') }}" class="card-tma d-block hover-lift text-decoration-none p-4">
+          <div class="difficulty-dot difficulty-dot--easy mb-3" style="width:14px;height:14px;"></div>
+          <h3>Easy</h3>
+          <p class="text-muted-tma mb-0">Gentle trails and short climbs — perfect for first-time trekkers and families.</p>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="{{ url_for('public.explore', difficulty='moderate') }}" class="card-tma d-block hover-lift text-decoration-none p-4">
+          <div class="difficulty-dot difficulty-dot--moderate mb-3" style="width:14px;height:14px;"></div>
+          <h3>Moderate</h3>
+          <p class="text-muted-tma mb-0">Multi-day climbs with real elevation gain — some prior trekking experience helps.</p>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="{{ url_for('public.explore', difficulty='hard') }}" class="card-tma d-block hover-lift text-decoration-none p-4">
+          <div class="difficulty-dot difficulty-dot--hard mb-3" style="width:14px;height:14px;"></div>
+          <h3>Hard</h3>
+          <p class="text-muted-tma mb-0">High-altitude, technical, and demanding — for seasoned trekkers chasing a summit.</p>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if popular_locations %}
+<section class="section">
+  <div class="container-tma">
+    <div class="section-heading">
+      <div><span class="eyebrow">Where to next</span><h2 class="mb-0">Popular locations</h2></div>
+    </div>
+    <div class="row g-4">
+      {% for location, trek_count in popular_locations %}
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="{{ url_for('public.explore', location=location.name) }}" class="location-card d-block reveal">
+            <div class="location-card__scenery">
+              <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+                <rect width="200" height="260" fill="#{{ '1b4332' if loop.index0 is even else '2d6a4f' }}"/>
+                <polygon points="0,260 60,140 100,200 140,110 200,180 200,260" fill="#0f1a14" opacity="0.55"/>
+              </svg>
+            </div>
+            <div class="location-card__scrim"></div>
+            <div class="location-card__body">
+              <h4>{{ location.name }}</h4>
+              <span>{{ trek_count }} trek{{ 's' if trek_count != 1 }}</span>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section section-tinted">
+  <div class="container-tma">
+    <div class="section-heading"><div><span class="eyebrow">Why TMA</span><h2 class="mb-0">Why trekkers choose us</h2></div></div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="stat-card reveal h-100">
+          <div class="stat-card__icon"><i class="bi bi-patch-check"></i></div>
+          <h3>Vetted guides</h3>
+          <p class="text-muted-tma mb-0">Every guide is reviewed and approved by our team before they can lead a trek.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card reveal h-100">
+          <div class="stat-card__icon"><i class="bi bi-shield-check"></i></div>
+          <h3>Transparent booking</h3>
+          <p class="text-muted-tma mb-0">Live slot availability, clear pricing, and a cancellation policy on every trek.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card reveal h-100">
+          <div class="stat-card__icon"><i class="bi bi-headset"></i></div>
+          <h3>Real support</h3>
+          <p class="text-muted-tma mb-0">Your assigned guide and our admin team are reachable throughout your trip lifecycle.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-tma">
+    <div class="section-heading"><div><span class="eyebrow">Simple by design</span><h2 class="mb-0">How it works</h2></div></div>
+    <div class="row g-4">
+      {% for step in [("1", "Discover", "Browse treks by difficulty, location, or date."), ("2", "Book", "Reserve your slot in minutes with instant confirmation."), ("3", "Trek", "Meet your guide and set off on a well-organized trip."), ("4", "Remember", "Rate your trek and revisit your trip history anytime.")] %}
+        <div class="col-6 col-lg-3">
+          <div class="step-card reveal">
+            <div class="step-card__number">{{ step[0] }}</div>
+            <h4>{{ step[1] }}</h4>
+            <p class="text-muted-tma mb-0 fs-sm">{{ step[2] }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-tinted">
+  <div class="container-tma">
+    <div class="row g-4 text-center">
+      <div class="col-6 col-md-3"><div class="stat-card__value count-up" data-count-to="{{ stats.treks_completed }}">0</div><div class="stat-card__label">Treks completed</div></div>
+      <div class="col-6 col-md-3"><div class="stat-card__value count-up" data-count-to="{{ stats.happy_trekkers }}">0</div><div class="stat-card__label">Happy trekkers</div></div>
+      <div class="col-6 col-md-3"><div class="stat-card__value count-up" data-count-to="{{ stats.destinations }}">0</div><div class="stat-card__label">Destinations</div></div>
+      <div class="col-6 col-md-3"><div class="stat-card__value count-up" data-count-to="{{ stats.active_guides }}">0</div><div class="stat-card__label">Active guides</div></div>
+    </div>
+  </div>
+</section>
+
+{% if testimonials %}
+<section class="section">
+  <div class="container-tma">
+    <div class="section-heading"><div><span class="eyebrow">From the trail</span><h2 class="mb-0">What trekkers say</h2></div></div>
+    <div class="row g-4">
+      {% for review in testimonials %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card-tma testimonial-card reveal">
+            {{ m.rating_stars(review.rating) }}
+            <p class="testimonial-card__quote">&ldquo;{{ review.body }}&rdquo;</p>
+            <div class="testimonial-card__author">
+              <span class="avatar-circle">{{ review.user.name[:1] | upper }}</span>
+              <div>
+                <div class="fw-semibold fs-sm">{{ review.user.name }}</div>
+                <div class="fs-xs text-muted-tma">{{ review.trek.name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="hero hero--compact text-center">
+  <div class="container-tma hero__content">
+    <h2 class="mb-3" style="color:#fff; font: var(--text-display-lg);">Your next summit is waiting.</h2>
+    <p class="hero__lead mx-auto mb-4">Join thousands of trekkers who found their trail with TMA.</p>
+    <a href="{{ url_for('public.explore') }}" class="btn-tma btn-tma--accent btn-tma--lg">Start exploring <i class="bi bi-arrow-right"></i></a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,37 @@
+<footer class="site-footer">
+  <div class="container-tma">
+    <div class="row g-5">
+      <div class="col-lg-4">
+        <h5 class="d-flex align-items-center gap-2"><i class="bi bi-triangle-fill"></i> TMA</h5>
+        <p class="fs-sm">The Trekking Management Association connects trekkers with vetted guides for guided treks across India's most iconic ranges — from discovery to booking to the trail itself.</p>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h5>Explore</h5>
+        <ul class="list-unstyled fs-sm d-flex flex-column gap-2">
+          <li><a href="{{ url_for('public.explore') }}">All treks</a></li>
+          <li><a href="{{ url_for('public.explore') }}?difficulty=easy">Easy treks</a></li>
+          <li><a href="{{ url_for('public.explore') }}?difficulty=hard">Hard treks</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h5>Account</h5>
+        <ul class="list-unstyled fs-sm d-flex flex-column gap-2">
+          {% if not current_user.is_authenticated %}
+            <li><a href="{{ url_for('auth.login') }}">Log in</a></li>
+            <li><a href="{{ url_for('auth.register') }}">Sign up</a></li>
+          {% else %}
+            <li><a href="{{ url_for('public.home') }}">Dashboard</a></li>
+          {% endif %}
+        </ul>
+      </div>
+      <div class="col-lg-4">
+        <h5>A student portfolio project</h5>
+        <p class="fs-sm">Built to demonstrate full-stack engineering — Flask, SQLAlchemy, and a hand-built design system. Treks, guides and testimonials are demo data seeded for this showcase.</p>
+      </div>
+    </div>
+    <div class="footer-bottom d-flex flex-wrap justify-content-between gap-2">
+      <span>&copy; {{ now().year }} Trekking Management Association. Demo project — not a real booking service.</span>
+      <span>Made with Flask &amp; a lot of trail coffee.</span>
+    </div>
+  </div>
+</footer>

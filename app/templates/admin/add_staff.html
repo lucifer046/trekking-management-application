@@ -1,0 +1,22 @@
+{% extends "admin/_shell.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Add staff{% endblock %}
+{% block admin_content %}
+<section class="section-tight">
+  <div class="container-tma">
+    {{ m.breadcrumb([("Staff", url_for('admin.manage_staff')), ("Add staff", none)]) }}
+    <div class="card-tma card-tma__body" style="max-width:640px;">
+      <h1 class="h4 mb-4">Add a staff account</h1>
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="row"><div class="col-md-6">{{ m.render_field(form.name) }}</div><div class="col-md-6">{{ m.render_field(form.phone) }}</div></div>
+        {{ m.render_field(form.email) }}
+        {{ m.render_field(form.password, help="They can change this after logging in.") }}
+        {{ m.render_field(form.experience, rows=3) }}
+        {{ m.render_field(form.staff_status) }}
+        <button type="submit" class="btn-tma btn-tma--primary">Create staff account</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<section class="section-tight">
+  <div class="container-tma" style="max-width: 720px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="mb-0">Notifications</h1>
+      {% if notifications %}
+        <form method="POST" action="{{ url_for('user.mark_all_notifications_read') }}">
+          {{ confirm_form.hidden_tag() }}
+          <button type="submit" class="btn-tma btn-tma--ghost btn-tma--sm">Mark all read</button>
+        </form>
+      {% endif %}
+    </div>
+
+    {% if notifications %}
+      <div class="d-flex flex-column gap-2">
+        {% for n in notifications %}
+          <div class="card-tma card-tma__body d-flex flex-row gap-3 align-items-start {{ 'bg-brand-tint' if not n.is_read }}">
+            <div class="empty-state__icon flex-shrink-0" style="width:40px;height:40px;font-size:1rem;"><i class="bi bi-bell"></i></div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold fs-sm">{{ n.title }}</div>
+              <div class="fs-sm text-muted-tma">{{ n.message }}</div>
+              <div class="fs-xs text-muted-tma mt-1">{{ n.created_at | format_datetime }}</div>
+            </div>
+            {% if n.link_url %}<a href="{{ n.link_url }}" class="btn-tma btn-tma--outline btn-tma--sm">View</a>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      {{ m.empty_state('bell-slash', 'No notifications yet', "We'll let you know here when something happens with your bookings or account.") }}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

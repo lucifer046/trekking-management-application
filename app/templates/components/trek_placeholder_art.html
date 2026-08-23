@@ -1,0 +1,22 @@
+{# Illustrated placeholder used whenever a trek has no uploaded photo yet —
+   a self-contained gradient + mountain-silhouette SVG, tinted by
+   difficulty. Deliberately not a downloaded stock photo: keeps every
+   asset in the repo original and licensing-free, and still reads as
+   "designed" rather than a broken-image icon. Real photos uploaded via
+   the admin trek-image feature simply take over from this. #}
+{% set tone = {'easy': ('#8fd3b6', '#e8f5ee'), 'moderate': ('#e8c07d', '#fbf1de'), 'hard': ('#c98f9c', '#f3e3e6')} %}
+{% set sky = tone.get(trek.difficulty.value if trek.difficulty.value is defined else trek.difficulty, tone['moderate']) %}
+<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of {{ trek.name }}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+  <defs>
+    <linearGradient id="sky-{{ trek.id }}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="{{ sky[0] }}"/>
+      <stop offset="100%" stop-color="{{ sky[1] }}"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#sky-{{ trek.id }})"/>
+  <circle cx="330" cy="60" r="26" fill="#ffffff" opacity="0.65"/>
+  <polygon points="0,300 90,120 150,210 210,90 260,180 400,110 400,300" fill="#1b4332" opacity="0.55"/>
+  <polygon points="0,300 60,190 140,260 220,150 300,240 400,170 400,300" fill="#12331f" opacity="0.85"/>
+  <polygon points="90,120 105,150 75,150" fill="#ffffff" opacity="0.7"/>
+  <polygon points="210,90 226,122 194,122" fill="#ffffff" opacity="0.7"/>
+</svg>

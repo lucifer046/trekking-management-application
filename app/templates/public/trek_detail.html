@@ -1,0 +1,214 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}{{ trek.name }}{% endblock %}
+{% block meta_description %}{{ trek.description[:150] }}{% endblock %}
+
+{% block content %}
+<section class="section-tight pb-0">
+  <div class="container-tma">
+    {{ m.breadcrumb([("Home", url_for('public.home')), ("Explore", url_for('public.explore')), (trek.name, none)]) }}
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container-tma">
+    {% if trek.status.value not in ('open', 'closed', 'started', 'completed') %}
+      <div class="alert alert-warning mb-4"><i class="bi bi-eye"></i> Preview mode — this trek is <strong>{{ (trek.status | status_meta).label }}</strong> and isn't visible to the public yet.</div>
+    {% endif %}
+
+    <div class="row g-5">
+      <div class="col-lg-8">
+        <div class="aspect-16-9 rounded-tma-lg overflow-hidden mb-4 shadow-tma-sm">
+          {% if trek.primary_image %}
+            <img src="{{ url_for('static', filename=trek.primary_image.file_path) }}" alt="{{ trek.primary_image.alt_text or trek.name }}" class="object-cover">
+          {% else %}
+            {% include "components/trek_placeholder_art.html" %}
+          {% endif %}
+        </div>
+        {% if trek.images|length > 1 %}
+          <div class="d-flex gap-2 mb-4 flex-wrap">
+            {% for image in trek.images[1:5] %}
+              <img src="{{ url_for('static', filename=image.file_path) }}" alt="{{ image.alt_text or '' }}" style="width:84px;height:84px;object-fit:cover;border-radius:var(--radius-sm);">
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="d-flex gap-2 flex-wrap mb-3">
+          {{ m.status_badge(trek.difficulty) }}
+          {{ m.status_badge(trek.status) }}
+          {% if trek.is_featured %}<span class="badge-tma badge-tone-brand"><i class="bi bi-stars"></i> Featured</span>{% endif %}
+        </div>
+        <h1 class="mb-2">{{ trek.name }}</h1>
+        <div class="d-flex gap-3 flex-wrap text-muted-tma mb-4 fs-sm">
+          <span><i class="bi bi-geo-alt"></i> {{ trek.location.display_name }}</span>
+          <span><i class="bi bi-calendar3"></i> {{ trek.start_date | format_date }} – {{ trek.end_date | format_date }} ({{ trek.duration_days }} days)</span>
+          {% if trek.average_rating %}<span>{{ m.rating_stars(trek.average_rating, trek.review_count) }}</span>{% endif %}
+        </div>
+
+        <article class="max-w-prose mb-5">
+          <h2 class="h4">Overview</h2>
+          <p style="white-space: pre-line;">{{ trek.description }}</p>
+        </article>
+
+        {% if trek.highlight_lines() %}
+        <div class="mb-5">
+          <h2 class="h4">Highlights</h2>
+          <ul>{% for line in trek.highlight_lines() %}<li>{{ line }}</li>{% endfor %}</ul>
+        </div>
+        {% endif %}
+
+        {% if trek.itinerary_lines() %}
+        <div class="mb-5">
+          <h2 class="h4">Itinerary</h2>
+          <ul class="timeline">
+            {% for line in trek.itinerary_lines() %}<li><strong>Day {{ loop.index }}.</strong> {{ line }}</li>{% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <div class="row g-4 mb-5">
+          {% if trek.requirement_lines() %}
+          <div class="col-md-6">
+            <h2 class="h5"><i class="bi bi-backpack"></i> Requirements</h2>
+            <ul class="fs-sm">{% for line in trek.requirement_lines() %}<li>{{ line }}</li>{% endfor %}</ul>
+          </div>
+          {% endif %}
+          {% if trek.safety_info %}
+          <div class="col-md-6">
+            <h2 class="h5"><i class="bi bi-heart-pulse"></i> Safety information</h2>
+            <p class="fs-sm" style="white-space: pre-line;">{{ trek.safety_info }}</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="row g-4 mb-5">
+          {% if trek.meeting_point %}
+          <div class="col-md-6">
+            <h2 class="h5"><i class="bi bi-pin-map"></i> Meeting point</h2>
+            <p class="fs-sm">{{ trek.meeting_point }}</p>
+          </div>
+          {% endif %}
+          {% if trek.cancellation_policy %}
+          <div class="col-md-6">
+            <h2 class="h5"><i class="bi bi-file-earmark-text"></i> Cancellation policy</h2>
+            <p class="fs-sm" style="white-space: pre-line;">{{ trek.cancellation_policy }}</p>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if trek.assigned_staff %}
+        <div class="card-tma card-tma__body d-flex flex-row align-items-center gap-3 mb-5">
+          <span class="avatar-circle" style="width:52px;height:52px;font-size:1.1rem;">{{ trek.assigned_staff.name[:1] | upper }}</span>
+          <div>
+            <div class="fs-xs text-muted-tma text-uppercase">Your guide</div>
+            <div class="fw-semibold">{{ trek.assigned_staff.name }}</div>
+            {% if trek.assigned_staff.staff_profile and trek.assigned_staff.staff_profile.experience %}
+              <div class="fs-sm text-muted-tma">{{ trek.assigned_staff.staff_profile.experience[:140] }}{{ '…' if trek.assigned_staff.staff_profile.experience|length > 140 }}</div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <div id="reviews" class="mb-5">
+          <h2 class="h4 d-flex align-items-center gap-2">Reviews {% if trek.review_count %}<span class="fs-sm text-muted-tma fw-normal">({{ trek.review_count }})</span>{% endif %}</h2>
+
+          {% if reviewable_booking %}
+            <div class="card-tma card-tma__body mb-4 bg-brand-tint">
+              <h3 class="h6">Trekked this already? Share your experience.</h3>
+              <form method="POST" action="{{ url_for('user.submit_review', booking_id=reviewable_booking.id) }}">
+                {{ review_form.hidden_tag() }}
+                <div class="mb-2">
+                  <div class="btn-group" role="group" aria-label="Rating">
+                    {% for i in range(1, 6) %}
+                      <input type="radio" class="btn-check" name="rating" id="rating-{{ i }}" value="{{ i }}" {{ 'checked' if i == 5 }}>
+                      <label class="btn btn-outline-secondary btn-sm" for="rating-{{ i }}">{{ i }}★</label>
+                    {% endfor %}
+                  </div>
+                </div>
+                {{ review_form.title(class_="form-control mb-2", placeholder="Title (optional)") }}
+                {{ review_form.body(class_="form-control mb-3", rows=3, placeholder="How was the trail, the guide, the experience?") }}
+                <button type="submit" class="btn-tma btn-tma--primary btn-tma--sm">Submit review</button>
+              </form>
+            </div>
+          {% endif %}
+
+          {% if trek.reviews %}
+            <div class="d-flex flex-column gap-3">
+              {% for review in trek.reviews | sort(attribute='created_at', reverse=true) %}
+                <div class="card-tma card-tma__body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <span class="avatar-circle">{{ review.user.name[:1] | upper }}</span>
+                      <div>
+                        <div class="fw-semibold fs-sm">{{ review.user.name }}</div>
+                        <div class="fs-xs text-muted-tma">{{ review.created_at | format_date }}</div>
+                      </div>
+                    </div>
+                    {{ m.rating_stars(review.rating) }}
+                  </div>
+                  {% if review.title %}<div class="fw-semibold fs-sm mb-1">{{ review.title }}</div>{% endif %}
+                  {% if review.body %}<p class="fs-sm mb-0">{{ review.body }}</p>{% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ m.empty_state('chat-square-quote', 'No reviews yet', 'Be the first to review this trek after you complete it.') }}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card-tma card-tma__body sticky-sidebar">
+          <div class="d-flex align-items-baseline justify-content-between mb-3">
+            <div class="trek-card__price" style="font-size:1.5rem;">{{ trek.price | format_currency(trek.currency) }}<small> / person</small></div>
+            {% if current_user.is_authenticated and current_user.is_trekker %}
+              <form method="POST" action="{{ url_for('user.wishlist_toggle', trek_id=trek.id) }}" data-wishlist-toggle data-trek-id="{{ trek.id }}">
+                {{ confirm_form.hidden_tag() }}
+                <button type="submit" class="btn-tma btn-tma--icon btn-tma--ghost" style="--btn-fg: var(--color-accent-600);" aria-label="Save trek">
+                  <i class="bi {{ 'bi-heart-fill' if is_saved else 'bi-heart' }}" data-wishlist-icon data-trek-id-ref="{{ trek.id }}"></i>
+                </button>
+              </form>
+            {% endif %}
+          </div>
+
+          <ul class="list-unstyled fs-sm d-flex flex-column gap-2 mb-4">
+            <li class="d-flex justify-content-between"><span class="text-muted-tma">Availability</span> <strong>{{ trek.available_slots }} / {{ trek.capacity }} slots</strong></li>
+            <li class="d-flex justify-content-between"><span class="text-muted-tma">Duration</span> <strong>{{ trek.duration_days }} days</strong></li>
+            <li class="d-flex justify-content-between"><span class="text-muted-tma">Difficulty</span> <strong>{{ (trek.difficulty | status_meta).label }}</strong></li>
+          </ul>
+          <div class="progress-track mb-4"><div class="progress-fill" style="width: {{ trek.occupancy_pct }}%;"></div></div>
+
+          {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.login', next=request.path) }}" class="btn-tma btn-tma--primary btn-tma--block btn-tma--lg">Log in to book</a>
+            <p class="fs-xs text-muted-tma text-center mt-2 mb-0">New here? <a href="{{ url_for('auth.register') }}">Create an account</a></p>
+          {% elif not current_user.is_trekker %}
+            <div class="alert alert-info fs-sm mb-0"><i class="bi bi-info-circle"></i> You're viewing this as {{ current_user.role.value }}. Only trekker accounts can book.</div>
+          {% elif trek.is_bookable and trek.start_date > today %}
+            <form method="POST" action="{{ url_for('user.book_trek', trek_id=trek.id) }}">
+              {{ booking_form.hidden_tag() }}
+              {{ m.render_field(booking_form.participant_count, min=1, max=trek.available_slots) }}
+              {{ m.render_field(booking_form.special_requests, rows=2, placeholder="Dietary needs, accessibility, etc. (optional)") }}
+              <button type="submit" class="btn-tma btn-tma--accent btn-tma--block btn-tma--lg">Book this trek</button>
+            </form>
+          {% else %}
+            <button class="btn-tma btn-tma--outline btn-tma--block btn-tma--lg" disabled>
+              {% if trek.available_slots <= 0 %}Fully booked{% elif trek.start_date <= today %}Booking closed{% else %}Not available{% endif %}
+            </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if related_treks %}
+      <div class="section-heading mt-7">
+        <div><span class="eyebrow">Nearby</span><h2 class="mb-0">More treks in {{ trek.location.name }}</h2></div>
+      </div>
+      <div class="row g-4">
+        {% for related in related_treks %}
+          <div class="col-md-6 col-lg-4">{{ m.trek_card(related, show_save=(current_user.is_authenticated and current_user.is_trekker), csrf_field=confirm_form.hidden_tag()) }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
