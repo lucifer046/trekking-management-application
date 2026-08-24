@@ -231,7 +231,50 @@
 .trek-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--duration-hover) var(--ease-flow); }
 .trek-card:hover .trek-card__media img { transform: scale(1.06); }
 .trek-card__badges { position: absolute; top: var(--space-3); left: var(--space-3); display: flex; gap: 6px; }
-.trek-card__save { position: absolute; top: var(--space-3); right: var(--space-3); }
+.trek-card__save { position: absolute; top: var(--space-3); right: var(--space-3); z-index: 2; }
+
+/* Wishlist "save" heart; a dedicated component rather than a btn-tma
+   variant, since a frosted-glass floating badge that needs to read
+   over an arbitrary photo/illustration behind it, plus its own
+   press/pop microinteraction, is specific enough to this one control
+   that reusing the generic button system bought nothing but an
+   inline --btn-fg override at every call site. Used both floating over
+   a trek card's image and inline on the trek-detail booking sidebar,
+   so its look stays identical everywhere a trek can be saved. */
+.wishlist-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--color-accent-600);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+.wishlist-btn i { display: block; transition: transform var(--duration-fast) var(--ease-standard); }
+.wishlist-btn:hover { background: #fff; border-color: var(--color-accent-100); box-shadow: var(--shadow-md); transform: scale(1.08); }
+.wishlist-btn:active i { transform: scale(0.82); }
+
+/* Applied briefly by wishlist.js right after a save (not on initial
+   page load, so a grid of already-saved cards doesn't all pop at
+   once); a satisfied little overshoot on the icon rather than the
+   whole circle, so it reads as "the heart caught", not a layout jolt. */
+@keyframes wishlist-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.4); }
+  60% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+.wishlist-btn.is-popping i { animation: wishlist-pop 420ms var(--ease-flow); }
 .trek-card__body { padding: var(--space-4) var(--space-5) var(--space-5); display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
 .trek-card__meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.8125rem; color: var(--color-muted); }
 .trek-card__meta span { display: inline-flex; align-items: center; gap: 4px; }
@@ -649,7 +692,19 @@
 .avatar-circle {
   width: 40px; height: 40px; border-radius: 50%; background: var(--color-primary-100); color: var(--color-primary-800);
   display: grid; place-items: center; font-weight: 700; font-size: 0.875rem; flex-shrink: 0;
+  /* A thin surface-colored ring, not a visible border color; it just
+     cuts a clean edge between the avatar and whatever sits behind it
+     (a colored badge row, a photo, another avatar in a stack), the
+     same trick a profile picture with a white outline uses. */
+  box-shadow: 0 0 0 2px var(--color-surface);
 }
+/* Named size steps instead of the one-off inline width/height/font-size
+   every call site used to carry; same four sizes that were already in
+   use (navbar trigger, default, trek-detail guide, profile header),
+   just named now so retuning one doesn't mean hunting across templates. */
+.avatar-circle--sm { width: 26px; height: 26px; font-size: 0.7rem; }
+.avatar-circle--lg { width: 52px; height: 52px; font-size: 1.1rem; }
+.avatar-circle--xl { width: 72px; height: 72px; font-size: 1.75rem; }
 
 /* ---------------------------------- Misc utilities used repeatedly ------- */
 .divider-dot::before { content: "•"; margin-inline: 6px; opacity: 0.5; }

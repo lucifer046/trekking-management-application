@@ -56,6 +56,15 @@ img, svg { max-width: 100%; display: block; }
   box-shadow: var(--shadow-focus);
   border-radius: var(--radius-sm);
 }
+/* The rule above squares off anything actually circular (icon-only
+   buttons, the wishlist heart, avatar circles); keeps the focus ring
+   itself, just stops it from visibly changing the control's shape the
+   moment it's focused. */
+.btn-tma--icon:focus-visible,
+.wishlist-btn:focus-visible,
+.avatar-circle:focus-visible {
+  border-radius: 50%;
+}
 
 ::selection {
   background: var(--color-primary-100);

@@ -98,7 +98,7 @@
 
         {% if trek.assigned_staff %}
         <div class="card-tma card-tma__body d-flex flex-row align-items-center gap-3 mb-5">
-          <span class="avatar-circle" style="width:52px;height:52px;font-size:1.1rem;">{{ trek.assigned_staff.name[:1] | upper }}</span>
+          <span class="avatar-circle avatar-circle--lg">{{ trek.assigned_staff.name[:1] | upper }}</span>
           <div>
             <div class="fs-xs text-muted-tma text-uppercase">Your guide</div>
             <div class="fw-semibold">{{ trek.assigned_staff.name }}</div>
@@ -164,7 +164,7 @@
             {% if current_user.is_authenticated and current_user.is_trekker %}
               <form method="POST" action="{{ url_for('user.wishlist_toggle', trek_id=trek.id) }}" data-wishlist-toggle data-trek-id="{{ trek.id }}">
                 {{ confirm_form.hidden_tag() }}
-                <button type="submit" class="btn-tma btn-tma--icon btn-tma--ghost" style="--btn-fg: var(--color-accent-600);" aria-label="Save trek">
+                <button type="submit" class="wishlist-btn" aria-label="Save trek" aria-pressed="{{ 'true' if is_saved else 'false' }}">
                   <i class="bi {{ 'bi-heart-fill' if is_saved else 'bi-heart' }}" data-wishlist-icon data-trek-id-ref="{{ trek.id }}"></i>
                 </button>
               </form>

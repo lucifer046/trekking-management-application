@@ -143,7 +143,7 @@
       {% if show_save %}
         <form method="POST" action="{{ url_for('user.wishlist_toggle', trek_id=trek.id) }}" data-wishlist-toggle data-trek-id="{{ trek.id }}" class="trek-card__save">
           {{ csrf_field }}
-          <button type="submit" class="btn-tma btn-tma--icon bg-surface shadow-tma-sm" aria-label="Save trek" style="--btn-fg: var(--color-accent-600);">
+          <button type="submit" class="wishlist-btn" aria-label="Save trek" aria-pressed="{{ 'true' if is_saved else 'false' }}">
             <i class="bi {{ 'bi-heart-fill' if is_saved else 'bi-heart' }}" data-wishlist-icon data-trek-id-ref="{{ trek.id }}"></i>
           </button>
         </form>

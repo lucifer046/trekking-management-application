@@ -13,7 +13,6 @@
       if (!trekId || !window.fetch) return; // let the plain form POST happen
 
       event.preventDefault();
-      var btn = form.querySelector("[data-wishlist-icon]");
       form.setAttribute("aria-busy", "true");
 
       fetch("/api/wishlist/toggle/" + trekId, {
@@ -28,11 +27,25 @@
           document.querySelectorAll('[data-wishlist-icon][data-trek-id-ref="' + trekId + '"]').forEach(function (icon) {
             icon.classList.toggle("bi-heart-fill", data.saved);
             icon.classList.toggle("bi-heart", !data.saved);
+            var iconBtn = icon.closest(".wishlist-btn");
+            if (iconBtn) {
+              iconBtn.setAttribute("aria-pressed", data.saved ? "true" : "false");
+              // Only the moment it's actively saved gets the little pop;
+              // removing a heart, or the icon's state at page load,
+              // shouldn't animate.
+              if (data.saved) {
+                iconBtn.classList.remove("is-popping");
+                // Force a reflow so re-adding the class restarts the
+                // animation even on a second save of the same trek.
+                void iconBtn.offsetWidth;
+                iconBtn.classList.add("is-popping");
+                iconBtn.addEventListener("animationend", function handler() {
+                  iconBtn.classList.remove("is-popping");
+                  iconBtn.removeEventListener("animationend", handler);
+                });
+              }
+            }
           });
-          if (btn) {
-            btn.classList.toggle("bi-heart-fill", data.saved);
-            btn.classList.toggle("bi-heart", !data.saved);
-          }
           TMA.toast(data.saved ? "Saved to your wishlist." : "Removed from your wishlist.", "info");
         })
         .catch(function () {
