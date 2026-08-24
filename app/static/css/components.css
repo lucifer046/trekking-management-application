@@ -26,6 +26,37 @@
   gap: var(--space-5);
   padding-block: var(--space-3);
 }
+/* Bootstrap's default .navbar-toggler-icon is a background-image
+   driven entirely by --bs-navbar-toggler-icon-bg, a custom property
+   Bootstrap only ever defines inside its own `.navbar { ... }` rule
+   scope; same story for the toggler's border color. Our nav element
+   carries our own .navbar-tma instead of Bootstrap's .navbar class (by
+   design, this is a fully custom-styled navbar), so those variables
+   were never set anywhere in the cascade and silently resolved to
+   nothing: the button existed and was positioned correctly, just
+   completely invisible, no icon and no border. Styled entirely
+   ourselves here instead of depending on that variable scoping, using
+   a real bi-list icon glyph (the icon-font path this app uses
+   everywhere else) rather than Bootstrap's SVG data-URI. */
+.navbar-toggler {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-heading);
+  font-size: 1.375rem;
+  line-height: 1;
+  transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+.navbar-toggler:hover { background: var(--color-primary-50); border-color: var(--color-primary-500); }
+.navbar-toggler:focus { outline: none; }
+.navbar-toggler[aria-expanded="true"] { background: var(--color-primary-50); border-color: var(--color-primary-600); color: var(--color-primary-700); }
+
 .navbar-brand-tma {
   display: flex;
   align-items: center;
