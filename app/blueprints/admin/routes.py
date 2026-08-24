@@ -123,7 +123,7 @@ def add_trek():
         trek = Trek(status=TrekStatus.DRAFT, created_by_id=current_user.id)
         # apply_form_to_trek()/generate_slug() both run SELECT queries
         # (location lookup, slug-collision check) while `trek` is only
-        # half-built — no_autoflush stops SQLAlchemy from trying to
+        # half-built; no_autoflush stops SQLAlchemy from trying to
         # prematurely INSERT it (missing NOT NULL fields) or warning about
         # it dangling off Location.treks before it's actually ready.
         with db.session.no_autoflush:
@@ -211,7 +211,7 @@ def delete_trek(trek_id):
         return redirect(url_for("admin.manage_treks"))
 
     if trek.bookings.count() > 0:
-        flash("This trek has booking history and can't be deleted — cancel it instead to preserve records.", "warning")
+        flash("This trek has booking history and can't be deleted; cancel it instead to preserve records.", "warning")
         return redirect(url_for("admin.edit_trek", trek_id=trek.id))
 
     name = trek.name
@@ -531,7 +531,7 @@ def delete_user(user_id):
         return redirect(url_for("admin.manage_users"))
 
     if Booking.query.filter_by(user_id=user.id).count() > 0:
-        flash("This user has booking history and can't be deleted — blacklist them instead to preserve records.", "warning")
+        flash("This user has booking history and can't be deleted; blacklist them instead to preserve records.", "warning")
         return redirect(url_for("admin.manage_users"))
 
     name = user.name
@@ -590,7 +590,7 @@ def _build_admin_status_form(trek):
 
 def _build_assign_form(trek, preselect_current=False):
     """`preselect_current` should only be True when building the form to
-    *render* (GET) — setting .data pre-selects the trek's current guide
+    *render* (GET); setting .data pre-selects the trek's current guide
     in the dropdown for display. It must stay False when building the
     form to *validate a submission against* (assign_trek's POST
     handler), otherwise it clobbers the just-submitted staff_user_id

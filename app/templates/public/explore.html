@@ -58,3 +58,7 @@
   </div>
 </section>
 {% endblock %}
+
+{% block extra_scripts %}
+<script defer src="{{ url_for('static', filename='js/explore-filters.js') }}"></script>
+{% endblock %}

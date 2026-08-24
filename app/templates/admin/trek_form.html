@@ -32,7 +32,7 @@
             {{ m.render_field(form.meeting_point) }}
             {{ m.render_field(form.description, rows=4) }}
             {{ m.render_field(form.highlights, rows=3, help="One highlight per line.") }}
-            {{ m.render_field(form.itinerary, rows=5, help="One line per day — rendered as Day 1, Day 2, …") }}
+            {{ m.render_field(form.itinerary, rows=5, help="One line per day; rendered as Day 1, Day 2, …") }}
             {{ m.render_field(form.requirements, rows=3, help="One item per line.") }}
             {{ m.render_field(form.safety_info, rows=3) }}
             {{ m.render_field(form.cancellation_policy, rows=3) }}
@@ -83,7 +83,7 @@
               <button type="submit" class="btn-tma btn-tma--accent btn-tma--block btn-tma--sm">Update status</button>
             </form>
           {% else %}
-            <p class="fs-sm text-muted-tma mb-0">This is a terminal status — no further changes possible.</p>
+            <p class="fs-sm text-muted-tma mb-0">This is a terminal status; no further changes possible.</p>
           {% endif %}
         </div>
 

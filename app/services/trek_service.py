@@ -1,6 +1,6 @@
 """
 Trek lifecycle logic. `transition_status()` is the *only* place
-`Trek.status` is ever assigned outside a raw migration/seed script — every
+`Trek.status` is ever assigned outside a raw migration/seed script; every
 route (admin edit, staff operational update) calls this instead of setting
 `trek.status = ...` directly, so the legal-transition check and the side
 effects below can never be bypassed.
@@ -19,7 +19,7 @@ def generate_slug(name):
 
 
 def get_or_create_location(name, state_region=None):
-    """Case-insensitive find-or-create — the trek form collects a location
+    """Case-insensitive find-or-create; the trek form collects a location
     as free text (no separate "manage locations" admin page exists, since
     nothing in the spec asks for one), but the Location table stays
     normalized underneath so the homepage's Popular Locations section and
@@ -41,7 +41,7 @@ def get_or_create_location(name, state_region=None):
 
 def apply_form_to_trek(trek, form):
     """Copies TrekForm fields onto a Trek instance (used for both create
-    and edit) — centralizing this mapping avoids the create/edit routes
+    and edit); centralizing this mapping avoids the create/edit routes
     drifting out of sync with each other."""
     location = get_or_create_location(form.location_name.data, form.location_state.data)
 
@@ -63,11 +63,11 @@ def apply_form_to_trek(trek, form):
 
     new_capacity = form.capacity.data
     if trek.capacity is None:
-        # brand new trek — every seat starts available
+        # brand new trek; every seat starts available
         trek.capacity = new_capacity
         trek.available_slots = new_capacity
     elif new_capacity != trek.capacity:
-        # editing an existing trek's capacity — keep booked_slots
+        # editing an existing trek's capacity; keep booked_slots
         # constant and shift available_slots by the delta, clamped so it
         # can never go negative even if capacity shrinks below what's
         # already booked.
@@ -82,7 +82,7 @@ def transition_status(trek, new_status, actor):
     happen atomically with the status change. Raises ServiceError (and
     changes nothing) if the transition isn't legal. Commits on success."""
     if trek.status == new_status:
-        return trek  # no-op, not an error — re-saving the same status is harmless
+        return trek  # no-op, not an error; re-saving the same status is harmless
 
     if not trek.can_transition_to(new_status):
         raise ServiceError(f"Cannot move a trek from '{trek.status.value}' to '{new_status.value}'.")

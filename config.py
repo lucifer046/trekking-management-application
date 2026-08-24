@@ -26,7 +26,7 @@ def _bool_env(name, default=False):
 
 
 class Config:
-    """Shared defaults. Never used directly — pick a subclass below."""
+    """Shared defaults. Never used directly; pick a subclass below."""
 
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-secret-key-change-me")
 

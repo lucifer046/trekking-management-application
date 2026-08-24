@@ -9,7 +9,7 @@ inactive/blacklisted), locations, treks spanning every lifecycle status,
 bookings, reviews, notifications, wishlist entries, and activity log
 entries. Booking/status/approval writes go through the same
 app.services layer the live app uses wherever the timeline allows (open
-treks, approvals, reviews) — both to avoid duplicating slot/notification/
+treks, approvals, reviews); both to avoid duplicating slot/notification/
 audit-log logic here and to exercise that logic as an extra integration
 check every time this script runs. Historical states that predate "now"
 (completed treks, their bookings) are constructed directly, since the
@@ -187,7 +187,7 @@ def seed():
     today = date.today()
     for i, (name, loc_name, difficulty, days, price, desc, highlights, itinerary, requirements) in enumerate(trek_defs):
         capacity = random.choice([10, 12, 15, 20, 25])
-        # Placeholder dates — every trek gets its real start/end date once
+        # Placeholder dates; every trek gets its real start/end date once
         # its final lifecycle status is known, in the loop below. NOT NULL
         # columns need *something* here so the initial insert succeeds.
         placeholder_start = today + timedelta(days=30 + i)
@@ -260,7 +260,7 @@ def seed():
                 booking = booking_service.create_booking(trekker, trek, party)
                 all_bookings.append(booking)
             except ServiceError:
-                continue  # trek ran out of slots — fine, keeps data realistic
+                continue  # trek ran out of slots; fine, keeps data realistic
 
     # A couple of those active bookings get cancelled, to populate that state too.
     for booking in random.sample(all_bookings, min(2, len(all_bookings))):
@@ -290,7 +290,7 @@ def seed():
                     title=random.choice(["Unforgettable trip!", "Great guide, great trail", "Would do it again", "Beautiful but tough"]),
                     body=random.choice([
                         "The guide was incredibly knowledgeable and kept the group safe throughout.",
-                        "Stunning views the whole way — well worth the early mornings.",
+                        "Stunning views the whole way; well worth the early mornings.",
                         "Well organized from start to finish, would recommend to any first-timer.",
                         "Challenging in parts but the support crew made it manageable.",
                     ]),

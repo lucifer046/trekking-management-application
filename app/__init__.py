@@ -83,7 +83,7 @@ def _register_cli(app):
         """Creates the platform's superuser admin account from
         ADMIN_EMAIL/ADMIN_PASSWORD/ADMIN_NAME (env or config defaults) if
         it doesn't already exist. There is deliberately no /register route
-        that can create an admin — this CLI command (also called by
+        that can create an admin; this CLI command (also called by
         seed.py) is the only path."""
         from app.models import UserRole
 
@@ -125,7 +125,7 @@ def _register_request_hooks(app):
         staff_status on every dashboard-guarded request and redirects to
         the pending/rejected status page, so a de-approved staff member
         loses dashboard access immediately without being forcibly signed
-        out — they can still see *why* and still update their own profile.
+        out; they can still see *why* and still update their own profile.
         """
         if request.endpoint in _exempt_endpoints or not current_user.is_authenticated:
             return None

@@ -1,11 +1,11 @@
 """
-Single choke point for every Notification row the platform creates — see
+Single choke point for every Notification row the platform creates; see
 spec section 24's trigger list (booking confirmed/cancelled, trek
 updated/opened/closed/started/completed, staff approved/rejected, account
 deactivated, ...). Nothing should ever `db.session.add(Notification(...))`
 directly outside this module.
 
-Does NOT call db.session.commit() — the calling service (booking_service,
+Does NOT call db.session.commit(); the calling service (booking_service,
 trek_service, staff_service, ...) owns the transaction boundary so the
 notification commits atomically together with whatever triggered it.
 """

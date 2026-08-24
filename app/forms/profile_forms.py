@@ -9,7 +9,7 @@ _PHONE_RE = r"^[0-9+\-\s()]{7,20}$"
 
 class _BaseProfileForm(FlaskForm):
     """Shared name/email/phone/optional-password-change fields. Email
-    uniqueness excludes the current user's own row — pass their id in via
+    uniqueness excludes the current user's own row; pass their id in via
     the constructor."""
 
     name = StringField("Full name", validators=[Length(min=2, max=96)])

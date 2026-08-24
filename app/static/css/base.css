@@ -48,7 +48,7 @@ img, svg { max-width: 100%; display: block; }
   padding-inline: var(--space-5);
 }
 
-/* Consistent, visible keyboard focus everywhere — buttons, links, form
+/* Consistent, visible keyboard focus everywhere; buttons, links, form
    controls, cards acting as links. Never remove outline without
    replacing it (accessibility regression). */
 :focus-visible {

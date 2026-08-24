@@ -23,7 +23,7 @@
             {% for staff in staffs %}
               <tr>
                 <td data-label="Name">{{ staff.user.name }}<div class="cell-muted">{{ staff.user.email }}</div></td>
-                <td data-label="Contact" class="cell-muted">{{ staff.contact or '—' }}</td>
+                <td data-label="Contact" class="cell-muted">{{ staff.contact or 'N/A' }}</td>
                 <td data-label="Applied">{{ staff.applied_at | format_date }}</td>
                 <td data-label="Status">{{ m.status_badge(staff.staff_status) }}</td>
                 <td data-label="">

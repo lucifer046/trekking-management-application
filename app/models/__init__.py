@@ -2,7 +2,7 @@
 Re-exports every model + enum so the rest of the app can do
 `from app.models import User, Trek, TrekStatus, ...` without knowing which
 submodule each lives in. Import order matters only in that mixins/enums
-must be importable before the models that use them — Python handles that
+must be importable before the models that use them; Python handles that
 naturally since each model module imports what it needs directly.
 """
 from app.models.activity_log import ActivityLog

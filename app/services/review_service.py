@@ -1,5 +1,5 @@
 """Review eligibility + creation. A review is tied to one specific
-completed Booking (see app.models.review.Review docstring) — this is what
+completed Booking (see app.models.review.Review docstring); this is what
 lets a single UNIQUE(booking_id) simultaneously enforce "completed treks
 only" and "no duplicate reviews"."""
 from app.extensions import db
@@ -10,7 +10,7 @@ from app.services.exceptions import ServiceError
 
 def reviewable_bookings(user, trek):
     """Completed bookings this user has for this trek that don't have a
-    review yet — normally at most one, but a user could in principle have
+    review yet; normally at most one, but a user could in principle have
     trekked the same trip more than once."""
     return [
         b

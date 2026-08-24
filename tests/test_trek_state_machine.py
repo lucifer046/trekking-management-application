@@ -1,4 +1,4 @@
-"""Trek.status state machine — legal/illegal transitions and their side effects."""
+"""Trek.status state machine; legal/illegal transitions and their side effects."""
 import pytest
 
 from app.models import BookingStatus, TrekStatus

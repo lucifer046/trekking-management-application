@@ -4,7 +4,7 @@
  * destructive-action confirm modal, sticky-navbar scroll state, mobile
  * nav toggle, and password-visibility toggles. Loaded on every page.
  *
- * Classic scripts (no bundler, no ES module imports) — everything shared
+ * Classic scripts (no bundler, no ES module imports); everything shared
  * across files hangs off one `window.TMA` namespace.
  */
 window.TMA = window.TMA || {};

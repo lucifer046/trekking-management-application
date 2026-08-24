@@ -19,7 +19,7 @@ class RegisterForm(FlaskForm):
     phone = StringField("Phone", validators=[Optional(), Regexp(_PHONE_RE, message="Enter a valid phone number.")])
     role = SelectField(
         "I am registering as a",
-        choices=[("user", "Trekker — I want to book treks"), ("staff", "Trek Staff — I want to guide treks")],
+        choices=[("user", "Trekker: I want to book treks"), ("staff", "Trek Staff: I want to guide treks")],
         validators=[DataRequired()],
     )
     experience = TextAreaField(

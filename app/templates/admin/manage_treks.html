@@ -29,7 +29,7 @@
                 <td data-label="Location">{{ trek.location.name }}</td>
                 <td data-label="Dates">{{ trek.start_date | format_date }}</td>
                 <td data-label="Capacity">{{ trek.booked_slots }}/{{ trek.capacity }}</td>
-                <td data-label="Guide">{{ trek.assigned_staff.name if trek.assigned_staff else '—' }}</td>
+                <td data-label="Guide">{{ trek.assigned_staff.name if trek.assigned_staff else 'N/A' }}</td>
                 <td data-label="Status">{{ m.status_badge(trek.status) }}</td>
                 <td data-label="">
                   <div class="d-flex gap-2">

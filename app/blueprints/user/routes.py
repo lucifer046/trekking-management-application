@@ -84,7 +84,7 @@ def booking_history():
     query = Booking.query.filter_by(user_id=current_user.id)
     if status_filter in {s.value for s in BookingStatus}:
         # Convert the raw query-string value to the real enum member
-        # rather than relying on SQLAlchemy's string coercion — explicit
+        # rather than relying on SQLAlchemy's string coercion; explicit
         # and unambiguous.
         query = query.filter_by(status=BookingStatus(status_filter))
     bookings = query.order_by(Booking.booked_at.desc()).all()

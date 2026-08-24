@@ -1,5 +1,5 @@
 /*
-  Design tokens — the single source of truth for color, type, spacing,
+  Design tokens; the single source of truth for color, type, spacing,
   radius, shadow and motion. Everything else in base.css/components.css/
   utilities.css consumes these custom properties rather than hardcoding
   values, which is what makes a future rebrand/retune a one-file change
@@ -39,7 +39,7 @@
   --color-surface: #ffffff;
   --color-surface-sunken: #f0efe6;
 
-  /* ---- Semantic — kept distinct from brand pine so "success" never
+  /* ---- Semantic; kept distinct from brand pine so "success" never
      visually collides with "primary action" ---- */
   --color-success-700: #276749;
   --color-success-600: #2f855a;
@@ -100,7 +100,7 @@
 
   --container-max: 1240px;
 
-  /* Bootstrap variable remap — lets native Bootstrap components (buttons
+  /* Bootstrap variable remap; lets native Bootstrap components (buttons
      we don't override, form validation states, etc.) inherit the new
      palette instead of shipping Bootstrap's default blue/green. */
   --bs-primary: var(--color-primary-700);

@@ -10,7 +10,7 @@ class Review(db.Model, TimestampMixin):
     that a single constraint simultaneously guarantees both business rules
     the spec asks for: "only for treks the user completed" (checked via
     booking.status == completed in app.services.review_service) and "no
-    duplicate reviews" — without incorrectly blocking a genuinely new
+    duplicate reviews"; without incorrectly blocking a genuinely new
     review after a legitimate future rebooking of the same trek.
     """
 

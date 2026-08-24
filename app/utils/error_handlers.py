@@ -1,4 +1,4 @@
-"""Central registration of HTTP error pages — replaces Flask's default
+"""Central registration of HTTP error pages; replaces Flask's default
 plain-text error pages with the app's own visual identity. All six codes
 render the same errors/error.html shell parameterized by copy, which is
 what actually guarantees visual consistency across them (identical
@@ -14,7 +14,7 @@ _ERROR_COPY = {
     404: ("signpost-2", "Trail not found", "This page has wandered off the map. It may have moved, or the link might be out of date."),
     405: ("cone-striped", "Method not allowed", "That action isn't supported on this page."),
     429: ("hourglass-split", "Slow down a little", "You've made too many attempts in a short time. Please wait a minute and try again."),
-    500: ("tools", "Something went wrong on our end", "An unexpected error occurred. It's been logged — please try again in a moment."),
+    500: ("tools", "Something went wrong on our end", "An unexpected error occurred. It's been logged; please try again in a moment."),
 }
 
 

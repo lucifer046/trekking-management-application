@@ -57,7 +57,7 @@ def test_rating_out_of_range_rejected(db, make_user, make_trek, make_booking):
 
 def test_second_completed_trip_can_be_reviewed_independently(db, make_user, make_trek, make_booking):
     """A second, later booking of the same trek is a distinct review
-    opportunity — tying Review to booking_id (not user+trek) is what
+    opportunity; tying Review to booking_id (not user+trek) is what
     makes this possible."""
     trekker = make_user(role="user")
     trek = make_trek(status=TrekStatus.COMPLETED)

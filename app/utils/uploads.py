@@ -5,13 +5,13 @@ validation ships in the same change that introduces the feature rather
 than being bolted on afterwards:
 
   1. extension allowlist (config: UPLOAD_ALLOWED_EXTENSIONS)
-  2. magic-byte sniff of the first few bytes — catches a renamed
+  2. magic-byte sniff of the first few bytes; catches a renamed
      `payload.php.jpg` even though its *extension* looks fine, without
      pulling in an image-processing dependency just for this
   3. Flask's MAX_CONTENT_LENGTH caps request/body size before this code
      even runs
   4. secure_filename() + a random hex name for the file actually written
-     to disk — the original filename is never trusted as a path
+     to disk; the original filename is never trusted as a path
   5. stored under a per-trek subdirectory, never anywhere web-executable
 """
 import os
@@ -88,4 +88,4 @@ def delete_trek_image_file(relative_path, static_root):
         ) and os.path.isfile(absolute_path):
             os.remove(absolute_path)
     except (ValueError, OSError):
-        pass  # best-effort cleanup — a missing/unreadable file shouldn't block the DB delete
+        pass  # best-effort cleanup; a missing/unreadable file shouldn't block the DB delete

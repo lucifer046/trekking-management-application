@@ -8,7 +8,7 @@ from app.models import Difficulty
 
 class TrekForm(FlaskForm):
     """Admin create/edit form covering every editorial/logistics field.
-    Deliberately has NO status field — status only ever changes through
+    Deliberately has NO status field; status only ever changes through
     TrekStatusForm -> trek_service.transition_status(), never a raw
     dropdown save, so the legal-transition table can't be bypassed."""
 
@@ -52,7 +52,7 @@ class AssignStaffForm(FlaskForm):
 class TrekStatusForm(FlaskForm):
     """Choices are populated per-request by the route from the legal
     next-states for the trek's *current* status (and further narrowed for
-    staff vs admin) — never hardcoded here, so an illegal transition can't
+    staff vs admin); never hardcoded here, so an illegal transition can't
     even be submitted, let alone silently accepted."""
 
     new_status = SelectField("Change status to", validators=[DataRequired()])
@@ -60,7 +60,7 @@ class TrekStatusForm(FlaskForm):
 
 class StaffTrekOperationalForm(FlaskForm):
     """The narrow set of fields the spec allows staff to touch on their
-    assigned trek — everything editorial (name/description/price/...)
+    assigned trek; everything editorial (name/description/price/...)
     stays admin-only via TrekForm."""
 
     available_slots = IntegerField("Available slots", validators=[DataRequired(), NumberRange(min=0, max=500)])

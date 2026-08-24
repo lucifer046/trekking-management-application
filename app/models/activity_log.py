@@ -4,11 +4,11 @@ from app.extensions import db
 class ActivityLog(db.Model):
     """
     Append-only audit trail of significant platform events (staff
-    approved, trek created, booking cancelled, etc.) — written exclusively
+    approved, trek created, booking cancelled, etc.); written exclusively
     via app.services.activity_log_service.log(...).
 
     `target_type` / `target_id` deliberately form an *unconstrained*
-    polymorphic reference (no real ForeignKey) — the standard audit-log
+    polymorphic reference (no real ForeignKey); the standard audit-log
     pattern. A real FK would either block deletion of the referenced row
     or null the reference out, both of which defeat the point of a
     historical log. `actor_name_snapshot` is a denormalized copy of the

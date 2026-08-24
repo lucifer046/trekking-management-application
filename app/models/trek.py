@@ -8,10 +8,10 @@ from app.models.mixins import TimestampMixin
 class Trek(db.Model, TimestampMixin):
     """
     A single trekking trip offering. `status` is the *only* lifecycle
-    field (no separate approval_status — the state machine below already
+    field (no separate approval_status; the state machine below already
     folds approval into one sequence, which avoids the two-source-of-truth
     bug a second field would invite). Never set `.status` directly from a
-    route or template — always go through `can_transition_to()` /
+    route or template; always go through `can_transition_to()` /
     `app.services.trek_service.transition_status()`, which also handles the
     side effects (auto-completing bookings, cascading cancellation, etc.).
     """
@@ -61,7 +61,7 @@ class Trek(db.Model, TimestampMixin):
     is_featured = db.Column(db.Boolean, nullable=False, default=False, index=True)
 
     # SET NULL (not the default NO ACTION/RESTRICT) so deleting a staff or
-    # admin User account never blankly fails with an FK violation — both
+    # admin User account never blankly fails with an FK violation; both
     # of these are informational references, not data that needs to
     # block or cascade a user deletion the way Booking intentionally does.
     assigned_staff_id = db.Column(
@@ -88,7 +88,7 @@ class Trek(db.Model, TimestampMixin):
 
     # --- state machine ------------------------------------------------
     def can_transition_to(self, new_status: TrekStatus) -> bool:
-        """Pure adjacency-table check — no DB access, no side effects."""
+        """Pure adjacency-table check; no DB access, no side effects."""
         return new_status in TREK_STATUS_TRANSITIONS.get(self.status, set())
 
     # --- derived / display helpers -------------------------------------

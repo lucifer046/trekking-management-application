@@ -21,7 +21,7 @@
           <tbody>
             {% for b in bookings %}
               <tr>
-                <td data-label="Reference" class="text-mono">{{ b.booking_reference or '—' }}</td>
+                <td data-label="Reference" class="text-mono">{{ b.booking_reference or 'N/A' }}</td>
                 <td data-label="Trekker">{{ b.trekker.name }}</td>
                 <td data-label="Trek">{{ b.trek.name }}</td>
                 <td data-label="Participants">{{ b.participant_count }}</td>

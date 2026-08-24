@@ -13,7 +13,7 @@ class Booking(db.Model, TimestampMixin):
     destroyed the historical record of the original booking + cancellation
     event. Instead, multiple rows per (user, trek) pair are allowed over
     time, and "no duplicate *active* booking" is enforced in
-    app.services.booking_service at write time — the only place bookings
+    app.services.booking_service at write time; the only place bookings
     are ever created. This preserves real history for booking history
     pages and the activity log while still preventing the business-rule
     violation that mattered.

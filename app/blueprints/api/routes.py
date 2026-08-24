@@ -2,11 +2,11 @@
 JSON/AJAX endpoints. Kept separate from the HTML-rendering blueprints so
 CSRF-header handling and response-content-type conventions stay
 consistent in one place. Every mutating endpoint here is still protected
-by Flask-WTF's CSRFProtect — the frontend JS sends the token via the
+by Flask-WTF's CSRFProtect; the frontend JS sends the token via the
 `X-CSRFToken` header (read from the <meta name="csrf-token"> tag in the
 base layout) instead of a form field.
 
-Every chart endpoint aggregates real rows from the database — per the
+Every chart endpoint aggregates real rows from the database; per the
 spec's explicit "do not generate fake random numbers" instruction, there
 is no synthetic/randomized data anywhere in this module.
 """

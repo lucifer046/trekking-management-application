@@ -1,5 +1,5 @@
 """
-Booking creation/cancellation — the highest-risk business logic in the
+Booking creation/cancellation; the highest-risk business logic in the
 whole app, because every guard here has to move by `participant_count`
 instead of a flat ±1, and getting it wrong means either silent overbooking
 or slots that never come back. This module is the *only* place a Booking
@@ -24,7 +24,7 @@ def _generate_reference():
         candidate = "TMA-" + secrets.token_hex(3).upper()
         if not Booking.query.filter_by(booking_reference=candidate).first():
             return candidate
-    # Astronomically unlikely fallthrough — widen the search space once.
+    # Astronomically unlikely fallthrough; widen the search space once.
     return "TMA-" + secrets.token_hex(5).upper()
 
 
@@ -99,7 +99,7 @@ def create_booking(user, trek, participant_count, special_requests=None):
 def cancel_booking(booking, actor, reason=None):
     """Cancels an active booking and restores its slots to the trek.
     Callable by the owning trekker or by staff/admin removing a
-    participant — `actor` is only used for the notification/audit trail,
+    participant; `actor` is only used for the notification/audit trail,
     not for authorization (the calling route is responsible for the
     ownership/role check before calling this)."""
     if booking.status != BookingStatus.BOOKED:

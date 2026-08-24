@@ -4,7 +4,7 @@ from app.extensions import db
 class Wishlist(db.Model):
     """
     A trekker's saved/favorited trek. Unlike Booking, a plain DB-level
-    UniqueConstraint is safe here — toggling save/unsave is idempotent and
+    UniqueConstraint is safe here; toggling save/unsave is idempotent and
     carries no historical-record requirement, so there's no need for the
     service-layer "active row" workaround Booking requires.
     """

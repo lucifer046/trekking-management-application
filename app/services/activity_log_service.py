@@ -1,9 +1,9 @@
 """
-Single choke point for every ActivityLog row — see spec section 27's
+Single choke point for every ActivityLog row; see spec section 27's
 trigger list (staff approved, user blacklisted, trek created/edited,
 staff assigned, booking created/cancelled, trek completed, ...).
 
-Does NOT commit — see notification_service for the same rationale.
+Does NOT commit; see notification_service for the same rationale.
 """
 from app.extensions import db
 from app.models import ActivityLog

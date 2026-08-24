@@ -7,7 +7,7 @@ well-known footgun with Flask-SQLAlchemy: each new DBAPI connection gets
 its own isolated in-memory database unless the engine is forced onto a
 single shared connection (StaticPool). A real temp file sidesteps that
 entirely, costs nothing meaningful at this schema size, and is trivially
-debuggable — you can open the file directly if a test ever misbehaves.
+debuggable; you can open the file directly if a test ever misbehaves.
 """
 import os
 import tempfile
@@ -151,7 +151,7 @@ def make_booking(db):
 
 @pytest.fixture()
 def login_as(client):
-    """login_as(client, user) — logs in via the real HTTP form (exercises
+    """login_as(client, user); logs in via the real HTTP form (exercises
     the actual login view, not a session shortcut)."""
 
     def _login(user, password=None):

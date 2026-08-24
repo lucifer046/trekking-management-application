@@ -14,10 +14,7 @@
       <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next')) }}" novalidate>
         {{ form.hidden_tag() }}
         {{ m.render_field(form.email, placeholder="you@example.com", autocomplete="email") }}
-        <div class="password-field">
-          {{ m.render_field(form.password, id="password-input", autocomplete="current-password") }}
-          <button type="button" class="password-toggle" data-target="password-input" aria-label="Show password" style="top: 38px;"><i class="bi bi-eye"></i></button>
-        </div>
+        {{ m.render_password_field(form.password, autocomplete="current-password") }}
         <div class="d-flex justify-content-between align-items-center mb-4">
           <div class="form-check">
             {{ form.remember_me(class_="form-check-input") }}

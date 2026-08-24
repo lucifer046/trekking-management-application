@@ -1,6 +1,6 @@
 /* Thin Chart.js wrapper for the admin dashboard. Every chart is driven by
  * one of the /api/charts/* endpoints, which aggregate real rows from the
- * database — per the spec's explicit instruction, nothing here ever
+ * database; per the spec's explicit instruction, nothing here ever
  * generates or displays random/fake numbers.
  *
  * Usage: <canvas data-chart="booking-trends" data-chart-type="line"></canvas>

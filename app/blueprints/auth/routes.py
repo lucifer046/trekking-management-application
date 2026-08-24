@@ -22,7 +22,7 @@ def _role_home_endpoint(user):
 
 def _safe_next_url():
     """Only ever follow a same-site relative path (e.g. '/treks/foo') from
-    ?next=... — never an absolute URL, which would make this an
+    ?next=...; never an absolute URL, which would make this an
     open-redirect an attacker could use in a phishing link."""
     target = request.args.get("next") or request.form.get("next")
     if not target:

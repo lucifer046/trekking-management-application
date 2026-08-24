@@ -1,11 +1,11 @@
-{# Shared Jinja macros — the reusable visual vocabulary of the app.
+{# Shared Jinja macros: the reusable visual vocabulary of the app.
    Import with: {% import "components/macros.html" as m %}
    None of these read the request context directly (current_user, flashed
-   messages, ...) — anything they need is passed in explicitly as a
+   messages, ...); anything they need is passed in explicitly as a
    parameter, so they stay simple to reason about and don't require
    `with context` on the import. #}
 
-{# Jinja macros can't declare **kwargs in their signature — any extra
+{# Jinja macros can't declare **kwargs in their signature; any extra
    keyword args passed at the call site (placeholder=, autocomplete=, …)
    are automatically available inside the macro body via the implicit
    `kwargs` dict, with no need to declare it here. #}
@@ -26,6 +26,26 @@
         {{ field(class_="form-control" + (" is-invalid" if field.errors else ""), **kwargs) }}
       {% endif %}
     {% endif %}
+    {% if help %}<div class="form-text-tma">{{ help }}</div>{% endif %}
+    {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+  </div>
+{% endmacro %}
+
+{# Password fields with a show/hide toggle. Previously every call site
+   wrapped the *entire* render_field output (label + input) in
+   .password-field and hand-positioned the toggle button with an inline
+   `style="top: 38px"` guess at where the input started beneath the
+   label, fragile the moment a label wrapped to two lines or font
+   metrics shifted even slightly. Here .password-field wraps only the
+   <input>, so the toggle's `top: 50%` in components.css centers on the
+   input itself with no guessing, however tall the label ends up. #}
+{% macro render_password_field(field, help=none) %}
+  <div class="mb-3">
+    {{ field.label(class_="form-label-tma") }}
+    <div class="password-field">
+      {{ field(class_="form-control" + (" is-invalid" if field.errors else ""), **kwargs) }}
+      <button type="button" class="password-toggle" data-target="{{ field.id }}" aria-label="Show password"><i class="bi bi-eye"></i></button>
+    </div>
     {% if help %}<div class="form-text-tma">{{ help }}</div>{% endif %}
     {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
   </div>

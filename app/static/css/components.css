@@ -1,7 +1,7 @@
 /* ==========================================================================
    Component library. Paired 1:1 with the Jinja macros in
    app/templates/components/. This is where nearly all page-redesign work
-   lands — kept separate from tokens/base/utilities so those diffs stay
+   lands; kept separate from tokens/base/utilities so those diffs stay
    readable on their own.
    ========================================================================== */
 
@@ -84,7 +84,7 @@
 /* ---------------------------------- Dropdowns ---------------------------- */
 /* Bootstrap's .dropdown-menu defaults its background to --bs-body-bg,
    which tokens.css deliberately points at the page background color for
-   everywhere else Bootstrap reads it — but that meant every dropdown
+   everywhere else Bootstrap reads it; but that meant every dropdown
    (profile menu, notification bell) rendered in the *same* off-white as
    the page behind it, with no shadow, so it had almost no visible
    separation ("blends into the theme"). Give it its own real surface. */
@@ -231,7 +231,7 @@
 }
 /* Tells the browser this control's *closed* state is a light theme, so it
    picks light-appropriate system chrome. This is also the only lever CSS
-   has over a native <select>'s *open* popup list in Chrome/Edge — the
+   has over a native <select>'s *open* popup list in Chrome/Edge; the
    popup itself is drawn by the OS, not the page, so its row-hover colors
    stay OS blue there regardless. Firefox does honor <option> background/
    color, so the two declarations below are for that. There is no
@@ -244,7 +244,7 @@
 .form-control.is-invalid, .form-select.is-invalid { border-color: var(--color-danger-600); }
 
 /* Bootstrap's compiled CSS hardcodes .form-check-input:checked to a
-   literal rgb(13,110,253) — Bootstrap blue — rather than referencing
+   literal rgb(13,110,253) (Bootstrap blue) rather than referencing
    var(--bs-primary) the way its buttons/links do, so remapping that
    token in tokens.css never reached checkboxes/radios anywhere on the
    site. Override explicitly instead of relying on the token cascade. */
@@ -262,9 +262,80 @@
    on the parent, input pulled back over that padding). That negative
    margin has no such padding to sit inside wherever a .form-check is
    instead laid out as a flex row (gap-based spacing, no padding-left)
-   — the checkbox rendered ~24px too far left, spilling outside its own
+; the checkbox rendered ~24px too far left, spilling outside its own
    pill container. Neutralize it specifically for that combination. */
 .form-check.d-flex .form-check-input { margin: 0; flex-shrink: 0; }
+
+/* ---------------------------------- Custom select ------------------------ */
+/* Replaces the look of every <select class="form-select">'s open popup
+   list (custom-select.js swaps in this markup at runtime; the real
+   <select> stays in the DOM, hidden, so forms submit exactly as before).
+   Needed because a native <select>'s popup is OS-drawn in most browsers
+; no CSS on the page can reach its hover/highlight colors, which is
+   why the closed control could be themed already but the open list
+   never was. */
+.select-tma { position: relative; display: block; width: 100%; }
+.select-tma__native { display: none; }
+.select-tma__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: var(--text-body);
+  color: var(--color-ink);
+}
+.select-tma__trigger:disabled { opacity: 0.6; cursor: not-allowed; }
+.select-tma__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.select-tma__chevron {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.select-tma.is-open .select-tma__chevron { transform: rotate(180deg); }
+.select-tma.is-open .select-tma__trigger {
+  border-color: var(--color-primary-600);
+  box-shadow: var(--shadow-focus);
+}
+
+/* Portalled to <body> at open time (see custom-select.js for why;    short version: some containers on this site, like .search-bar,
+   intentionally clip overflow, which would otherwise cut the popup
+   off), so this is positioned in the viewport, not relative to
+   whichever card/row a given select happens to live in. */
+.select-tma__menu {
+  position: absolute;
+  z-index: 1060;
+  overflow-y: auto;
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+.select-tma__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
+  color: var(--color-body);
+  cursor: pointer;
+}
+.select-tma__option.is-active { background: var(--color-primary-50); color: var(--color-primary-900); }
+.select-tma__option.is-selected { color: var(--color-primary-800); font-weight: 600; }
+/* A float, the previous approach here, pulls the checkmark out of the
+   line box entirely once the row becomes a flex item elsewhere in the
+   cascade; it renders below and to the side of its own row instead of
+   next to the text. A flex row with space-between (above) puts the
+   check at the end of the same line by construction, no floats. */
+.select-tma__option.is-selected::after { content: "\2713"; flex-shrink: 0; }
 
 .password-field { position: relative; }
 .password-toggle {
@@ -300,7 +371,7 @@
 
 /* Every admin table puts an actions column (buttons, usually an empty
    <th></th>) last. Table auto-layout hands that column whatever width
-   is "left over" once other columns claim theirs — with a couple of
+   is "left over" once other columns claim theirs; with a couple of
    small buttons and no content in the header, that leftover was
    routinely 250-300px of dead whitespace, which is what actually read
    as "broken lines / gaps" in the table: not a border bug, an
@@ -350,7 +421,7 @@
 .rating-stars .star-empty { color: var(--color-border-strong); }
 
 /* The review form's 1-5 rating picker (Bootstrap btn-check + btn-outline-
-   secondary radios) — restyled off raw Bootstrap gray onto the gold
+   secondary radios); restyled off raw Bootstrap gray onto the gold
    token used for ratings everywhere else on the site. */
 .btn-check + .btn-outline-secondary {
   border-color: var(--color-border-strong);
@@ -480,7 +551,7 @@
   /* With enough filters to wrap onto a second row (common at laptop
      widths), square-cornered children sitting flush against the bottom
      edge poked straight through this container's rounded corners with
-     nothing clipping them — that hard rectangular line cutting across
+     nothing clipping them; that hard rectangular line cutting across
      under the search bar was that, not a border/shadow bug. */
   overflow: hidden;
 }
@@ -488,8 +559,7 @@
 .search-bar .form-check {
   /* Every other control in this bar is a solid pill/box; a bare
      transparent checkbox+label here read as an unstyled gap in the
-     middle of an otherwise uniform row. Give it the same treatment —
-     matching padding (not a hardcoded height) so it stays the same
+     middle of an otherwise uniform row. Give it the same treatment;      matching padding (not a hardcoded height) so it stays the same
      size as its siblings regardless of font rendering/box-sizing. */
   background: var(--color-surface-sunken);
   border-radius: var(--radius-sm);
@@ -539,7 +609,7 @@
 .timeline li:last-child::after { display: none; }
 
 /* Reveal-on-scroll (reveal.js toggles .is-visible; CSS-only fallback if
-   JS is disabled — content is visible by default, this only enhances). */
+   JS is disabled; content is visible by default, this only enhances). */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity var(--duration-slow) var(--ease-standard), transform var(--duration-slow) var(--ease-standard); }
 .reveal.is-visible { opacity: 1; transform: translateY(0); }
 @media (prefers-reduced-motion: reduce) {

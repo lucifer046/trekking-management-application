@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="{% block meta_description %}TMA — a premium platform for discovering, booking, and managing guided treks.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}TMA: a premium platform for discovering, booking, and managing guided treks.{% endblock %}">
     <title>{% block title %}TMA{% endblock %} · Trekking Management Association</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%8F%94%EF%B8%8F</text></svg>">
 
@@ -49,6 +49,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 {% block extra_scripts_pre %}{% endblock %}
 <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/custom-select.js') }}"></script>
 <script defer src="{{ url_for('static', filename='js/reveal.js') }}"></script>
 <script defer src="{{ url_for('static', filename='js/counters.js') }}"></script>
 {% if current_user.is_authenticated %}

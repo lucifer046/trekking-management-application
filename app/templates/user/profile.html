@@ -30,8 +30,8 @@
             <hr class="my-4">
             <p class="fs-sm text-muted-tma">Leave the password fields blank to keep your current password.</p>
             <div class="row">
-              <div class="col-md-6">{{ m.render_field(form.new_password) }}</div>
-              <div class="col-md-6">{{ m.render_field(form.confirm_new_password) }}</div>
+              <div class="col-md-6">{{ m.render_password_field(form.new_password) }}</div>
+              <div class="col-md-6">{{ m.render_password_field(form.confirm_new_password) }}</div>
             </div>
             <button type="submit" class="btn-tma btn-tma--primary">Save changes</button>
           </form>

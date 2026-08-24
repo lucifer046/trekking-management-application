@@ -1,4 +1,4 @@
-/* Scroll-reveal for elements marked .reveal — IntersectionObserver based,
+/* Scroll-reveal for elements marked .reveal; IntersectionObserver based,
  * a no-op (content stays visible) when reduced-motion is preferred or
  * IntersectionObserver isn't available. */
 (function () {

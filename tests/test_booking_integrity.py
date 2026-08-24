@@ -1,5 +1,5 @@
 """
-Booking business-rule guards — the highest-risk logic in the whole
+Booking business-rule guards; the highest-risk logic in the whole
 rebuild (see app/services/booking_service.py). Every guard gets its own
 test so a regression here fails loudly and specifically.
 """
@@ -46,7 +46,7 @@ def test_duplicate_active_booking_rejected(db, make_user, make_trek):
 
 def test_rebooking_after_cancellation_is_allowed(db, make_user, make_trek):
     """This is the behavior the dropped DB-level UNIQUE(user_id, trek_id)
-    used to provide via row-reuse — now provided by the service-layer
+    used to provide via row-reuse; now provided by the service-layer
     active-only check instead, while preserving the original booking's
     history as its own row."""
     trekker = make_user(role="user")

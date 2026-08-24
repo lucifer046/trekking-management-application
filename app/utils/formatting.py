@@ -37,7 +37,7 @@ def status_meta(value):
     readable title-cased label with a neutral tone rather than raising, so
     a template never breaks on an unexpected value."""
     if value is None:
-        return {"label": "—", "tone": "neutral"}
+        return {"label": "N/A", "tone": "neutral"}
     key = value.value if hasattr(value, "value") else str(value)
     for enum_val, (label, tone) in _STATUS_META.items():
         if enum_val.value == key:
@@ -47,25 +47,25 @@ def status_meta(value):
 
 def format_date(value, fmt="%d %b %Y"):
     if not value:
-        return "—"
+        return "N/A"
     return value.strftime(fmt)
 
 
 def format_datetime(value, fmt="%d %b %Y, %I:%M %p"):
     if not value:
-        return "—"
+        return "N/A"
     return value.strftime(fmt)
 
 
 def format_currency(value, currency="INR"):
     if value is None:
-        return "—"
+        return "N/A"
     symbol = {"INR": "₹", "USD": "$", "EUR": "€"}.get(currency, currency + " ")
     return f"{symbol}{float(value):,.0f}"
 
 
 def time_until(value):
-    """'in 12 days' / '3 days ago' / 'today' — used on trek cards & dashboards."""
+    """'in 12 days' / '3 days ago' / 'today'; used on trek cards & dashboards."""
     if not value:
         return ""
     today = date.today()

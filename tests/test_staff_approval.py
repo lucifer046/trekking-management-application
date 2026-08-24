@@ -50,7 +50,7 @@ def test_approved_staff_reaches_dashboard(client, make_user, login_as):
 
 def test_revoking_approval_mid_session_blocks_next_dashboard_request(client, make_user, login_as, db):
     """The spec's 'de-approve an already-approved staff member' gap: no
-    forced logout needed — approved_staff_required re-checks live status
+    forced logout needed; approved_staff_required re-checks live status
     on every dashboard-guarded request, so access is lost immediately."""
     staff = make_user(role="staff", staff_status=StaffStatus.APPROVED)
     login_as(staff)
@@ -61,5 +61,5 @@ def test_revoking_approval_mid_session_blocks_next_dashboard_request(client, mak
 
     resp = client.get("/staff/dashboard", follow_redirects=True)
     assert resp.request.path == "/staff/pending"
-    # Still logged in (not force-logged-out) — can still reach their profile.
+    # Still logged in (not force-logged-out); can still reach their profile.
     assert client.get("/staff/profile").status_code == 200

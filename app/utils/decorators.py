@@ -1,5 +1,5 @@
 """
-Centralized role-check decorators — replaces the four near-identical
+Centralized role-check decorators; replaces the four near-identical
 `login_required` + role-check pairs copy-pasted across the original app's
 route files.
 
@@ -54,7 +54,7 @@ def approved_staff_required(view):
     """staff_required, plus a live approval-status check.
 
     Unlike a bare role mismatch, "staff but not yet approved" isn't
-    treated as a hard 403 — it's a normal, expected state for a brand new
+    treated as a hard 403; it's a normal, expected state for a brand new
     staff account, so it redirects to a friendly status page explaining
     where their application stands instead. This is defense-in-depth: the
     global before_request guard (app/__init__.py) already force-logs-out

@@ -1,4 +1,4 @@
-/* Navbar bell dropdown — fetches recent notifications on open, marks
+/* Navbar bell dropdown; fetches recent notifications on open, marks
  * read on click. Purely additive: the notification bell link still
  * works as a plain link to /user/notifications if JS never runs. */
 (function () {

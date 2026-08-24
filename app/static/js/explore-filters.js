@@ -1,6 +1,6 @@
 /* Progressive-enhancement auto-submit for the explore page filter bar.
  * Deliberately a plain GET form submit (debounced for the text input),
- * not a fetch/JSON partial refresh — the spec requires server-side
+ * not a fetch/JSON partial refresh; the spec requires server-side
  * filtering for database queries, and a full Jinja-rendered response is
  * the simplest way to guarantee filtering stays authoritative there
  * rather than duplicated in JS. Works with JS disabled via the form's

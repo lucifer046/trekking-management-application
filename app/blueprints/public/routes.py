@@ -35,7 +35,7 @@ def home():
         .all()
     )
     if len(featured) < 3:
-        # Not enough curated picks yet — top up with the soonest open treks
+        # Not enough curated picks yet; top up with the soonest open treks
         # so the section never looks sparse on a fresh install.
         extra = (
             Trek.query.filter(Trek.status == TrekStatus.OPEN, ~Trek.id.in_([t.id for t in featured]))
@@ -144,7 +144,7 @@ def trek_detail(slug):
     trek = Trek.query.filter_by(slug=slug).first_or_404()
 
     # Draft / pending-approval treks are only visible to admins previewing
-    # them and the staff member assigned to them — not to the public.
+    # them and the staff member assigned to them; not to the public.
     if trek.status not in PUBLIC_TREK_STATUSES:
         allowed = current_user.is_authenticated and (
             current_user.is_admin or (current_user.is_staff and trek.assigned_staff_id == current_user.id)

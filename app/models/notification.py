@@ -4,7 +4,7 @@ from app.extensions import db
 class Notification(db.Model):
     """
     An in-app notification for a user. Rows are written exclusively via
-    app.services.notification_service.notify(...) — never insert one
+    app.services.notification_service.notify(...); never insert one
     directly from a route, so every trigger point stays in one place.
     """
 

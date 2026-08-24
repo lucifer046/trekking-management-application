@@ -1,12 +1,12 @@
-/* Small escape-hatch utilities — the direct replacement for the ~17
+/* Small escape-hatch utilities; the direct replacement for the ~17
    bespoke inline <style> blocks the original app had, one per template.
    Reach for these before writing new one-off CSS in a template. */
 
-/* Bootstrap's own spacing utilities only go up to -5 (3rem/48px) — mb-6
+/* Bootstrap's own spacing utilities only go up to -5 (3rem/48px); mb-6
    and mt-7 used across the dashboards/trek-detail templates were quietly
    matching no rule at all (not even Bootstrap's, not mine), collapsing
    to 0 margin. That's what actually made the gap after the KPI/stat
-   card rows on every dashboard read as cramped/inconsistent — not a
+   card rows on every dashboard read as cramped/inconsistent; not a
    sizing choice, a typo'd class nothing was ever defining. Extending
    the sequence onto the token scale here, !important to match how
    Bootstrap's own spacers behave (a utility should always win). */

@@ -25,7 +25,7 @@
             {% for booking in bookings %}
               <tr>
                 <td data-label="Trek"><a href="{{ url_for('public.trek_detail', slug=booking.trek.slug) }}" class="fw-semibold">{{ booking.trek.name }}</a><div class="cell-muted">{{ booking.trek.location.display_name }}</div></td>
-                <td data-label="Reference" class="text-mono">{{ booking.booking_reference or '—' }}</td>
+                <td data-label="Reference" class="text-mono">{{ booking.booking_reference or 'N/A' }}</td>
                 <td data-label="Booked on">{{ booking.booked_at | format_date }}</td>
                 <td data-label="Participants">{{ booking.participant_count }}</td>
                 <td data-label="Status">{{ m.status_badge(booking.status) }}</td>

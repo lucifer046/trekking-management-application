@@ -8,7 +8,7 @@ _PHONE_RE = r"^[0-9+\-\s()]{7,20}$"
 
 
 class StaffAddForm(FlaskForm):
-    """Admin manually creating a staff account (spec section 23 — distinct
+    """Admin manually creating a staff account (spec section 23; distinct
     from a staff member self-registering and waiting for approval)."""
 
     name = StringField("Full name", validators=[DataRequired(), Length(min=2, max=96)])

@@ -7,7 +7,7 @@ TrekStatus.OPEN` and `trek.status == "open"` both work), while still being
 usable as a real Python Enum in code (`for s in TrekStatus: ...`).
 
 Mapped via SQLAlchemy's `Enum(..., native_enum=False)` everywhere these are
-used as a column type — SQLite has no native ENUM type, so this stores a
+used as a column type; SQLite has no native ENUM type, so this stores a
 portable VARCHAR with a CHECK constraint instead of relying on dialect
 auto-detection.
 """
@@ -17,7 +17,7 @@ from enum import Enum
 def enum_values(enum_cls):
     """Pass as `values_callable=enum_values` on every `db.Enum(...)`
     column. Without it, SQLAlchemy stores/compares a stdlib Enum's
-    `.name` (e.g. "BOOKED") by default, NOT `.value` ("booked") — which
+    `.name` (e.g. "BOOKED") by default, NOT `.value` ("booked"); which
     would silently break every lowercase-value comparison this codebase
     relies on (Jinja filters, URL query params, JSON, seed data, tests).
     """
@@ -54,7 +54,7 @@ class TrekStatus(str, Enum):
 
 
 # Legal forward transitions for Trek.status. Enforced exclusively by
-# Trek.can_transition_to() / trek_service.transition_status() — see
+# Trek.can_transition_to() / trek_service.transition_status(): see
 # app/models/trek.py and app/services/trek_service.py.
 TREK_STATUS_TRANSITIONS = {
     TrekStatus.DRAFT: {TrekStatus.PENDING_APPROVAL, TrekStatus.APPROVED, TrekStatus.CANCELLED},

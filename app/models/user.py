@@ -8,7 +8,7 @@ from app.models.mixins import TimestampMixin
 
 class User(UserMixin, TimestampMixin, db.Model):
     """
-    Every account on the platform — trekker, staff guide, or admin — lives
+    Every account on the platform (trekker, staff guide, or admin) lives
     in this one table, distinguished by `role`. Staff carry an additional
     one-to-one Staff profile with approval workflow state.
 
@@ -42,7 +42,7 @@ class User(UserMixin, TimestampMixin, db.Model):
         uselist=False,
         cascade="all, delete-orphan",
         passive_deletes=True,
-        # Staff has two FKs to user.id (user_id, reviewed_by_id) — without
+        # Staff has two FKs to user.id (user_id, reviewed_by_id); without
         # this, SQLAlchemy can't tell which one defines this relationship.
         foreign_keys="Staff.user_id",
     )
@@ -94,7 +94,7 @@ class User(UserMixin, TimestampMixin, db.Model):
 
     @property
     def account_is_usable(self):
-        """False once blocked/deactivated — used by the before_request guard."""
+        """False once blocked/deactivated; used by the before_request guard."""
         return self.is_active and not self.is_blocked
 
     def __repr__(self):
