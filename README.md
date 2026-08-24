@@ -16,11 +16,11 @@ Not included in this repo; run it locally (two commands, see below) to see it li
 
 **Staff guides:** register and wait for admin approval (with a real "application pending/rejected" page, not just a bounced login); manage only the treks they're assigned to (enforced server-side, not just hidden in the UI); update available slots; move a trek through its operational lifecycle (open → closed → started → completed); view and remove participants.
 
-**Admins:** approve/reject staff applications; create/edit treks (rich content: highlights, day-by-day itinerary, requirements, safety info, cancellation policy, photos); drive the full trek lifecycle including cancellation; assign/reassign/unassign guides; view staff workload and unassigned treks; manage users (blacklist/unblacklist, which force-expires a blacklisted user's active session on their next request, not just blocks a future login); browse/search all bookings; a real activity/audit log; a dashboard with KPIs and charts, all computed from live database rows.
+**Admins:** approve/reject staff applications; create/edit treks (rich content: highlights, day-by-day itinerary, requirements, safety info, cancellation policy, photos); drive the full trek lifecycle including cancellation; assign/reassign/unassign guides; view staff workload and unassigned treks; manage users (blacklist/unblacklist, which force-expires a blacklisted user's active session on their next request, not just blocks a future login, and notifies them either way); browse/search all bookings; one global search box that looks across treks, users, staff, *and* bookings (by trekker/trek name or booking reference) at once; a real activity/audit log; a dashboard with KPIs and charts, all computed from live database rows.
 
 ## Tech stack
 
-Flask 3, SQLAlchemy 2 (Flask-SQLAlchemy), SQLite · Flask-Login, Flask-WTF (CSRF + form validation), Flask-Limiter · Jinja2, Bootstrap 5 (layout primitives only; the actual visual design is a custom CSS system), vanilla JS (no frontend framework/bundler), Chart.js for admin analytics · pytest for the test suite.
+Flask 3, SQLAlchemy 2 (Flask-SQLAlchemy), SQLite · Flask-Login, Flask-WTF (CSRF + form validation), Flask-Limiter · Jinja2, Bootstrap 5 (layout primitives only; the actual visual design is a custom CSS design system: tokens → base → components → utilities), vanilla JS (no frontend framework/bundler, including a from-scratch accessible dropdown widget that replaces the browser's un-stylable native `<select>` popup), Chart.js for admin analytics, hand-written SVG illustrations for trek/location imagery (deterministically varied per record, no stock photo library bundled) · pytest for the test suite.
 
 ## Architecture
 
@@ -94,8 +94,8 @@ The suite caught two real bugs during this rebuild (both fixed, see the commit h
 ## Running locally
 
 ```bash
-git clone <this-repo>
-cd trekking_management_application
+git clone https://github.com/lucifer046/trekking-management-application.git
+cd trekking-management-application
 python -m venv .venv
 .venv\Scripts\activate          # Windows (use `source .venv/bin/activate` on macOS/Linux)
 pip install -r requirements.txt
@@ -125,7 +125,7 @@ All other seeded staff/trekker accounts follow the pattern `firstname_lastname_s
 ## Project structure
 
 ```
-trekking_management_application/
+trekking-management-application/
 ├── app/                 see Architecture above
 ├── tests/                pytest suite + conftest.py fixtures
 ├── instance/              trekking.db (gitignored, created by seed.py)
@@ -146,4 +146,4 @@ Being direct about what this project deliberately doesn't do:
 - **Booking creation isn't race-proof under concurrent double-submits:** the "no duplicate active booking" and slot-count checks are correct for sequential requests (and are exactly what the test suite exercises) but two simultaneous requests from the same user could theoretically both pass the check before either commits. A `SELECT ... FOR UPDATE`-equivalent row lock (or a unique partial index) would close this; not implemented, since SQLite's locking model makes it a bigger change than the risk justifies here.
 - **Rate limiting resets on restart** (Flask-Limiter's in-memory storage). Fine at demo scale; a real deployment would point it at Redis.
 - **No email notifications:** only in-app ones. Booking confirmations, staff approval, etc. all generate a `Notification` row, not an email.
-- **Trek photos are either uploaded by an admin or fall back to an illustrated SVG placeholder:** no stock photo library is bundled (deliberately, to keep every asset in the repo original).
+- **Trek photos are either uploaded by an admin or fall back to an illustrated SVG placeholder** (locations always use one, there's no location photo-upload flow): no stock photo library is bundled (deliberately, to keep every asset in the repo original). Each placeholder's palette and mountain silhouette is deterministically derived from the record's own database ID, so it stays visually distinct and consistent across requests without needing real random state.
