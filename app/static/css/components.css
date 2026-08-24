@@ -1032,15 +1032,22 @@
 .locked-field {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-2) var(--space-3);
   padding: 10px 14px;
   border: 1px dashed var(--color-border-strong);
   border-radius: var(--radius-sm);
   background: var(--color-surface-sunken);
   color: var(--color-body);
 }
-.locked-field__badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--color-muted); white-space: nowrap; }
+/* The email value truncates before the "cannot be changed" badge ever
+   has to; a long email address plus that badge don't both fit on one
+   line at narrow widths, and the value (something the visitor already
+   knows) is the safer half to shorten, not the explanation. flex-wrap
+   above is the fallback if even that isn't enough room. */
+.locked-field__value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.locked-field__badge { display: inline-flex; align-items: center; flex-shrink: 0; gap: 5px; font-size: 0.75rem; color: var(--color-muted); white-space: nowrap; }
 
 /* ======================================================================
    PROFILE PAGES (view / edit / change password, user + staff + admin)
@@ -1075,14 +1082,26 @@
   .auth-visual { flex: 0 0 52%; min-height: 0; }
   .auth-workspace { flex: 1; min-height: 0; overflow-y: auto; }
 }
-@media (max-width: 767px) {
-  /* Compact hero: enough to establish mood + brand, not a full scene.
-     Stats and the long tagline paragraph are the first things cut,
-     not the branding itself. */
+/* Compact hero: enough to establish mood + brand, not a full scene.
+   Tied to the same <992px boundary the split-screen switch itself
+   uses, not a narrower phone-only breakpoint: anywhere the layout is
+   stacked, the visual panel is competing with the form for vertical
+   room, so a tablet/small-laptop width (e.g. 991x700) got the *full*
+   260px hero plus every line of copy on top of a stacked form and
+   needed real scrolling even on the login page, exactly what the
+   split-screen layout exists to avoid. Below 992px the visual is
+   never a side panel, so it should always be the compact version. */
+@media (max-width: 991px) {
   .auth-visual { min-height: 180px; }
   .auth-visual__content { padding: var(--space-4) var(--space-5); }
   .auth-visual__copy h1 { font-size: 1.5rem; margin-bottom: 4px; }
   .auth-visual__copy p, .auth-visual__stats, .auth-visual__location { display: none; }
+}
+/* Account-type cards only need to drop to one column on genuinely
+   narrow viewports; the stacked workspace column is near full-width
+   as soon as the layout stacks at all (<992px), with plenty of room
+   for two cards side by side down to roughly this width. */
+@media (max-width: 575px) {
   .account-type-cards { grid-template-columns: 1fr; }
 }
 
