@@ -2,77 +2,116 @@
    (login/register share this exact include, per spec: "registration
    must use the exact same visual language"). Hand-built layered SVG,
    the same illustrated-art approach as trek/location placeholder art
-   elsewhere in the app rather than a stock photo: distant/mid/near
-   ridges for depth, two cloud layers drifting at different speeds in
-   opposite directions for a simple parallax feel, a handful of slow
-   floating particles, and a trail that draws itself once toward a
-   gently pulsing summit marker. All motion is slow/subtle and every
-   keyframe here is already frozen by the site-wide
-   prefers-reduced-motion rule in base.css. #}
+   elsewhere in the app rather than a stock photo.
+
+   Layering, back to front, for atmospheric depth (sky -> distant hazy
+   range -> fog -> midground range -> fog wisp -> foreground terrain
+   -> subtle topographic contours -> trail -> summit marker), a warm
+   horizon glow standing in for low sunlight rather than a floating
+   sun disc, and three animated systems: two cloud layers drifting at
+   different speeds in opposite directions, floating particles, and a
+   trail that draws itself once toward a pulsing summit marker with a
+   faint highlight that keeps drifting along the route afterward. All
+   motion is slow/subtle and every keyframe here is already frozen by
+   the site-wide prefers-reduced-motion rule in base.css. #}
 <svg viewBox="0 0 600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
   <defs>
-    <linearGradient id="auth-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0f2a1c"/>
-      <stop offset="55%" stop-color="#12331f"/>
-      <stop offset="100%" stop-color="#08150e"/>
+    <linearGradient id="auth-sky" x1="0" y1="0" x2="0.25" y2="1">
+      <stop offset="0%" stop-color="#0a2018"/>
+      <stop offset="38%" stop-color="#10291f"/>
+      <stop offset="70%" stop-color="#173327"/>
+      <stop offset="100%" stop-color="#050d09"/>
     </linearGradient>
-    <radialGradient id="auth-glow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#d4a24c" stop-opacity="0.55"/>
-      <stop offset="100%" stop-color="#d4a24c" stop-opacity="0"/>
+    {# A warm light source near the mountain horizon rather than a
+       floating disc high in the sky: sunlight passing through
+       atmosphere, not a sun. #}
+    <radialGradient id="auth-horizon-glow" cx="72%" cy="56%" r="55%">
+      <stop offset="0%" stop-color="#d4a24c" stop-opacity="0.32"/>
+      <stop offset="45%" stop-color="#b8853a" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#b8853a" stop-opacity="0"/>
     </radialGradient>
-    {# The cloud ellipses are wide but short (ry 22-30px); a -50%/200%
-       filter region gives them only ~15-22px of vertical margin, not
-       enough for a stdDeviation:14 blur to fade out before it hits the
-       filter region's own edge, so it was clipping to a visible hard-
-       edged rectangle instead of dissolving to nothing. A much more
-       generous region (relative to each ellipse's own small bbox)
-       fixes that regardless of which cloud group it's applied to. #}
+    <linearGradient id="auth-fog-1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c9d6c9" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#c9d6c9" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#c9d6c9" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="auth-fog-2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dfe8df" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#dfe8df" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#dfe8df" stop-opacity="0"/>
+    </linearGradient>
+    {# Cloud ellipses are wide but short (ry 22-30px); a tight filter
+       region gives them too little margin for this blur to fade out
+       before hitting the region's own edge, clipping to a visible
+       hard-edged rectangle instead of dissolving into the sky. Kept
+       generous relative to any small shape it's applied to. #}
     <filter id="auth-blur" x="-200%" y="-200%" width="500%" height="500%">
       <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="auth-glow-blur" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="5"/>
     </filter>
   </defs>
 
   <rect width="600" height="900" fill="url(#auth-sky)"/>
-  <circle cx="430" cy="200" r="160" fill="url(#auth-glow)"/>
+  <rect width="600" height="900" fill="url(#auth-horizon-glow)"/>
 
-  <!-- far, faint cloud layer -->
-  <g class="scenery-cloud scenery-far" filter="url(#auth-blur)" opacity="0.22">
-    <ellipse cx="140" cy="170" rx="110" ry="30" fill="#ffffff"/>
-    <ellipse cx="470" cy="120" rx="90" ry="24" fill="#ffffff"/>
+  <!-- far, faint high cloud layer -->
+  <g class="scenery-cloud scenery-far" filter="url(#auth-blur)" opacity="0.16">
+    <ellipse cx="140" cy="150" rx="115" ry="28"/>
+    <ellipse cx="480" cy="110" rx="90" ry="22"/>
   </g>
 
-  <!-- distant ridge -->
-  <polygon points="0,520 90,410 170,470 260,360 360,450 460,380 600,470 600,900 0,900" fill="#0d2216" opacity="0.9"/>
-  <!-- mid ridge, with a couple of snow-cap accents -->
-  <polygon points="0,620 110,500 230,590 330,470 420,570 520,480 600,560 600,900 0,900" fill="#12331f"/>
-  <polygon points="330,470 350,495 310,495" fill="#eef4f0" opacity="0.85"/>
-  <polygon points="110,500 128,522 94,522" fill="#eef4f0" opacity="0.7"/>
-  <!-- near / foreground ridge -->
-  <polygon points="0,740 130,650 260,730 400,630 520,720 600,660 600,900 0,900" fill="#081a10"/>
+  <!-- distant range: low contrast, cool/hazy, well back in the atmosphere -->
+  <polygon points="0,560 70,480 150,520 230,440 310,500 390,430 470,490 540,440 600,500 600,900 0,900" fill="#213f38" opacity="0.55"/>
 
-  <!-- near mist, drifting the opposite way from the far clouds -->
-  <g class="scenery-cloud scenery-near" filter="url(#auth-blur)" opacity="0.18">
-    <ellipse cx="180" cy="740" rx="150" ry="26" fill="#ffffff"/>
-    <ellipse cx="460" cy="700" rx="120" ry="22" fill="#ffffff"/>
+  <rect x="0" y="470" width="600" height="110" fill="url(#auth-fog-1)"/>
+
+  <!-- midground range: more defined, irregular naturalistic silhouette,
+       plus a faint offset overlay for rock-face texture and a couple
+       of snow-cap accents -->
+  <polygon points="0,640 95,515 175,565 255,475 330,545 395,465 470,545 545,475 600,545 600,900 0,900" fill="#12331f"/>
+  <polygon points="255,475 275,505 235,505" fill="#eef4f0" opacity="0.8"/>
+  <polygon points="470,545 486,568 452,568" fill="#eef4f0" opacity="0.65"/>
+  <polygon points="95,515 340,545 330,600 95,600" fill="#183a26" opacity="0.35"/>
+
+  <rect x="0" y="590" width="600" height="70" fill="url(#auth-fog-2)"/>
+
+  <!-- foreground terrain: darkest, closest layer -->
+  <polygon points="0,770 90,690 180,740 260,670 340,730 420,660 500,725 580,675 600,695 600,900 0,900" fill="#050f0a"/>
+
+  <!-- Extremely subtle topographic contour rings (trekking + mapping +
+       technology motif); kept to the right two-thirds near the trail,
+       away from the text column, and only barely visible. -->
+  <g fill="none" stroke-width="1">
+    <path d="M 385,560 Q 450,542 498,568 Q 536,588 518,626 Q 480,655 432,642 Q 394,628 385,596 Z" stroke="rgba(255,255,255,0.07)"/>
+    <path d="M 402,578 Q 455,565 492,585 Q 518,599 507,620 Q 478,640 445,631 Q 414,619 402,600 Z" stroke="rgba(255,255,255,0.05)"/>
+    <path d="M 418,594 Q 458,585 483,600 Q 500,610 492,624 Q 472,637 450,630 Q 428,622 418,608 Z" stroke="rgba(255,255,255,0.04)"/>
   </g>
 
-  <!-- The trail draws itself once toward the summit marker: three
-       alternating switchback bulges (right, left, right), each its own
-       simple quadratic curve rather than a chained S-curve, so it
-       reads as a coherent mountain path climbing straight-ish toward
-       the summit instead of a wandering, erratic squiggle. Deliberately
-       kept to the right two-thirds of the scene (x >= ~400 at its
-       leftmost point): the brand/heading/copy text block below is
+  <!-- The trail: glow layer, crisp line, then a drifting highlight.
+       Kept to the right two-thirds of the scene (x >= ~430 at its
+       leftmost point): the brand/heading/copy text block is
        left-aligned in the same lower area, and a line drawn through it
-       read as visual clutter rather than depth. -->
+       reads as clutter rather than depth. -->
+  <path class="scenery-route-glow" d="M 520,860 Q 580,780 500,700 Q 430,630 480,540 Q 530,460 430,300"/>
   <path class="scenery-route" d="M 520,860 Q 580,780 500,700 Q 430,630 480,540 Q 530,460 430,300"/>
-  <circle class="scenery-summit" cx="430" cy="300" r="7" fill="#d4a24c"/>
-  <circle cx="430" cy="300" r="3" fill="#faf1ec"/>
+  <path class="scenery-route-flow" d="M 520,860 Q 580,780 500,700 Q 430,630 480,540 Q 530,460 430,300"/>
+
+  <!-- Summit marker: small core dot + a thin ring that expands and
+       fades on loop, plus a minimal label, rather than one large
+       dashboard-style circle. -->
+  <circle class="scenery-summit-ring" cx="430" cy="300" r="9" fill="none" stroke="#d4a24c" stroke-width="1.5"/>
+  <circle cx="430" cy="300" r="10" fill="#d4a24c" opacity="0.16"/>
+  <circle class="scenery-summit-dot" cx="430" cy="300" r="4" fill="#d4a24c"/>
+  <circle cx="430" cy="300" r="1.6" fill="#fff8ec"/>
+  <text class="scenery-summit-label" x="430" y="286" text-anchor="middle" font-size="8" letter-spacing="1.2" fill="rgba(255,255,255,0.7)" style="font-family: var(--font-body, sans-serif); text-transform: uppercase;">Summit</text>
 
   <!-- floating mist particles -->
-  <circle class="scenery-particle" cx="120" cy="300" r="3" fill="#d4a24c" style="animation-delay:0s;"/>
-  <circle class="scenery-particle" cx="480" cy="360" r="2.5" fill="#eef4f0" style="animation-delay:1.6s;"/>
-  <circle class="scenery-particle" cx="230" cy="230" r="2" fill="#eef4f0" style="animation-delay:3.1s;"/>
-  <circle class="scenery-particle" cx="520" cy="250" r="3" fill="#d4a24c" style="animation-delay:4.4s;"/>
-  <circle class="scenery-particle" cx="70" cy="420" r="2" fill="#eef4f0" style="animation-delay:2.2s;"/>
+  <circle class="scenery-particle" cx="120" cy="290" r="2.5" fill="#d4a24c" style="animation-delay:0s;"/>
+  <circle class="scenery-particle" cx="500" cy="350" r="2" fill="#eef4f0" style="animation-delay:1.6s;"/>
+  <circle class="scenery-particle" cx="230" cy="220" r="1.8" fill="#eef4f0" style="animation-delay:3.1s;"/>
+  <circle class="scenery-particle" cx="545" cy="240" r="2.5" fill="#d4a24c" style="animation-delay:4.4s;"/>
+  <circle class="scenery-particle" cx="70" cy="400" r="1.8" fill="#eef4f0" style="animation-delay:2.2s;"/>
+  <circle class="scenery-particle" cx="350" cy="200" r="1.6" fill="#eef4f0" style="animation-delay:5.2s;"/>
 </svg>

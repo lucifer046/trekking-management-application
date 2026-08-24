@@ -3,6 +3,8 @@ from urllib.parse import urlsplit
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
+from sqlalchemy import func
+
 from app.extensions import db, limiter
 from app.forms.auth_forms import LoginForm, RegisterForm
 from app.forms.booking_forms import ConfirmActionForm
@@ -13,17 +15,29 @@ bp = Blueprint("auth", __name__)
 
 
 def _auth_stats():
-    """Real, cheap counts for the auth pages' left-panel info strip
-    (spec section 9: never invent fake statistics; omit entirely if
-    there's nothing genuine to show). All three are simple counts
-    already indexed/queried elsewhere in the app, not a new expensive
-    query path."""
+    """Real, cheap counts (and, where one genuinely exists, a top
+    location by trek count) for the auth pages' left-panel info strip
+    (spec section 9: never invent fake statistics or a fake "currently
+    exploring" location; omit entirely if there's nothing genuine to
+    show). Same query shape public.home() already uses for its own
+    "Popular Locations" section, just limited to one row here."""
     treks = Trek.query.filter(Trek.status.in_(PUBLIC_TREK_STATUSES)).count()
     locations = Location.query.count()
     staff = Staff.query.filter_by(staff_status=StaffStatus.APPROVED).count()
     if not (treks or locations or staff):
         return None
-    return {"treks": treks, "locations": locations, "staff": staff}
+
+    top_location_row = (
+        db.session.query(Location, func.count(Trek.id).label("trek_count"))
+        .join(Trek, Trek.location_id == Location.id)
+        .filter(Trek.status.in_(PUBLIC_TREK_STATUSES))
+        .group_by(Location.id)
+        .order_by(func.count(Trek.id).desc())
+        .first()
+    )
+    top_location = top_location_row[0].display_name if top_location_row else None
+
+    return {"treks": treks, "locations": locations, "staff": staff, "top_location": top_location}
 
 
 def _role_home_endpoint(user):

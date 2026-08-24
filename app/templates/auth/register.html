@@ -10,15 +10,20 @@
       <span class="brand-mark" aria-hidden="true"><i class="bi bi-triangle-fill"></i></span>
       TMA
     </a>
-    <div class="auth-visual__copy">
-      <h1>Start your next trail.</h1>
-      <p>Join trekkers and guides already exploring India's mountains with TMA.</p>
+    <div>
+      {% if stats and stats.top_location %}
+        <div class="auth-visual__location"><i class="bi bi-geo-alt-fill"></i> Popular right now &middot; <strong>{{ stats.top_location }}</strong></div>
+      {% endif %}
+      <div class="auth-visual__copy">
+        <h1>Start your next trail.</h1>
+        <p>Join trekkers and guides already exploring India's mountains with TMA.</p>
+      </div>
     </div>
     {% if stats %}
       <div class="auth-visual__stats">
-        <span class="auth-visual__stat"><i class="bi bi-signpost-2"></i> <strong>{{ stats.treks }}</strong>&nbsp;treks</span>
-        <span class="auth-visual__stat"><i class="bi bi-geo-alt"></i> <strong>{{ stats.locations }}</strong>&nbsp;destinations</span>
-        <span class="auth-visual__stat"><i class="bi bi-patch-check"></i> <strong>{{ stats.staff }}</strong>&nbsp;verified guides</span>
+        <span class="auth-visual__stat"><i class="bi bi-signpost-2"></i> <strong>{{ stats.treks }}</strong><span>treks</span></span>
+        <span class="auth-visual__stat"><i class="bi bi-geo-alt"></i> <strong>{{ stats.locations }}</strong><span>destinations</span></span>
+        <span class="auth-visual__stat"><i class="bi bi-patch-check"></i> <strong>{{ stats.staff }}</strong><span>verified guides</span></span>
       </div>
     {% endif %}
   </div>

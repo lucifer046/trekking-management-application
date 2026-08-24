@@ -776,7 +776,7 @@
 .auth-visual {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(160deg, var(--color-primary-900) 0%, #0b2418 60%, var(--color-ink) 100%);
+  background: #060f0a; /* base beneath the SVG sky; visible only for a flash before it paints */
   color: #fff;
   min-height: 260px;
   display: flex;
@@ -786,16 +786,17 @@
 .auth-visual__scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 /* The scene's mountains/clouds/trail sit directly behind the brand,
    heading, copy and stats below; without this, dark text (or even
-   white text over the sun-glow's brightest patch) reads inconsistently
-   depending on exactly what part of the illustration happens to be
-   behind it. A fixed bottom-weighted scrim guarantees every line of
-   text sits on a consistently dark, low-detail patch regardless of
-   the scene underneath, the same trick a photo-hero would use. */
+   white text over the horizon-glow's brightest patch) reads
+   inconsistently depending on exactly what part of the illustration
+   happens to be behind it. A fixed bottom-weighted scrim guarantees
+   every line of text sits on a consistently dark, low-detail patch
+   regardless of the scene underneath, the same trick a photo-hero
+   would use. */
 .auth-visual__scrim {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(0deg, rgba(6, 14, 9, 0.88) 0%, rgba(6, 14, 9, 0.55) 38%, rgba(6, 14, 9, 0.08) 68%, transparent 85%);
+  background: linear-gradient(0deg, rgba(4, 10, 7, 0.92) 0%, rgba(4, 10, 7, 0.62) 34%, rgba(4, 10, 7, 0.14) 64%, transparent 84%);
 }
 .auth-visual__content {
   position: relative;
@@ -806,16 +807,76 @@
   height: 100%;
   padding: var(--space-6) var(--space-6) var(--space-5);
 }
-.auth-visual__brand { display: inline-flex; align-items: center; gap: 10px; font: var(--text-heading-sm); color: #fff; text-decoration: none; text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5); }
-.auth-visual__brand .brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.12); color: var(--color-gold-500); }
-.auth-visual__brand:hover { color: #fff; }
-.auth-visual__copy { max-width: 26ch; }
-.auth-visual__copy h1 { color: #fff; font: var(--text-display-lg); margin-bottom: var(--space-3); text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55); }
-.auth-visual__copy p { color: rgba(255, 255, 255, 0.88); font: var(--text-body-lg); margin: 0; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55); }
-.auth-visual__stats { display: flex; gap: var(--space-5); flex-wrap: wrap; }
-.auth-visual__stat { display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.9); font-size: 0.875rem; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5); }
-.auth-visual__stat i { color: var(--color-gold-500); font-size: 1rem; }
-.auth-visual__stat strong { color: #fff; font-family: var(--font-display); font-size: 1.05rem; }
+
+/* Brand: a refined glass pill instead of a plain wordmark, so it reads
+   as part of the product chrome rather than a floating label. */
+.auth-visual__brand {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 10px;
+  padding: 7px 16px 7px 7px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font: var(--text-heading-sm);
+  color: #fff;
+  text-decoration: none;
+  transition: background var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+.auth-visual__brand .brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); color: var(--color-gold-500); }
+.auth-visual__brand:hover { color: #fff; background: rgba(255, 255, 255, 0.12); box-shadow: 0 0 24px rgba(212, 162, 76, 0.22); }
+
+/* Location indicator: only ever rendered when the template actually has
+   a real top_location value (see auth/routes.py's _auth_stats query);
+   never a hardcoded "Currently exploring the Himalayas" placeholder. */
+.auth-visual__location {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  margin-top: var(--space-4);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+.auth-visual__location i { color: var(--color-gold-500); font-size: 0.7rem; }
+.auth-visual__location strong { color: #fff; font-weight: 600; letter-spacing: 0.02em; }
+
+.auth-visual__copy { max-width: 26ch; margin-top: var(--space-4); }
+.auth-visual__copy h1 { color: #fff; font: var(--text-display-lg); margin-bottom: var(--space-3); text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6); }
+.auth-visual__copy p { color: rgba(255, 255, 255, 0.82); font: var(--text-body-lg); margin: 0; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5); }
+
+/* Stats: one cohesive glass strip with internal dividers instead of
+   three separate floating pills, closer to spec's "premium information
+   strip" example than a row of disconnected numbers. */
+.auth-visual__stats {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex-wrap: wrap;
+}
+.auth-visual__stat { display: flex; align-items: baseline; gap: 7px; padding-inline: 12px; color: rgba(255, 255, 255, 0.9); font-size: 0.8125rem; transition: opacity var(--duration-fast) var(--ease-standard); }
+.auth-visual__stat:first-child { padding-left: 0; }
+.auth-visual__stat:last-child { padding-right: 0; }
+.auth-visual__stat:not(:last-child) { border-right: 1px solid rgba(255, 255, 255, 0.14); }
+.auth-visual__stat:hover { opacity: 0.7; }
+.auth-visual__stat i { color: var(--color-gold-500); font-size: 0.8125rem; align-self: center; }
+.auth-visual__stat strong { color: #fff; font-family: var(--font-display); font-weight: 600; font-size: 1rem; }
+.auth-visual__stat span { color: rgba(255, 255, 255, 0.55); font-size: 0.6875rem; letter-spacing: 0.05em; text-transform: uppercase; }
 
 .auth-workspace {
   background: var(--color-page-bg);
@@ -856,29 +917,55 @@
   from { transform: translateX(-8%); }
   to { transform: translateX(8%); }
 }
-.scenery-particle { animation: particle-float 9s ease-in-out infinite; transform-origin: center; }
+.scenery-particle { animation: particle-float 11s ease-in-out infinite; transform-origin: center; }
 @keyframes particle-float {
-  0%, 100% { transform: translateY(0) scale(1); opacity: 0.35; }
-  50% { transform: translateY(-14px) scale(1.15); opacity: 0.8; }
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.25; }
+  50% { transform: translateY(-16px) scale(1.15); opacity: 0.65; }
 }
-.scenery-route {
+
+/* The trail is three stacked paths sharing one route, not one line:
+   a soft blurred glow underneath, a crisp line on top of it, and a
+   short bright dash that keeps drifting along the route after the
+   initial draw-in finishes (spec: "the trail glow slowly travels
+   toward the summit"). Reads as a glowing navigation path rather than
+   a decorative curve. */
+.scenery-route-glow, .scenery-route {
   fill: none;
-  stroke: var(--color-gold-500);
-  stroke-width: 2;
   stroke-linecap: round;
   stroke-dasharray: 1100;
   stroke-dashoffset: 1100;
-  animation: route-draw 3s var(--ease-flow) forwards;
+  animation: route-draw 3.2s var(--ease-flow) forwards;
   animation-delay: 0.4s;
-  opacity: 0.85;
 }
+.scenery-route-glow { stroke: var(--color-gold-500); stroke-width: 7; opacity: 0.22; filter: url(#auth-glow-blur); }
+.scenery-route { stroke: var(--color-gold-500); stroke-width: 1.5; opacity: 0.9; }
 @keyframes route-draw { to { stroke-dashoffset: 0; } }
-.scenery-summit { animation: summit-pulse 2.8s ease-in-out infinite; animation-delay: 3s; transform-origin: center; }
-@keyframes summit-pulse {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.4); }
+
+.scenery-route-flow {
+  fill: none;
+  stroke: #fbe9c8;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0;
+  stroke-dasharray: 16 1400;
+  animation: route-flow-in 0.6s linear forwards, route-flow 6s linear infinite;
+  animation-delay: 3.6s, 3.6s;
 }
-.scenery-far { animation: cloud-drift 140s linear infinite; }
+@keyframes route-flow-in { to { opacity: 0.8; } }
+@keyframes route-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -1416; } }
+
+/* Summit marker: a small core dot + an outer ring that expands and
+   fades on loop (a location-pin pulse, not a large dashboard circle). */
+.scenery-summit-dot { animation: summit-dot-pulse 3.2s ease-in-out infinite; animation-delay: 3.6s; transform-origin: center; }
+@keyframes summit-dot-pulse { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
+.scenery-summit-ring { animation: summit-ring-pulse 3.2s ease-out infinite; animation-delay: 3.6s; transform-origin: center; opacity: 0; }
+@keyframes summit-ring-pulse {
+  0% { opacity: 0.6; transform: scale(0.5); }
+  75% { opacity: 0; transform: scale(2.4); }
+  100% { opacity: 0; transform: scale(2.4); }
+}
+
+.scenery-far { animation: cloud-drift 160s linear infinite; }
 .scenery-near { animation: cloud-drift 90s linear infinite reverse; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -976,7 +1063,7 @@
   .auth-visual { min-height: 180px; }
   .auth-visual__content { padding: var(--space-4) var(--space-5); }
   .auth-visual__copy h1 { font-size: 1.5rem; margin-bottom: 4px; }
-  .auth-visual__copy p, .auth-visual__stats { display: none; }
+  .auth-visual__copy p, .auth-visual__stats, .auth-visual__location { display: none; }
   .account-type-cards { grid-template-columns: 1fr; }
 }
 
