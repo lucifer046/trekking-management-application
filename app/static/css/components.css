@@ -81,7 +81,7 @@
   border: 2px solid var(--color-surface);
 }
 .notification-panel { width: 320px; max-width: calc(100vw - 2rem); }
-.notification-panel [data-notification-list] { max-height: 320px; overflow-y: auto; }
+.notification-panel [data-notification-list] { max-height: 320px; overflow-y: auto; overflow-x: hidden; }
 
 /* ---------------------------------- Dropdowns ---------------------------- */
 /* Bootstrap's .dropdown-menu defaults its background to --bs-body-bg,
@@ -103,6 +103,14 @@
   padding: 10px 12px;
   font-size: 0.9375rem;
   color: var(--color-body);
+  /* Bootstrap's own default here is white-space: nowrap, tuned for
+     short one-line menu labels (Profile, Logout, ...). The notification
+     panel's items are full sentences, not labels; without this they
+     forced their container hundreds of pixels wider than it actually
+     was, which produced the horizontal scrollbar and clipped text
+     rather than wrapping normally. None of this site's other dropdown
+     items are long enough to need nowrap, so this is safe globally. */
+  white-space: normal;
 }
 .dropdown-item:hover, .dropdown-item:focus {
   background: var(--color-primary-50);
