@@ -56,6 +56,11 @@
   <span class="badge-tma badge-tone-{{ meta.tone }}">{{ meta.label }}</span>
 {% endmacro %}
 
+{% macro action_badge(value) %}
+  {% set meta = value | action_meta %}
+  <span class="badge-tma badge-tone-{{ meta.tone }}">{{ meta.label }}</span>
+{% endmacro %}
+
 {% macro difficulty_pill(difficulty) %}
   {% set meta = difficulty | status_meta %}
   <span class="d-inline-flex align-items-center gap-1 fs-sm">

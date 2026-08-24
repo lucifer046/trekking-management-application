@@ -13,7 +13,10 @@
               <span>{{ entry.description }}</span>
               <span class="fs-xs text-muted-tma">{{ entry.created_at | format_datetime }}</span>
             </div>
-            <div class="fs-xs text-muted-tma">by {{ entry.actor_name_snapshot }} &middot; <span class="text-mono">{{ entry.action }}</span></div>
+            <div class="d-flex align-items-center gap-2 fs-xs text-muted-tma">
+              <span>by {{ entry.actor_name_snapshot }}</span>
+              {{ m.action_badge(entry.action) }}
+            </div>
           </li>
         {% endfor %}
       </ul>

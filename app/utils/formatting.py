@@ -45,6 +45,45 @@ def status_meta(value):
     return {"label": key.replace("_", " ").title(), "tone": "neutral"}
 
 
+# ActivityLog.action value -> (human label, tone), same badge-tone
+# palette as status_meta. Deliberately not tied to an enum (see
+# ActivityLog's docstring: the action set is open-ended by design), so
+# this is a plain string lookup with a readable fallback for anything
+# not listed here — a future action code degrades to a title-cased
+# label instead of ever showing a raw snake_case string in the UI.
+_ACTION_META = {
+    "platform_seeded": ("Platform seeded", "neutral"),
+    "user_registered": ("Account registered", "info"),
+    "user_blacklisted": ("User blacklisted", "danger"),
+    "user_unblacklisted": ("User unblacklisted", "success"),
+    "user_deleted": ("User deleted", "danger"),
+    "staff_added": ("Staff added", "info"),
+    "staff_approved": ("Staff approved", "success"),
+    "staff_rejected": ("Staff rejected", "danger"),
+    "staff_deleted": ("Staff deleted", "danger"),
+    "staff_assigned": ("Staff assigned", "brand"),
+    "staff_unassigned": ("Staff unassigned", "neutral"),
+    "trek_created": ("Trek created", "info"),
+    "trek_edited": ("Trek edited", "info"),
+    "trek_deleted": ("Trek deleted", "danger"),
+    "trek_slots_updated": ("Trek availability updated", "neutral"),
+    "trek_status_changed": ("Trek status changed", "brand"),
+    "booking_created": ("Booking created", "success"),
+    "booking_cancelled": ("Booking cancelled", "danger"),
+    "review_created": ("Review submitted", "info"),
+}
+
+
+def action_meta(value):
+    """Returns {'label': ..., 'tone': ...} for an ActivityLog.action code."""
+    if not value:
+        return {"label": "N/A", "tone": "neutral"}
+    if value in _ACTION_META:
+        label, tone = _ACTION_META[value]
+        return {"label": label, "tone": tone}
+    return {"label": value.replace("_", " ").capitalize(), "tone": "neutral"}
+
+
 def format_date(value, fmt="%d %b %Y"):
     if not value:
         return "N/A"
@@ -80,6 +119,7 @@ def time_until(value):
 
 def register_template_helpers(app):
     app.jinja_env.filters["status_meta"] = status_meta
+    app.jinja_env.filters["action_meta"] = action_meta
     app.jinja_env.filters["format_date"] = format_date
     app.jinja_env.filters["format_datetime"] = format_datetime
     app.jinja_env.filters["format_currency"] = format_currency
