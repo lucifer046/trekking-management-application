@@ -1,0 +1,34 @@
+{# Illustrated scenery for a location card (homepage "Popular locations").
+   Previously this was just two solid background colors alternating by
+   loop position, with one flat mountain silhouette — every other card
+   looked identical regardless of which location it was. Palette and
+   shapes are now derived from location.id (a stable DB primary key, not
+   Python's hash()/random — those aren't deterministic across requests)
+   so each location has its own consistent look, distinct from its
+   neighbors, every time it's rendered. #}
+{% set palettes = [
+  ('#12331f', '#1b4332', '#2d6a4f'),
+  ('#5c2a18', '#8a3d22', '#c1502e'),
+  ('#1c2f4a', '#2c4a70', '#3a6ea5'),
+  ('#3a1f38', '#5c3457', '#8a4a6b'),
+  ('#0d3533', '#155452', '#227370'),
+  ('#3f2a12', '#6b4a1e', '#a6743a'),
+] %}
+{% set seed = location.id or 1 %}
+{% set tone = palettes[seed % palettes|length] %}
+{% set p1 = 30 + (seed * 31) % 40 %}
+{% set p2 = 90 + (seed * 47) % 40 %}
+{% set p3 = 150 + (seed * 17) % 40 %}
+<svg viewBox="0 0 200 260" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration representing {{ location.name }}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+  <defs>
+    <linearGradient id="loc-sky-{{ seed }}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="{{ tone[0] }}"/>
+      <stop offset="100%" stop-color="{{ tone[2] }}"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="260" fill="url(#loc-sky-{{ seed }})"/>
+  <circle cx="{{ 30 + (seed * 23) % 140 }}" cy="{{ 30 + (seed * 13) % 30 }}" r="14" fill="#ffffff" opacity="0.5"/>
+  <polygon points="0,260 {{ p1 }},150 {{ p2 }},190 {{ p3 }},120 200,170 200,260" fill="{{ tone[1] }}" opacity="0.6"/>
+  <polygon points="0,260 {{ (p1 + 25) % 180 }},190 {{ (p2 - 15) % 180 + 10 }},225 {{ (p3 - 10) % 180 }},175 200,215 200,260" fill="{{ tone[0] }}" opacity="0.9"/>
+  <polygon points="{{ (p3 - 10) % 180 }},175 {{ (p3 - 10) % 180 + 10 }},195 {{ (p3 - 10) % 180 - 10 }},195" fill="#ffffff" opacity="0.7"/>
+</svg>

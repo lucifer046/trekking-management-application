@@ -1,22 +1,72 @@
 {# Illustrated placeholder used whenever a trek has no uploaded photo yet:
-   a self-contained gradient + mountain-silhouette SVG, tinted by
-   difficulty. Deliberately not a downloaded stock photo: keeps every
-   asset in the repo original and licensing-free, and still reads as
-   "designed" rather than a broken-image icon. Real photos uploaded via
-   the admin trek-image feature simply take over from this. #}
-{% set tone = {'easy': ('#8fd3b6', '#e8f5ee'), 'moderate': ('#e8c07d', '#fbf1de'), 'hard': ('#c98f9c', '#f3e3e6')} %}
-{% set sky = tone.get(trek.difficulty.value if trek.difficulty.value is defined else trek.difficulty, tone['moderate']) %}
+   a self-contained gradient + layered-mountain SVG scene, tinted by
+   difficulty and shaped by trek.id so treks don't all share one of
+   only 3 identical looks. Deliberately not a downloaded stock photo:
+   keeps every asset in the repo original and licensing-free, and still
+   reads as "designed" rather than a broken-image icon. Real photos
+   uploaded via the admin trek-image feature simply take over from
+   this. trek.id (a stable DB primary key) drives the variation instead
+   of Python's hash()/random, which aren't deterministic across
+   requests/processes — the same trek must render identically every
+   time it's shown. #}
+{% set difficulty_key = trek.difficulty.value if trek.difficulty.value is defined else trek.difficulty %}
+{% set palette = {
+  'easy':     {'sky': ('#bfe3d0', '#eef7f0'), 'far': '#4f8a6d', 'mid': '#2d6a4f', 'near': '#1b4332', 'accent': '#ffffff'},
+  'moderate': {'sky': ('#f3d9a6', '#fbf1de'), 'far': '#c98a4a', 'mid': '#a6602e', 'near': '#5c3d1e', 'accent': '#ffe9b8'},
+  'hard':     {'sky': ('#3a2f52', '#7a4f6b'), 'far': '#5b3a5c', 'mid': '#3a2540', 'near': '#241a30', 'accent': '#f6e8cf'},
+} %}
+{% set tone = palette.get(difficulty_key, palette['moderate']) %}
+{% set seed = trek.id or 1 %}
+{# Small deterministic "randomness" from the trek id: several primes
+   mixed with modulo so nearby ids don't produce visually near-identical
+   scenes. #}
+{% set p1 = 70 + (seed * 37) % 70 %}
+{% set p2 = 170 + (seed * 53) % 90 %}
+{% set p3 = 300 + (seed * 29) % 80 %}
+{% set far_h = 70 + (seed * 19) % 50 %}
+{% set mid_h = 120 + (seed * 31) % 60 %}
+{% set near_h = 170 + (seed * 41) % 55 %}
+{% set sun_x = 60 + (seed * 61) % 260 %}
+{% set sun_y = 45 + (seed * 11) % 35 %}
 <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of {{ trek.name }}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
   <defs>
-    <linearGradient id="sky-{{ trek.id }}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="{{ sky[0] }}"/>
-      <stop offset="100%" stop-color="{{ sky[1] }}"/>
+    <linearGradient id="sky-{{ seed }}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="{{ tone.sky[0] }}"/>
+      <stop offset="100%" stop-color="{{ tone.sky[1] }}"/>
     </linearGradient>
   </defs>
-  <rect width="400" height="300" fill="url(#sky-{{ trek.id }})"/>
-  <circle cx="330" cy="60" r="26" fill="#ffffff" opacity="0.65"/>
-  <polygon points="0,300 90,120 150,210 210,90 260,180 400,110 400,300" fill="#1b4332" opacity="0.55"/>
-  <polygon points="0,300 60,190 140,260 220,150 300,240 400,170 400,300" fill="#12331f" opacity="0.85"/>
-  <polygon points="90,120 105,150 75,150" fill="#ffffff" opacity="0.7"/>
-  <polygon points="210,90 226,122 194,122" fill="#ffffff" opacity="0.7"/>
+  <rect width="400" height="300" fill="url(#sky-{{ seed }})"/>
+
+  {% if difficulty_key == 'hard' %}
+    {# Night sky for hard/high-altitude treks: a scatter of stars instead of a sun. #}
+    {% for i in range(9) %}
+      {% set sx = (seed * (i + 3) * 13) % 380 + 10 %}
+      {% set sy = (seed * (i + 5) * 7) % 90 + 12 %}
+      {% set sr = 1 + ((seed + i) % 3) * 0.5 %}
+      <circle cx="{{ sx }}" cy="{{ sy }}" r="{{ sr }}" fill="{{ tone.accent }}" opacity="{{ 0.5 + ((seed + i) % 5) / 10 }}"/>
+    {% endfor %}
+    <circle cx="{{ sun_x }}" cy="{{ sun_y }}" r="16" fill="{{ tone.accent }}" opacity="0.85"/>
+  {% else %}
+    <circle cx="{{ sun_x }}" cy="{{ sun_y }}" r="24" fill="{{ tone.accent }}" opacity="0.7"/>
+    {# A soft cloud drifting near the sun for easy/moderate treks. #}
+    <g opacity="0.55" fill="{{ tone.accent }}">
+      <ellipse cx="{{ (sun_x + 70) % 360 + 20 }}" cy="{{ sun_y + 30 }}" rx="26" ry="10"/>
+      <ellipse cx="{{ (sun_x + 92) % 360 + 20 }}" cy="{{ sun_y + 27 }}" rx="18" ry="8"/>
+    </g>
+  {% endif %}
+
+  {# Three layered mountain ridges, far to near, each shaped from the
+     trek-id-derived peak/height values above. #}
+  <polygon points="0,300 {{ p1 }},{{ 300 - far_h }} {{ p2 }},{{ 300 - far_h * 0.7 }} {{ p3 }},{{ 300 - far_h * 0.9 }} 400,{{ 300 - far_h * 0.5 }} 400,300" fill="{{ tone.far }}" opacity="0.55"/>
+  <polygon points="0,300 {{ (p1 + 40) % 380 }},{{ 300 - mid_h }} {{ (p2 - 30) % 380 + 20 }},{{ 300 - mid_h * 0.75 }} {{ (p3 - 60) % 380 + 20 }},{{ 300 - mid_h * 0.9 }} 400,{{ 300 - mid_h * 0.6 }} 400,300" fill="{{ tone.mid }}" opacity="0.7"/>
+  <polygon points="0,300 {{ (p1 + 15) % 380 }},{{ 300 - near_h }} {{ (p2 + 20) % 380 }},{{ 300 - near_h * 0.65 }} {{ (p3 - 20) % 380 }},{{ 300 - near_h * 0.85 }} 400,{{ 300 - near_h * 0.55 }} 400,300" fill="{{ tone.near }}" opacity="0.92"/>
+
+  {# Snow caps on the nearest ridge's two tallest points. #}
+  <polygon points="{{ (p1 + 15) % 380 }},{{ 300 - near_h }} {{ (p1 + 15) % 380 + 14 }},{{ 300 - near_h + 24 }} {{ (p1 + 15) % 380 - 14 }},{{ 300 - near_h + 24 }}" fill="{{ tone.accent }}" opacity="0.75"/>
+
+  {% if difficulty_key != 'hard' %}
+    {# A pair of simple bird silhouettes for the gentler treks. #}
+    <path d="M {{ (seed * 7) % 300 + 40 }} {{ 50 + (seed % 20) }} q 8 -8 16 0 q 8 -8 16 0" stroke="{{ tone.near }}" stroke-width="2" fill="none" opacity="0.6" stroke-linecap="round"/>
+    <path d="M {{ (seed * 11) % 300 + 60 }} {{ 65 + (seed % 15) }} q 6 -6 12 0 q 6 -6 12 0" stroke="{{ tone.near }}" stroke-width="2" fill="none" opacity="0.5" stroke-linecap="round"/>
+  {% endif %}
 </svg>
