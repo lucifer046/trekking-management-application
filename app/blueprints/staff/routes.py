@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 
 from app.extensions import db
 from app.forms.booking_forms import ConfirmActionForm
-from app.forms.profile_forms import StaffProfileForm
+from app.forms.profile_forms import ChangePasswordForm, StaffEditProfileForm
 from app.forms.trek_forms import StaffTrekOperationalForm, TrekStatusForm
 from app.models import TREK_STATUS_TRANSITIONS, Booking, BookingStatus, Trek, TrekStatus
 from app.services import activity_log_service, booking_service, trek_service
@@ -151,21 +151,31 @@ def remove_participant(trek_id, booking_id):
     return redirect(url_for("staff.view_trek", trek_id=trek.id))
 
 
-@bp.route("/profile", methods=["GET", "POST"])
+@bp.route("/profile")
 @login_required
 @staff_required
 def profile():
     staff = current_user.staff_profile
-    form = StaffProfileForm(current_user_id=current_user.id, obj=current_user)
+    assigned_count = Trek.query.filter_by(assigned_staff_id=current_user.id).count()
+    completed_count = Trek.query.filter_by(assigned_staff_id=current_user.id, status=TrekStatus.COMPLETED).count()
+    return render_template("staff/profile.html", staff=staff, assigned_count=assigned_count, completed_count=completed_count)
+
+
+@bp.route("/profile/edit", methods=["GET", "POST"])
+@login_required
+@staff_required
+def profile_edit():
+    staff = current_user.staff_profile
+    form = StaffEditProfileForm(obj=current_user)
     if request.method == "GET" and staff:
         form.experience.data = staff.experience
 
     if form.validate_on_submit():
         current_user.name = form.name.data.strip()
-        current_user.email = form.email.data.lower().strip()
         current_user.phone = (form.phone.data or "").strip() or None
-        if form.new_password.data:
-            current_user.set_password(form.new_password.data)
+        current_user.date_of_birth = form.date_of_birth.data or None
+        current_user.gender = form.gender.data or None
+        current_user.city = (form.city.data or "").strip() or None
         if staff:
             staff.contact = current_user.phone
             staff.experience = (form.experience.data or "").strip() or None
@@ -173,7 +183,31 @@ def profile():
         flash("Profile updated successfully.", "success")
         return redirect(url_for("staff.profile"))
 
-    return render_template("staff/profile.html", form=form, staff=staff)
+    return render_template("staff/profile_edit.html", form=form, staff=staff)
+
+
+@bp.route("/profile/password", methods=["GET", "POST"])
+@login_required
+@staff_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if not current_user.check_password(form.current_password.data):
+            flash("Your current password is incorrect.", "danger")
+        else:
+            current_user.set_password(form.new_password.data)
+            activity_log_service.log(
+                actor=current_user,
+                action="password_changed",
+                description=f"{current_user.name} changed their password.",
+                target_type="user",
+                target_id=current_user.id,
+            )
+            db.session.commit()
+            flash("Password updated successfully.", "success")
+            return redirect(url_for("staff.profile"))
+
+    return render_template("staff/change_password.html", form=form)
 
 
 def _build_status_form(trek):

@@ -1,0 +1,63 @@
+{# Cinematic mountain scene for the left panel of the auth split-screen
+   (login/register share this exact include, per spec: "registration
+   must use the exact same visual language"). Hand-built layered SVG,
+   the same illustrated-art approach as trek/location placeholder art
+   elsewhere in the app rather than a stock photo: distant/mid/near
+   ridges for depth, two cloud layers drifting at different speeds in
+   opposite directions for a simple parallax feel, a handful of slow
+   floating particles, and a trail that draws itself once toward a
+   gently pulsing summit marker. All motion is slow/subtle and every
+   keyframe here is already frozen by the site-wide
+   prefers-reduced-motion rule in base.css. #}
+<svg viewBox="0 0 600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+  <defs>
+    <linearGradient id="auth-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f2a1c"/>
+      <stop offset="55%" stop-color="#12331f"/>
+      <stop offset="100%" stop-color="#08150e"/>
+    </linearGradient>
+    <radialGradient id="auth-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#d4a24c" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#d4a24c" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="auth-blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+
+  <rect width="600" height="900" fill="url(#auth-sky)"/>
+  <circle cx="430" cy="200" r="160" fill="url(#auth-glow)"/>
+
+  <!-- far, faint cloud layer -->
+  <g class="scenery-cloud scenery-far" filter="url(#auth-blur)" opacity="0.22">
+    <ellipse cx="140" cy="170" rx="110" ry="30" fill="#ffffff"/>
+    <ellipse cx="470" cy="120" rx="90" ry="24" fill="#ffffff"/>
+  </g>
+
+  <!-- distant ridge -->
+  <polygon points="0,520 90,410 170,470 260,360 360,450 460,380 600,470 600,900 0,900" fill="#0d2216" opacity="0.9"/>
+  <!-- mid ridge, with a couple of snow-cap accents -->
+  <polygon points="0,620 110,500 230,590 330,470 420,570 520,480 600,560 600,900 0,900" fill="#12331f"/>
+  <polygon points="330,470 350,495 310,495" fill="#eef4f0" opacity="0.85"/>
+  <polygon points="110,500 128,522 94,522" fill="#eef4f0" opacity="0.7"/>
+  <!-- near / foreground ridge -->
+  <polygon points="0,740 130,650 260,730 400,630 520,720 600,660 600,900 0,900" fill="#081a10"/>
+
+  <!-- near mist, drifting the opposite way from the far clouds -->
+  <g class="scenery-cloud scenery-near" filter="url(#auth-blur)" opacity="0.18">
+    <ellipse cx="180" cy="740" rx="150" ry="26" fill="#ffffff"/>
+    <ellipse cx="460" cy="700" rx="120" ry="22" fill="#ffffff"/>
+  </g>
+
+  <!-- the trail: draws itself once toward the summit marker -->
+  <path class="scenery-route" d="M 40,860 C 120,820 100,760 170,730 S 260,650 250,600 S 340,520 330,470 S 380,410 360,380"/>
+  <circle class="scenery-summit" cx="360" cy="380" r="7" fill="#d4a24c"/>
+  <circle cx="360" cy="380" r="3" fill="#faf1ec"/>
+
+  <!-- floating mist particles -->
+  <circle class="scenery-particle" cx="120" cy="300" r="3" fill="#d4a24c" style="animation-delay:0s;"/>
+  <circle class="scenery-particle" cx="480" cy="360" r="2.5" fill="#eef4f0" style="animation-delay:1.6s;"/>
+  <circle class="scenery-particle" cx="230" cy="230" r="2" fill="#eef4f0" style="animation-delay:3.1s;"/>
+  <circle class="scenery-particle" cx="520" cy="250" r="3" fill="#d4a24c" style="animation-delay:4.4s;"/>
+  <circle class="scenery-particle" cx="70" cy="420" r="2" fill="#eef4f0" style="animation-delay:2.2s;"/>
+</svg>

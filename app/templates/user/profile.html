@@ -5,36 +5,58 @@
 <section class="section-tight">
   <div class="container-tma">
     {{ m.breadcrumb([("Dashboard", url_for('user.dashboard')), ("Profile", none)]) }}
-    <div class="row g-5">
+
+    <div class="card-tma mb-4">
+      <div class="profile-hero">
+        <span class="avatar-circle avatar-circle--xl">{{ current_user.name[:1] | upper }}</span>
+        <div>
+          <h1 class="profile-hero__name">{{ current_user.name }}</h1>
+          <div class="profile-hero__meta">
+            <span><i class="bi bi-envelope"></i> {{ current_user.email }}</span>
+            <span class="divider-dot"></span>
+            <span><i class="bi bi-calendar-check"></i> Member since {{ current_user.created_at | format_date }}</span>
+          </div>
+        </div>
+        <div class="ms-lg-auto d-flex gap-2 flex-wrap">
+          <a href="{{ url_for('user.profile_edit') }}" class="btn-tma btn-tma--outline"><i class="bi bi-pencil"></i> Edit Profile</a>
+          <a href="{{ url_for('user.change_password') }}" class="btn-tma btn-tma--outline"><i class="bi bi-shield-lock"></i> Change Password</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="card-tma card-tma__body">
+          <h2 class="h5 mb-4">Profile information</h2>
+          <div class="profile-detail-grid">
+            {{ m.profile_field('Full name', current_user.name) }}
+            {{ m.profile_field('Phone', current_user.phone) }}
+            <div>
+              <span class="profile-field__label">Email</span>
+              <span class="profile-field__value">{{ current_user.email }} <i class="bi bi-lock-fill fs-xs text-muted-tma" title="Cannot be changed"></i></span>
+            </div>
+            {{ m.profile_field('Date of birth', current_user.date_of_birth | format_date if current_user.date_of_birth else none) }}
+            {{ m.profile_field('Gender', current_user.gender | gender_label if current_user.gender else none) }}
+            {{ m.profile_field('City', current_user.city) }}
+          </div>
+          <hr class="my-4">
+          <div class="profile-detail-grid">
+            <div>
+              <span class="profile-field__label">Account status</span>
+              <span class="profile-field__value">
+                {% if current_user.is_blocked %}<span class="badge-tma badge-tone-danger">Blacklisted</span>{% else %}<span class="badge-tma badge-tone-success">Active</span>{% endif %}
+              </span>
+            </div>
+            {{ m.profile_field('Role', 'Trekker') }}
+          </div>
+        </div>
+      </div>
       <div class="col-lg-4">
         <div class="card-tma card-tma__body text-center">
-          <span class="avatar-circle avatar-circle--xl mx-auto mb-3">{{ current_user.name[:1] | upper }}</span>
-          <h2 class="h5 mb-1">{{ current_user.name }}</h2>
-          <p class="text-muted-tma fs-sm mb-4">{{ current_user.email }}</p>
           <div class="row text-center">
             <div class="col-6"><div class="stat-card__value" style="font-size:1.5rem;">{{ booking_count }}</div><div class="stat-card__label">Bookings</div></div>
             <div class="col-6"><div class="stat-card__value" style="font-size:1.5rem;">{{ completed_count }}</div><div class="stat-card__label">Completed</div></div>
           </div>
-        </div>
-      </div>
-      <div class="col-lg-8">
-        <div class="card-tma card-tma__body">
-          <h2 class="h5 mb-4">Edit profile</h2>
-          <form method="POST" novalidate>
-            {{ form.hidden_tag() }}
-            <div class="row">
-              <div class="col-md-6">{{ m.render_field(form.name) }}</div>
-              <div class="col-md-6">{{ m.render_field(form.phone) }}</div>
-            </div>
-            {{ m.render_field(form.email) }}
-            <hr class="my-4">
-            <p class="fs-sm text-muted-tma">Leave the password fields blank to keep your current password.</p>
-            <div class="row">
-              <div class="col-md-6">{{ m.render_password_field(form.new_password) }}</div>
-              <div class="col-md-6">{{ m.render_password_field(form.confirm_new_password) }}</div>
-            </div>
-            <button type="submit" class="btn-tma btn-tma--primary">Save changes</button>
-          </form>
         </div>
       </div>
     </div>

@@ -6,10 +6,24 @@ from flask_login import current_user, login_required, login_user, logout_user
 from app.extensions import db, limiter
 from app.forms.auth_forms import LoginForm, RegisterForm
 from app.forms.booking_forms import ConfirmActionForm
-from app.models import Staff, StaffStatus, User, UserRole
+from app.models import PUBLIC_TREK_STATUSES, Location, Staff, StaffStatus, Trek, User, UserRole
 from app.services import activity_log_service
 
 bp = Blueprint("auth", __name__)
+
+
+def _auth_stats():
+    """Real, cheap counts for the auth pages' left-panel info strip
+    (spec section 9: never invent fake statistics; omit entirely if
+    there's nothing genuine to show). All three are simple counts
+    already indexed/queried elsewhere in the app, not a new expensive
+    query path."""
+    treks = Trek.query.filter(Trek.status.in_(PUBLIC_TREK_STATUSES)).count()
+    locations = Location.query.count()
+    staff = Staff.query.filter_by(staff_status=StaffStatus.APPROVED).count()
+    if not (treks or locations or staff):
+        return None
+    return {"treks": treks, "locations": locations, "staff": staff}
 
 
 def _role_home_endpoint(user):
@@ -46,17 +60,17 @@ def login():
 
         if not user or not user.check_password(form.password.data):
             flash("Invalid email or password.", "danger")
-            return render_template("auth/login.html", form=form), 401
+            return render_template("auth/login.html", form=form, stats=_auth_stats()), 401
 
         if not user.account_is_usable:
             flash("Your account has been deactivated or blocked. Contact support for help.", "danger")
-            return render_template("auth/login.html", form=form), 403
+            return render_template("auth/login.html", form=form, stats=_auth_stats()), 403
 
         login_user(user, remember=form.remember_me.data)
         flash(f"Welcome back, {user.name.split(' ')[0]}!", "success")
         return redirect(_safe_next_url() or url_for(_role_home_endpoint(user)))
 
-    return render_template("auth/login.html", form=form)
+    return render_template("auth/login.html", form=form, stats=_auth_stats())
 
 
 @bp.route("/register", methods=["GET", "POST"])
@@ -72,6 +86,9 @@ def register():
             name=form.name.data.strip(),
             email=form.email.data.lower().strip(),
             phone=(form.phone.data or "").strip() or None,
+            date_of_birth=form.date_of_birth.data or None,
+            gender=form.gender.data or None,
+            city=(form.city.data or "").strip() or None,
             role=role,
             is_active=True,
             is_blocked=False,
@@ -106,7 +123,7 @@ def register():
         flash("Registration successful! Welcome to TMA.", "success")
         return redirect(url_for("user.dashboard"))
 
-    return render_template("auth/register.html", form=form)
+    return render_template("auth/register.html", form=form, stats=_auth_stats())
 
 
 @bp.route("/logout", methods=["POST"])

@@ -2,7 +2,7 @@
 
 A full-stack trek discovery and booking platform: trekkers browse and book guided treks, staff guides manage the trips they're assigned to, and admins run the whole operation: approvals, scheduling, assignments, and analytics.
 
-Originally a college CRUD assignment (single-file Flask app, four tables, no styling beyond Bootstrap defaults). This is a ground-up rebuild into a portfolio-quality product: a proper package architecture, a real design system, ten interrelated tables with a real trek-lifecycle state machine, CSRF-protected forms, role-based authorization with IDOR checks, and an 87-test automated suite.
+Originally a college CRUD assignment (single-file Flask app, four tables, no styling beyond Bootstrap defaults). This is a ground-up rebuild into a portfolio-quality product: a proper package architecture, a real design system, ten interrelated tables with a real trek-lifecycle state machine, a premium split-screen authentication experience, a full profile/account-management system with an immutable-email policy, CSRF-protected forms, role-based authorization with IDOR checks, and a 109-test automated suite.
 
 > **Demo project.** Locations, treks, guides, and testimonials are realistic seed data generated for this showcase; not a real booking service.
 
@@ -12,11 +12,11 @@ Not included in this repo; run it locally (two commands, see below) to see it li
 
 ## Features
 
-**Trekkers:** browse/search/filter treks by name, location, difficulty, duration, date, and availability; view a full trek detail page (itinerary, highlights, requirements, safety info, guide, reviews); book with a participant count and special requests; get a real booking-confirmation page with a reference code; cancel bookings where the trek hasn't started; save treks to a wishlist; review completed trips; manage their profile; see in-app notifications.
+**Trekkers:** register with an extended profile (name, phone, email, date of birth, gender, city); browse/search/filter treks by name, location, difficulty, duration, date, and availability; view a full trek detail page (itinerary, highlights, requirements, safety info, guide, reviews); book with a participant count and special requests; get a real booking-confirmation page with a reference code; cancel bookings where the trek hasn't started; save treks to a wishlist; review completed trips; view/edit their profile and change their password (current-password required) through dedicated pages; see in-app notifications.
 
-**Staff guides:** register and wait for admin approval (with a real "application pending/rejected" page, not just a bounced login); manage only the treks they're assigned to (enforced server-side, not just hidden in the UI); update available slots; move a trek through its operational lifecycle (open → closed → started → completed); view and remove participants.
+**Staff guides:** register and wait for admin approval (with a real "application pending/rejected" page, not just a bounced login); manage only the treks they're assigned to (enforced server-side, not just hidden in the UI); update available slots; move a trek through its operational lifecycle (open → closed → started → completed); view and remove participants; the same profile/edit-profile/change-password system trekkers get.
 
-**Admins:** approve/reject staff applications; create/edit treks (rich content: highlights, day-by-day itinerary, requirements, safety info, cancellation policy, photos); drive the full trek lifecycle including cancellation; assign/reassign/unassign guides; view staff workload and unassigned treks; manage users (blacklist/unblacklist, which force-expires a blacklisted user's active session on their next request, not just blocks a future login, and notifies them either way); browse/search all bookings; one global search box that looks across treks, users, staff, *and* bookings (by trekker/trek name or booking reference) at once; a real activity/audit log; a dashboard with KPIs and charts, all computed from live database rows.
+**Admins:** approve/reject staff applications; create/edit treks (rich content: highlights, day-by-day itinerary, requirements, safety info, cancellation policy, photos); drive the full trek lifecycle including cancellation; assign/reassign/unassign guides; view staff workload and unassigned treks; manage users (blacklist/unblacklist, which force-expires a blacklisted user's active session on their next request, not just blocks a future login, and notifies them either way); open a real profile/detail page for any user or staff member (not a raw table row) with booking/assignment history and recent activity, edit their permitted fields, and reset their password without ever seeing the old one; browse/search all bookings; one global search box that looks across treks, users, staff, *and* bookings (by trekker/trek name or booking reference) at once; a real activity/audit log; a dashboard with KPIs and charts, all computed from live database rows.
 
 ## Tech stack
 
@@ -36,10 +36,20 @@ app/
 │                          notification_service, activity_log_service, wishlist_service
 ├── forms/                Flask-WTF forms, one module per entity, real server-side validation
 ├── utils/                 decorators (role/approval checks), permissions (ownership checks),
-│                          error_handlers, slugify, formatting (Jinja filters), uploads
-├── templates/             layout/ public/ auth/ user/ staff/ admin/ errors/ components/ (macros)
+│                          error_handlers, slugify, formatting (Jinja filters), uploads,
+│                          schema_upgrade (additive-only SQLite ALTER TABLE for existing DBs)
+├── templates/             layout/ (base + auth_base, the split-screen auth shell) public/ auth/
+│                          user/ staff/ admin/ errors/ components/ (macros + auth_scenery SVG)
 └── static/                css/ (tokens → base → components → utilities) js/ (vanilla ES5-ish, no build step)
 ```
+
+## Authentication & profile system
+
+Login and registration are a split-screen experience (`layout/auth_base.html`, not the standard navbar/footer layout, which was the actual measured cause of the old centered-card form not fitting a normal desktop viewport without scrolling): a hand-illustrated SVG mountain scene with layered ridges, drifting clouds, and a self-drawing trail on the left, an unstyled-card form workspace on the right. Fixed to `100vh` on desktop with the right-hand workspace scrolling internally if its own content is genuinely taller than the viewport (register, with more fields, is the one case that needs this); stacks into a normal scrolling page below `992px`, with the visual becoming a compact top hero. Registration collects name/phone/email, date of birth/gender/city, and an account-type choice (Trekker or Trek Staff, rendered as two selectable cards bound to a real `RadioField`, not a dropdown).
+
+**Email is immutable after account creation, for every role.** Enforced at every layer that matters, not just the UI: `EditProfileForm` / `AdminEditUserForm` / `AdminEditStaffForm` simply have no `email` field, so there is no code path, crafted request or not, that can parse an attacker-supplied email out of a profile-update POST and write it to the row (see `tests/test_profile.py`'s `*_via_crafted_request` tests, which POST an `email` field directly against forms/routes that don't expose one). Profile pages show it in a deliberately locked presentation (dashed box + lock icon), not a disabled/readonly input someone could re-enable client-side.
+
+**Profile editing and password changes are two separate workflows**, per role (`/profile`, `/profile/edit`, `/profile/password` for users and staff; `/admin/users/<id>`, `/admin/users/<id>/edit`, `/admin/users/<id>/reset-password` for admin managing others, mirrored under `/admin/staff/<id>/...`). Self-service password changes require the current password; admin resets don't (the admin doesn't and shouldn't know it) and always produce a brand new hash, never revealing or reusing the old one. A schema-upgrade step (`app/utils/schema_upgrade.py`, run once from `create_app()`) adds the new `date_of_birth`/`gender`/`city` columns to an existing `instance/trekking.db` via `ALTER TABLE` if they're not already there, so upgrading doesn't require throwing away real accumulated demo data; new columns land `NULL` for existing rows rather than inventing plausible-looking personal information for them.
 
 ## Database design
 
@@ -47,7 +57,7 @@ app/
 
 | Table | Purpose |
 |---|---|
-| `user` | Every account (admin/staff/trekker), one table, discriminated by `role` |
+| `user` | Every account (admin/staff/trekker), one table, discriminated by `role`; `email` is immutable post-creation, `date_of_birth`/`gender`/`city` are nullable |
 | `staff` | 1:1 approval-workflow profile for staff users (pending/approved/rejected) |
 | `location` | Normalized trek destinations (powers "Popular Locations" + filters) |
 | `trek` | The core listing: slug, price, capacity/available_slots, full lifecycle `status` |
@@ -87,7 +97,7 @@ CSRF protection (Flask-WTF) on every state-changing request, including AJAX (`X-
 python -m pytest -v
 ```
 
-87 tests, all passing, across 9 modules: `test_auth`, `test_authorization` (role checks + IDOR), `test_staff_approval` (including mid-session de-approval), `test_trek_management`, `test_trek_assignment`, `test_trek_state_machine` (every legal transition parametrized, plus a representative set of illegal ones), `test_booking`, `test_booking_integrity` (overbooking, duplicate-active booking, booking a closed/completed/cancelled trek, a blacklisted/inactive user, a trek that's already started, boundary cases), `test_reviews`. Fixtures spin up a real temp-file SQLite database per test function (see `tests/conftest.py` for why not `:memory:`).
+109 tests, all passing, across 10 modules: `test_auth`, `test_authorization` (role checks + IDOR), `test_staff_approval` (including mid-session de-approval), `test_trek_management`, `test_trek_assignment`, `test_trek_state_machine` (every legal transition parametrized, plus a representative set of illegal ones), `test_booking`, `test_booking_integrity` (overbooking, duplicate-active booking, booking a closed/completed/cancelled trek, a blacklisted/inactive user, a trek that's already started, boundary cases), `test_reviews`, `test_profile` (registration validation for every new field, self-service profile/password editing, admin profile management, and the email-immutability regression test: POSTing an `email` field at a form/route that doesn't expose one and asserting it never changes). Fixtures spin up a real temp-file SQLite database per test function (see `tests/conftest.py` for why not `:memory:`).
 
 The suite caught two real bugs during this rebuild (both fixed, see the commit history): an admin "reassign staff" action that silently no-op'd (a form helper was clobbering the submitted value before validation), and a SQLAlchemy autoflush warning from constructing a trek before its foreign keys were set.
 

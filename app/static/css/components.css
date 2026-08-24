@@ -306,7 +306,9 @@
   font: var(--text-body);
   background: var(--color-surface);
   color: var(--color-ink);
+  transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
+.form-control:hover, .form-select:hover { border-color: var(--color-muted); }
 .form-control:focus, .form-select:focus {
   border-color: var(--color-primary-600);
   box-shadow: var(--shadow-focus);
@@ -756,3 +758,218 @@
   .reveal { opacity: 1; transform: none; transition: none; }
 }
 .no-js .reveal { opacity: 1; transform: none; }
+
+/* ======================================================================
+   AUTH SPLIT-SCREEN EXPERIENCE (Login / Register)
+   layout/auth_base.html swaps out the standard navbar/footer for this
+   instead (spec's Option B: the standard nav was the actual cause of
+   the "form doesn't fit the viewport" complaint, not something worth
+   preserving just because it already existed elsewhere). Fixed to the
+   viewport height on desktop so nothing here forces a page scroll to
+   see the rest of the form; the right-hand workspace scrolls
+   internally if its own content genuinely doesn't fit (register, with
+   more fields, is the case that actually needs this). Mobile switches
+   to a normal stacked, page-scrolling layout below.
+   ====================================================================== */
+.auth-shell { display: flex; flex-direction: column; }
+
+.auth-visual {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--color-primary-900) 0%, #0b2418 60%, var(--color-ink) 100%);
+  color: #fff;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+}
+.auth-visual__scene { position: absolute; inset: 0; }
+.auth-visual__scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.auth-visual__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: var(--space-6) var(--space-6) var(--space-5);
+}
+.auth-visual__brand { display: inline-flex; align-items: center; gap: 10px; font: var(--text-heading-sm); color: #fff; text-decoration: none; }
+.auth-visual__brand .brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.12); color: var(--color-gold-500); }
+.auth-visual__brand:hover { color: #fff; }
+.auth-visual__copy { max-width: 26ch; }
+.auth-visual__copy h1 { color: #fff; font: var(--text-display-lg); margin-bottom: var(--space-3); }
+.auth-visual__copy p { color: rgba(255, 255, 255, 0.72); font: var(--text-body-lg); margin: 0; }
+.auth-visual__stats { display: flex; gap: var(--space-5); flex-wrap: wrap; }
+.auth-visual__stat { display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.85); font-size: 0.875rem; }
+.auth-visual__stat i { color: var(--color-gold-500); font-size: 1rem; }
+.auth-visual__stat strong { color: #fff; font-family: var(--font-display); font-size: 1.05rem; }
+
+.auth-workspace {
+  background: var(--color-page-bg);
+  display: flex;
+  flex-direction: column;
+}
+/* Just "Back to Explore" (spec's Option A minimal header, right-
+   aligned); brand/logo already lives in .auth-visual__content above,
+   which is present in both the desktop split panel and the mobile
+   compact hero, so it's never duplicated here. */
+.auth-workspace__header { display: flex; align-items: center; justify-content: flex-end; padding: var(--space-5) var(--space-6) 0; }
+.auth-workspace__back { display: inline-flex; align-items: center; gap: 6px; color: var(--color-muted); font-size: 0.875rem; }
+.auth-workspace__back:hover { color: var(--color-primary-700); }
+.auth-workspace__body { flex: 1; display: flex; align-items: center; justify-content: center; padding: var(--space-5) var(--space-6) var(--space-6); }
+
+.auth-card { width: 100%; max-width: 400px; opacity: 0; transform: translateY(12px); animation: auth-fade-in var(--duration-hover) var(--ease-flow) forwards; animation-delay: 80ms; }
+.auth-card--wide { max-width: 620px; }
+.auth-card__eyebrow { display: inline-flex; align-items: center; gap: 6px; color: var(--color-accent-600); font: var(--text-label); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: var(--space-2); }
+.auth-card h1 { margin-bottom: var(--space-2); }
+.auth-card__subtitle { color: var(--color-muted); margin-bottom: var(--space-5); }
+.auth-card__footer { text-align: center; margin-top: var(--space-5); color: var(--color-muted); font-size: 0.9375rem; }
+
+@keyframes auth-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cinematic left-side motion: layered mountains, drifting cloud blobs,
+   floating mist particles, a self-drawing trail with a slowly pulsing
+   summit marker. Every animation here is slow/subtle by design (spec:
+   "cinematic motion, not distracting animation") and every one of them
+   is already frozen by the site-wide prefers-reduced-motion rule in
+   base.css (animation-duration: 0.001ms !important on *), so there's
+   nothing extra to gate here for that. */
+.scenery-cloud { animation: cloud-drift 70s linear infinite; }
+.scenery-cloud--slow { animation-duration: 100s; animation-direction: reverse; }
+@keyframes cloud-drift {
+  from { transform: translateX(-8%); }
+  to { transform: translateX(8%); }
+}
+.scenery-particle { animation: particle-float 9s ease-in-out infinite; transform-origin: center; }
+@keyframes particle-float {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.35; }
+  50% { transform: translateY(-14px) scale(1.15); opacity: 0.8; }
+}
+.scenery-route {
+  fill: none;
+  stroke: var(--color-gold-500);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 1100;
+  stroke-dashoffset: 1100;
+  animation: route-draw 3s var(--ease-flow) forwards;
+  animation-delay: 0.4s;
+  opacity: 0.85;
+}
+@keyframes route-draw { to { stroke-dashoffset: 0; } }
+.scenery-summit { animation: summit-pulse 2.8s ease-in-out infinite; animation-delay: 3s; transform-origin: center; }
+@keyframes summit-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+.scenery-far { animation: cloud-drift 140s linear infinite; }
+.scenery-near { animation: cloud-drift 90s linear infinite reverse; }
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card { opacity: 1; transform: none; animation: none; }
+}
+
+/* Account type: two clickable cards bound to a RadioField (spec section
+   14), not a dropdown; input sits first inside the label so a plain
+   `:checked ~ sibling` selector can style the visible body without any
+   JS or a :has() dependency. */
+.account-type-cards { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-2); }
+.account-type-card { position: relative; display: block; cursor: pointer; }
+.account-type-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+.account-type-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  transition: border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+}
+.account-type-card__body i { font-size: 1.25rem; color: var(--color-primary-700); margin-bottom: 4px; }
+.account-type-card__body strong { font: var(--text-heading-sm); color: var(--color-heading); }
+.account-type-card__body span { font-size: 0.8125rem; color: var(--color-muted); }
+.account-type-card:hover .account-type-card__body { border-color: var(--color-primary-500); transform: translateY(-1px); }
+.account-type-card input:checked ~ .account-type-card__body {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-50);
+  box-shadow: var(--shadow-sm);
+}
+.account-type-card input:checked ~ .account-type-card__body i { color: var(--color-primary-700); }
+.account-type-card input:focus-visible ~ .account-type-card__body { box-shadow: var(--shadow-focus); }
+
+/* A field that reads as deliberately locked, not a broken/disabled
+   input (spec section 19); email everywhere it's shown on a profile
+   page uses this instead of a real <input disabled>. */
+.locked-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 10px 14px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  color: var(--color-body);
+}
+.locked-field__badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--color-muted); white-space: nowrap; }
+
+/* ======================================================================
+   PROFILE PAGES (view / edit / change password, user + staff + admin)
+   ====================================================================== */
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  flex-wrap: wrap;
+}
+.profile-hero__name { margin: 0; }
+.profile-hero__meta { color: var(--color-muted); font-size: 0.9375rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.profile-detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4) var(--space-5); }
+.profile-field__label { display: block; font: var(--text-label); color: var(--color-muted); margin-bottom: 4px; }
+.profile-field__value { font-size: 1rem; color: var(--color-heading); }
+.profile-field__value--muted { color: var(--color-muted); font-style: italic; }
+
+@media (max-width: 767px) {
+  .profile-detail-grid { grid-template-columns: 1fr; }
+}
+
+/* Split-screen only from tablet-landscape/desktop up; below that the
+   visual becomes a compact top hero (min-height above handles its
+   size) and the page scrolls normally, per spec section 41's mobile
+   layout ("may become a compact hero/banner", "vertical scrolling
+   occurs only when genuinely necessary" reads as a desktop-viewport
+   promise, not a mobile one — mobile explicitly gets ordinary scroll). */
+@media (min-width: 992px) {
+  .auth-shell { flex-direction: row; height: 100vh; }
+  .auth-visual { flex: 0 0 52%; min-height: 0; }
+  .auth-workspace { flex: 1; min-height: 0; overflow-y: auto; }
+}
+@media (max-width: 767px) {
+  /* Compact hero: enough to establish mood + brand, not a full scene.
+     Stats and the long tagline paragraph are the first things cut,
+     not the branding itself. */
+  .auth-visual { min-height: 180px; }
+  .auth-visual__content { padding: var(--space-4) var(--space-5); }
+  .auth-visual__copy h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  .auth-visual__copy p, .auth-visual__stats { display: none; }
+  .account-type-cards { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 992px) and (max-width: 1365px) {
+  /* Comfortably fits the form at 1280x720/1366x768 without shrinking
+     type: trims outer padding rather than font sizes. */
+  .auth-workspace__body { padding-block: var(--space-4) var(--space-5); }
+  .auth-card { animation-duration: var(--duration-base); }
+}

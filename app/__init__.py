@@ -15,6 +15,7 @@ from app.extensions import csrf, db, limiter, login_manager
 from app.models import Notification, User
 from app.utils.error_handlers import register_error_handlers
 from app.utils.formatting import register_template_helpers
+from app.utils.schema_upgrade import ensure_schema_upgraded
 from config import config_by_name
 
 
@@ -31,6 +32,7 @@ def create_app(config_name=None):
     os.makedirs(os.path.join(app.static_folder, "uploads", "treks"), exist_ok=True)
 
     _register_extensions(app)
+    ensure_schema_upgraded(app)
     _register_blueprints(app)
     _register_cli(app)
     register_error_handlers(app)

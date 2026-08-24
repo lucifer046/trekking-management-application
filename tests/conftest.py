@@ -64,6 +64,9 @@ def make_user(db):
             is_active=overrides.pop("is_active", True),
             is_blocked=overrides.pop("is_blocked", False),
             phone=overrides.pop("phone", None),
+            date_of_birth=overrides.pop("date_of_birth", None),
+            gender=overrides.pop("gender", None),
+            city=overrides.pop("city", None),
         )
         user.set_password(password)
         db.session.add(user)

@@ -1,0 +1,105 @@
+{% extends "admin/_shell.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}{{ staff.user.name }}{% endblock %}
+{% block admin_content %}
+<section class="section-tight">
+  <div class="container-tma">
+    {{ m.breadcrumb([("Staff", url_for('admin.manage_staff')), (staff.user.name, none)]) }}
+
+    <div class="card-tma mb-4">
+      <div class="profile-hero">
+        <span class="avatar-circle avatar-circle--xl">{{ staff.user.name[:1] | upper }}</span>
+        <div>
+          <h1 class="profile-hero__name">{{ staff.user.name }}</h1>
+          <div class="profile-hero__meta">
+            <span><i class="bi bi-envelope"></i> {{ staff.user.email }}</span>
+            <span class="divider-dot"></span>
+            <span><i class="bi bi-calendar-check"></i> Applied {{ staff.applied_at | format_date }}</span>
+            <span class="divider-dot"></span>
+            {{ m.status_badge(staff.staff_status) }}
+            {% if staff.user.is_blocked %}<span class="divider-dot"></span><span class="badge-tma badge-tone-danger">Blacklisted</span>{% endif %}
+          </div>
+        </div>
+        <div class="ms-lg-auto d-flex gap-2 flex-wrap">
+          <a href="{{ url_for('admin.edit_staff', staff_id=staff.id) }}" class="btn-tma btn-tma--primary"><i class="bi bi-pencil"></i> Edit</a>
+          {% if staff.staff_status.value != 'approved' %}
+            {{ m.confirm_button(url_for('admin.approve_staff', staff_id=staff.id), 'Approve', 'Approve ' ~ staff.user.name ~ ' as staff?', confirm_form.hidden_tag(), variant='btn-tma--outline') }}
+          {% endif %}
+          {% if staff.staff_status.value != 'rejected' %}
+            {{ m.confirm_button(url_for('admin.reject_staff', staff_id=staff.id), 'Reject', 'Reject ' ~ staff.user.name ~ '\'s staff application?', confirm_form.hidden_tag(), variant='btn-tma--outline') }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8 d-flex flex-column gap-4">
+        <div class="card-tma card-tma__body">
+          <h2 class="h5 mb-4">Profile information</h2>
+          <div class="profile-detail-grid">
+            {{ m.profile_field('Full name', staff.user.name) }}
+            {{ m.profile_field('Phone', staff.user.phone) }}
+            <div>
+              <span class="profile-field__label">Email</span>
+              <span class="profile-field__value">{{ staff.user.email }} <i class="bi bi-lock-fill fs-xs text-muted-tma" title="Cannot be changed"></i></span>
+            </div>
+            {{ m.profile_field('Date of birth', staff.user.date_of_birth | format_date if staff.user.date_of_birth else none) }}
+            {{ m.profile_field('Gender', staff.user.gender | gender_label if staff.user.gender else none) }}
+            {{ m.profile_field('City', staff.user.city) }}
+            {{ m.profile_field('Staff ID', '#' ~ staff.id) }}
+          </div>
+          {% if staff.experience %}
+            <hr class="my-4">
+            <span class="profile-field__label">Guiding experience</span>
+            <p class="mb-0">{{ staff.experience }}</p>
+          {% endif %}
+        </div>
+
+        <div class="card-tma card-tma__body">
+          <h2 class="h5 mb-4">Assigned treks ({{ assigned_treks | length }})</h2>
+          {% if assigned_treks %}
+            <div class="table-tma-wrap">
+              <table class="table-tma">
+                <thead><tr><th>Trek</th><th>Dates</th><th>Status</th></tr></thead>
+                <tbody>
+                  {% for trek in assigned_treks %}
+                    <tr><td data-label="Trek"><a href="{{ url_for('admin.edit_trek', trek_id=trek.id) }}">{{ trek.name }}</a></td><td data-label="Dates">{{ trek.start_date | format_date }}</td><td data-label="Status">{{ m.status_badge(trek.status) }}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            {{ m.empty_state('map', 'No treks assigned yet', '') }}
+          {% endif %}
+        </div>
+
+        <div class="card-tma card-tma__body">
+          <h2 class="h5 mb-4">Recent activity</h2>
+          {% if recent_activity %}
+            <ul class="timeline">
+              {% for entry in recent_activity %}
+                <li>{{ m.action_badge(entry.action) }} <span class="fs-sm text-muted-tma">{{ entry.created_at | format_datetime }}</span></li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            {{ m.empty_state('activity', 'No activity yet', '') }}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card-tma card-tma__body">
+          <h2 class="h5 mb-3"><i class="bi bi-key"></i> Reset password</h2>
+          <p class="fs-sm text-muted-tma">Sets a brand new password for this account. Share it with the staff member through a secure channel; TMA never displays or stores their old one.</p>
+          <form method="POST" action="{{ url_for('admin.reset_staff_password', staff_id=staff.id) }}" novalidate>
+            {{ reset_password_form.hidden_tag() }}
+            {{ m.render_password_field(reset_password_form.new_password) }}
+            {{ m.render_password_field(reset_password_form.confirm_new_password) }}
+            <button type="submit" class="btn-tma btn-tma--outline btn-tma--block">Reset password</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

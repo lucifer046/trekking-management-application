@@ -1,8 +1,10 @@
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from datetime import date
+
 from app.extensions import db
-from app.models.enums import UserRole, enum_values
+from app.models.enums import Gender, UserRole, enum_values
 from app.models.mixins import TimestampMixin
 
 
@@ -31,6 +33,20 @@ class User(UserMixin, TimestampMixin, db.Model):
         db.Enum(UserRole, native_enum=False, length=16, values_callable=enum_values), nullable=False, index=True
     )
     avatar_path = db.Column(db.String(255), nullable=True)
+
+    # Additional profile information (spec: "TMA Authentication and Profile
+    # System Complete Redesign"); nullable because every account created
+    # before this migration has none of it, and inventing plausible-looking
+    # DOB/gender/city for a real pre-existing account would be worse than
+    # just leaving it unset. Collected at registration for new accounts,
+    # editable afterward by the account owner (never by email-style
+    # immutability rules; see EMAIL below, which is the one field on this
+    # model nothing but a raw SQL statement is ever allowed to change).
+    date_of_birth = db.Column(db.Date, nullable=True)
+    gender = db.Column(
+        db.Enum(Gender, native_enum=False, length=20, values_callable=enum_values), nullable=True
+    )
+    city = db.Column(db.String(80), nullable=True)
 
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     is_blocked = db.Column(db.Boolean, nullable=False, default=False, index=True)

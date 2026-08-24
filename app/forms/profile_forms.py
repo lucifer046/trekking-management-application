@@ -1,40 +1,45 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, TextAreaField
-from wtforms.validators import Email, EqualTo, Length, Optional, Regexp, ValidationError
+from wtforms import DateField, PasswordField, SelectField, StringField, TextAreaField
+from wtforms.validators import DataRequired, EqualTo, Length, Optional, Regexp, ValidationError
 
-from app.models import User
+from app.forms.auth_forms import GENDER_CHOICES, _dob_not_in_future
 
 _PHONE_RE = r"^[0-9+\-\s()]{7,20}$"
 
 
-class _BaseProfileForm(FlaskForm):
-    """Shared name/email/phone/optional-password-change fields. Email
-    uniqueness excludes the current user's own row; pass their id in via
-    the constructor."""
+class EditProfileForm(FlaskForm):
+    """The account owner's own edit-profile form. Deliberately carries no
+    `email` field at all, not even a disabled one: email immutability (see
+    the module docstring on User.email) has to hold even against a
+    hand-crafted POST, and the simplest way to guarantee a route can never
+    accidentally write an attacker-supplied email is for the form that
+    backs it to have no field capable of parsing one out of the request in
+    the first place. Password lives in its own ChangePasswordForm/route
+    entirely, per the spec's "separate profile editing from password
+    changes" (section 29): mixing an optional password change into a
+    general profile-edit form is also why the previous version of this
+    form never required the current password before accepting a new one.
+    """
 
-    name = StringField("Full name", validators=[Length(min=2, max=96)])
-    email = StringField("Email", validators=[Email(), Length(max=128)])
+    name = StringField("Full name", validators=[DataRequired(), Length(min=2, max=96)])
     phone = StringField("Phone", validators=[Optional(), Regexp(_PHONE_RE, message="Enter a valid phone number.")])
-    new_password = PasswordField(
-        "New password (leave blank to keep current)", validators=[Optional(), Length(min=8, max=128)]
-    )
-    confirm_new_password = PasswordField(
-        "Confirm new password", validators=[Optional(), EqualTo("new_password", message="Passwords must match.")]
-    )
-
-    def __init__(self, *args, current_user_id=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._current_user_id = current_user_id
-
-    def validate_email(self, field):
-        existing = User.query.filter(User.email == field.data.lower().strip(), User.id != self._current_user_id).first()
-        if existing:
-            raise ValidationError("That email is already in use by another account.")
+    date_of_birth = DateField("Date of birth", validators=[Optional(), _dob_not_in_future])
+    gender = SelectField("Gender", choices=[("", "Select (optional)")] + GENDER_CHOICES, validators=[Optional()])
+    city = StringField("City", validators=[Optional(), Length(max=80)])
 
 
-class UserProfileForm(_BaseProfileForm):
-    pass
-
-
-class StaffProfileForm(_BaseProfileForm):
+class StaffEditProfileForm(EditProfileForm):
     experience = TextAreaField("Guiding experience", validators=[Optional(), Length(max=2000)])
+
+
+class ChangePasswordForm(FlaskForm):
+    """Requires the current password (verified against the logged-in
+    user's own hash in the route, not here — this form only shapes/
+    validates the submitted data) before accepting a new one; the
+    previous combined profile form skipped this entirely."""
+
+    current_password = PasswordField("Current password", validators=[DataRequired()])
+    new_password = PasswordField("New password", validators=[DataRequired(), Length(min=8, max=128)])
+    confirm_new_password = PasswordField(
+        "Confirm new password", validators=[DataRequired(), EqualTo("new_password", message="Passwords must match.")]
+    )

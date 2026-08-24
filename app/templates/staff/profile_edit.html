@@ -1,0 +1,37 @@
+{% extends "layout/base.html" %}
+{% import "components/macros.html" as m %}
+{% block title %}Edit profile{% endblock %}
+{% block content %}
+<section class="section-tight">
+  <div class="container-tma">
+    {{ m.breadcrumb([("Dashboard", url_for('staff.dashboard')), ("Profile", url_for('staff.profile')), ("Edit", none)]) }}
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card-tma card-tma__body">
+          <h1 class="h4 mb-4">Edit profile</h1>
+
+          {{ m.locked_field('Email', current_user.email) }}
+
+          <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="row">
+              <div class="col-md-6">{{ m.render_field(form.name) }}</div>
+              <div class="col-md-6">{{ m.render_field(form.phone) }}</div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">{{ m.render_field(form.date_of_birth) }}</div>
+              <div class="col-md-6">{{ m.render_field(form.gender) }}</div>
+            </div>
+            {{ m.render_field(form.city) }}
+            {{ m.render_field(form.experience, rows=4, help="Shown to admins reviewing your assignments.") }}
+            <div class="d-flex gap-2 mt-2">
+              <button type="submit" class="btn-tma btn-tma--primary">Save changes</button>
+              <a href="{{ url_for('staff.profile') }}" class="btn-tma btn-tma--ghost">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

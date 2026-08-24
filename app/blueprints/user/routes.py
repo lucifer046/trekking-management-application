@@ -3,10 +3,10 @@ from flask_login import current_user, login_required
 
 from app.extensions import db
 from app.forms.booking_forms import BookingForm, CancelBookingForm, ConfirmActionForm
-from app.forms.profile_forms import UserProfileForm
+from app.forms.profile_forms import ChangePasswordForm, EditProfileForm
 from app.forms.review_forms import ReviewForm
 from app.models import Booking, BookingStatus, Notification, Trek, TrekStatus, Wishlist
-from app.services import booking_service, notification_service, review_service
+from app.services import activity_log_service, booking_service, notification_service, review_service
 from app.services.exceptions import ServiceError
 from app.services.wishlist_service import toggle_wishlist
 from app.utils.decorators import user_required
@@ -154,24 +154,59 @@ def submit_review(booking_id):
     return redirect(url_for("user.booking_detail", booking_id=booking.id))
 
 
-@bp.route("/profile", methods=["GET", "POST"])
+@bp.route("/profile")
 @login_required
 @user_required
 def profile():
-    form = UserProfileForm(current_user_id=current_user.id, obj=current_user)
+    booking_count = Booking.query.filter_by(user_id=current_user.id).count()
+    completed_count = Booking.query.filter_by(user_id=current_user.id, status=BookingStatus.COMPLETED).count()
+    return render_template("user/profile.html", booking_count=booking_count, completed_count=completed_count)
+
+
+@bp.route("/profile/edit", methods=["GET", "POST"])
+@login_required
+@user_required
+def profile_edit():
+    # No `email` field exists on EditProfileForm at all (see its
+    # docstring); obj=current_user only ever pre-fills the fields the
+    # form actually declares, so there's no path through this route,
+    # crafted request or not, that can touch current_user.email.
+    form = EditProfileForm(obj=current_user)
     if form.validate_on_submit():
         current_user.name = form.name.data.strip()
-        current_user.email = form.email.data.lower().strip()
         current_user.phone = (form.phone.data or "").strip() or None
-        if form.new_password.data:
-            current_user.set_password(form.new_password.data)
+        current_user.date_of_birth = form.date_of_birth.data or None
+        current_user.gender = form.gender.data or None
+        current_user.city = (form.city.data or "").strip() or None
         db.session.commit()
         flash("Profile updated successfully.", "success")
         return redirect(url_for("user.profile"))
 
-    booking_count = Booking.query.filter_by(user_id=current_user.id).count()
-    completed_count = Booking.query.filter_by(user_id=current_user.id, status=BookingStatus.COMPLETED).count()
-    return render_template("user/profile.html", form=form, booking_count=booking_count, completed_count=completed_count)
+    return render_template("user/profile_edit.html", form=form)
+
+
+@bp.route("/profile/password", methods=["GET", "POST"])
+@login_required
+@user_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if not current_user.check_password(form.current_password.data):
+            flash("Your current password is incorrect.", "danger")
+        else:
+            current_user.set_password(form.new_password.data)
+            activity_log_service.log(
+                actor=current_user,
+                action="password_changed",
+                description=f"{current_user.name} changed their password.",
+                target_type="user",
+                target_id=current_user.id,
+            )
+            db.session.commit()
+            flash("Password updated successfully.", "success")
+            return redirect(url_for("user.profile"))
+
+    return render_template("user/change_password.html", form=form)
 
 
 @bp.route("/wishlist")

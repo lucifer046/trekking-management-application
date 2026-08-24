@@ -23,12 +23,13 @@
         {% if bookings %}
           <div class="table-tma-wrap mb-5">
             <table class="table-tma">
-              <thead><tr><th>Trekker</th><th>Contact</th><th>Participants</th><th>Status</th><th></th></tr></thead>
+              <thead><tr><th>Trekker</th><th>Contact</th><th>City</th><th>Participants</th><th>Status</th><th></th></tr></thead>
               <tbody>
                 {% for booking in bookings %}
                   <tr>
                     <td data-label="Trekker">{{ booking.trekker.name }}</td>
                     <td data-label="Contact" class="cell-muted">{{ booking.trekker.email }}{% if booking.trekker.phone %}<br>{{ booking.trekker.phone }}{% endif %}</td>
+                    <td data-label="City" class="cell-muted">{{ booking.trekker.city or 'N/A' }}</td>
                     <td data-label="Participants">{{ booking.participant_count }}</td>
                     <td data-label="Status">{{ m.status_badge(booking.status) }}</td>
                     <td data-label="">

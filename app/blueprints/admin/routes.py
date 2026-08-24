@@ -6,7 +6,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import or_
 
 from app.extensions import db
-from app.forms.admin_forms import StaffAddForm
+from app.forms.admin_forms import AdminEditStaffForm, AdminEditUserForm, AdminResetPasswordForm, StaffAddForm
 from app.forms.booking_forms import ConfirmActionForm
 from app.forms.trek_forms import AssignStaffForm, TrekForm, TrekImageForm, TrekStatusForm
 from app.models import (
@@ -388,6 +388,96 @@ def manage_staff():
     )
 
 
+@bp.route("/staff/<int:staff_id>")
+@login_required
+@admin_required
+def staff_detail(staff_id):
+    staff = Staff.query.join(Staff.user).filter(Staff.id == staff_id).first_or_404()
+    assigned_treks = Trek.query.filter_by(assigned_staff_id=staff.user_id).order_by(Trek.start_date.desc()).all()
+    recent_activity = (
+        ActivityLog.query.filter_by(actor_id=staff.user_id).order_by(ActivityLog.created_at.desc()).limit(8).all()
+    )
+    return render_template(
+        "admin/staff_detail.html",
+        staff=staff,
+        assigned_treks=assigned_treks,
+        recent_activity=recent_activity,
+        reset_password_form=AdminResetPasswordForm(),
+    )
+
+
+@bp.route("/staff/<int:staff_id>/edit", methods=["GET", "POST"])
+@login_required
+@admin_required
+def edit_staff(staff_id):
+    staff = Staff.query.join(Staff.user).filter(Staff.id == staff_id).first_or_404()
+    user = staff.user
+    form = AdminEditStaffForm(obj=user)
+    if request.method == "GET":
+        form.experience.data = staff.experience
+        form.staff_status.data = staff.staff_status.value
+
+    if form.validate_on_submit():
+        user.name = form.name.data.strip()
+        user.phone = (form.phone.data or "").strip() or None
+        user.date_of_birth = form.date_of_birth.data or None
+        user.gender = form.gender.data or None
+        user.city = (form.city.data or "").strip() or None
+        user.is_blocked = form.is_blocked.data
+        staff.contact = user.phone
+        staff.experience = (form.experience.data or "").strip() or None
+
+        new_status = StaffStatus(form.staff_status.data)
+        if new_status != staff.staff_status:
+            staff.staff_status = new_status
+            staff.reviewed_at = db.func.now()
+            staff.reviewed_by_id = current_user.id
+
+        activity_log_service.log(
+            actor=current_user,
+            action="profile_updated_by_admin",
+            description=f"{current_user.name} updated {user.name}'s staff profile.",
+            target_type="staff",
+            target_id=staff.id,
+        )
+        db.session.commit()
+        flash("Staff profile updated.", "success")
+        return redirect(url_for("admin.staff_detail", staff_id=staff.id))
+
+    return render_template("admin/edit_staff.html", form=form, staff=staff)
+
+
+@bp.route("/staff/<int:staff_id>/reset-password", methods=["POST"])
+@login_required
+@admin_required
+def reset_staff_password(staff_id):
+    staff = Staff.query.join(Staff.user).filter(Staff.id == staff_id).first_or_404()
+    user = staff.user
+    form = AdminResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.new_password.data)
+        activity_log_service.log(
+            actor=current_user,
+            action="password_reset_by_admin",
+            description=f"{current_user.name} reset the password for {user.name}.",
+            target_type="staff",
+            target_id=staff.id,
+        )
+        notification_service.notify(
+            user,
+            "password_reset",
+            "Your password was reset",
+            "A platform admin reset your password. If this wasn't expected, contact support.",
+        )
+        db.session.commit()
+        flash("Password reset. Share the new password with the staff member through a secure channel.", "success")
+    else:
+        for field_errors in form.errors.values():
+            for error in field_errors:
+                flash(error, "danger")
+    return redirect(url_for("admin.staff_detail", staff_id=staff.id))
+
+
 @bp.route("/staff/add", methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -495,6 +585,87 @@ def manage_users():
     return render_template(
         "admin/manage_users.html", pagination=pagination, users=pagination.items, current_status=status_filter, status_counts=status_counts
     )
+
+
+@bp.route("/users/<int:user_id>")
+@login_required
+@admin_required
+def user_detail(user_id):
+    user = User.query.filter_by(id=user_id, role=UserRole.USER).first_or_404()
+    booking_count = Booking.query.filter_by(user_id=user.id).count()
+    completed_count = Booking.query.filter_by(user_id=user.id, status=BookingStatus.COMPLETED).count()
+    recent_bookings = Booking.query.filter_by(user_id=user.id).order_by(Booking.booked_at.desc()).limit(5).all()
+    recent_activity = (
+        ActivityLog.query.filter_by(actor_id=user.id).order_by(ActivityLog.created_at.desc()).limit(8).all()
+    )
+    return render_template(
+        "admin/user_detail.html",
+        user=user,
+        booking_count=booking_count,
+        completed_count=completed_count,
+        recent_bookings=recent_bookings,
+        recent_activity=recent_activity,
+        reset_password_form=AdminResetPasswordForm(),
+    )
+
+
+@bp.route("/users/<int:user_id>/edit", methods=["GET", "POST"])
+@login_required
+@admin_required
+def edit_user(user_id):
+    # No `email` field on AdminEditUserForm, same as the self-service edit
+    # form: immutability has to hold no matter who submits the request.
+    user = User.query.filter_by(id=user_id, role=UserRole.USER).first_or_404()
+    form = AdminEditUserForm(obj=user)
+    if form.validate_on_submit():
+        user.name = form.name.data.strip()
+        user.phone = (form.phone.data or "").strip() or None
+        user.date_of_birth = form.date_of_birth.data or None
+        user.gender = form.gender.data or None
+        user.city = (form.city.data or "").strip() or None
+        user.is_blocked = form.is_blocked.data
+        activity_log_service.log(
+            actor=current_user,
+            action="profile_updated_by_admin",
+            description=f"{current_user.name} updated {user.name}'s profile.",
+            target_type="user",
+            target_id=user.id,
+        )
+        db.session.commit()
+        flash("User profile updated.", "success")
+        return redirect(url_for("admin.user_detail", user_id=user.id))
+
+    return render_template("admin/edit_user.html", form=form, user=user)
+
+
+@bp.route("/users/<int:user_id>/reset-password", methods=["POST"])
+@login_required
+@admin_required
+def reset_user_password(user_id):
+    user = User.query.filter_by(id=user_id, role=UserRole.USER).first_or_404()
+    form = AdminResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.new_password.data)
+        activity_log_service.log(
+            actor=current_user,
+            action="password_reset_by_admin",
+            description=f"{current_user.name} reset the password for {user.name}.",
+            target_type="user",
+            target_id=user.id,
+        )
+        notification_service.notify(
+            user,
+            "password_reset",
+            "Your password was reset",
+            "A platform admin reset your password. If this wasn't expected, contact support.",
+        )
+        db.session.commit()
+        flash("Password reset. Share the new password with the user through a secure channel.", "success")
+    else:
+        for field_errors in form.errors.values():
+            for error in field_errors:
+                flash(error, "danger")
+    return redirect(url_for("admin.user_detail", user_id=user.id))
 
 
 @bp.route("/users/<int:user_id>/blacklist", methods=["POST"])

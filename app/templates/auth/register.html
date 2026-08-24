@@ -1,15 +1,47 @@
-{% extends "layout/base.html" %}
+{% extends "layout/auth_base.html" %}
 {% import "components/macros.html" as m %}
 {% block title %}Create an account{% endblock %}
 {% block content %}
-<div class="container-tma section d-flex justify-content-center">
-  <div class="card-tma" style="max-width: 520px; width: 100%;">
-    <div class="card-tma__body p-5">
-      <div class="text-center mb-4">
-        <span class="empty-state__icon mx-auto mb-3" style="width:56px;height:56px;font-size:1.5rem;"><i class="bi bi-person-plus"></i></span>
-        <h1 class="h3 mb-1">Join TMA</h1>
-        <p class="text-muted-tma mb-0">Book guided treks, or apply to lead them as staff.</p>
+<section class="auth-visual">
+  <div class="auth-visual__scene" aria-hidden="true">{% include "components/auth_scenery.html" %}</div>
+  <div class="auth-visual__content">
+    <a href="{{ url_for('public.home') }}" class="auth-visual__brand">
+      <span class="brand-mark" aria-hidden="true"><i class="bi bi-triangle-fill"></i></span>
+      TMA
+    </a>
+    <div class="auth-visual__copy">
+      <h1>Start your next trail.</h1>
+      <p>Join trekkers and guides already exploring India's mountains with TMA.</p>
+    </div>
+    {% if stats %}
+      <div class="auth-visual__stats">
+        <span class="auth-visual__stat"><i class="bi bi-signpost-2"></i> <strong>{{ stats.treks }}</strong>&nbsp;treks</span>
+        <span class="auth-visual__stat"><i class="bi bi-geo-alt"></i> <strong>{{ stats.locations }}</strong>&nbsp;destinations</span>
+        <span class="auth-visual__stat"><i class="bi bi-patch-check"></i> <strong>{{ stats.staff }}</strong>&nbsp;verified guides</span>
       </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="auth-workspace">
+  <div class="auth-workspace__header">
+    <a href="{{ url_for('public.explore') }}" class="auth-workspace__back">Back to Explore <i class="bi bi-arrow-right"></i></a>
+  </div>
+  <div class="auth-workspace__body">
+    <div class="auth-card auth-card--wide">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show mb-4" role="alert" data-flash="{{ 'danger' if category == 'error' else category }}">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <h1>Join TMA</h1>
+      <p class="auth-card__subtitle">Book guided treks, or apply to lead them as staff.</p>
 
       <form method="POST" novalidate>
         {{ form.hidden_tag() }}
@@ -18,7 +50,15 @@
           <div class="col-md-6">{{ m.render_field(form.phone, placeholder="Optional") }}</div>
         </div>
         {{ m.render_field(form.email, autocomplete="email") }}
-        {{ m.render_field(form.role, help="Staff applications require admin approval before dashboard access.") }}
+
+        <div class="row">
+          <div class="col-md-6">{{ m.render_field(form.date_of_birth) }}</div>
+          <div class="col-md-6">{{ m.render_field(form.gender) }}</div>
+        </div>
+        {{ m.render_field(form.city, placeholder="Optional") }}
+
+        {{ m.account_type_cards(form.role) }}
+        <div class="form-text-tma mb-3">Staff applications require admin approval before dashboard access.</div>
 
         <div id="experience-field" style="display:none;">
           {{ m.render_field(form.experience, rows=3, placeholder="Tell us about your guiding background (optional).") }}
@@ -36,24 +76,25 @@
         <button type="submit" class="btn-tma btn-tma--primary btn-tma--block btn-tma--lg mt-2">Create account</button>
       </form>
 
-      <p class="text-center fs-sm text-muted-tma mt-4 mb-0">
-        Already have an account? <a href="{{ url_for('auth.login') }}" class="fw-medium">Log in</a>
-      </p>
+      <p class="auth-card__footer">Already have an account? <a href="{{ url_for('auth.login') }}" class="fw-medium">Log in</a></p>
     </div>
   </div>
-</div>
+</section>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
   (function () {
-    var roleSelect = document.getElementById("role");
+    var roleInputs = document.querySelectorAll('input[name="role"]');
     var experienceField = document.getElementById("experience-field");
     function sync() {
-      experienceField.style.display = roleSelect.value === "staff" ? "block" : "none";
+      var checked = document.querySelector('input[name="role"]:checked');
+      experienceField.style.display = checked && checked.value === "staff" ? "block" : "none";
     }
-    if (roleSelect && experienceField) {
-      roleSelect.addEventListener("change", sync);
+    if (roleInputs.length && experienceField) {
+      roleInputs.forEach(function (input) {
+        input.addEventListener("change", sync);
+      });
       sync();
     }
   })();

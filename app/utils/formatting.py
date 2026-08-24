@@ -6,7 +6,7 @@ app (`{% if b.status == 'Booked' %}bg-success{% elif ... %}`).
 """
 from datetime import date, datetime, timezone
 
-from app.models.enums import BookingStatus, Difficulty, StaffStatus, TrekStatus
+from app.models.enums import BookingStatus, Difficulty, Gender, StaffStatus, TrekStatus
 
 # status value -> (human label, tone). `tone` maps to a CSS class
 # (`.badge-tone-<tone>`) defined once in components.css.
@@ -71,6 +71,9 @@ _ACTION_META = {
     "booking_created": ("Booking created", "success"),
     "booking_cancelled": ("Booking cancelled", "danger"),
     "review_created": ("Review submitted", "info"),
+    "password_changed": ("Password changed", "neutral"),
+    "password_reset_by_admin": ("Password reset by admin", "warning"),
+    "profile_updated_by_admin": ("Profile updated by admin", "info"),
 }
 
 
@@ -82,6 +85,26 @@ def action_meta(value):
         label, tone = _ACTION_META[value]
         return {"label": label, "tone": tone}
     return {"label": value.replace("_", " ").capitalize(), "tone": "neutral"}
+
+
+_GENDER_LABELS = {
+    Gender.MALE: "Male",
+    Gender.FEMALE: "Female",
+    Gender.NON_BINARY: "Non-binary",
+    Gender.PREFER_NOT_TO_SAY: "Prefer not to say",
+}
+
+
+def gender_label(value):
+    """Plain human label for a Gender enum/value; not a status, so no
+    badge tone, just the display string profile pages need."""
+    if not value:
+        return "Not set"
+    key = value.value if hasattr(value, "value") else str(value)
+    for enum_val, label in _GENDER_LABELS.items():
+        if enum_val.value == key:
+            return label
+    return key.replace("_", " ").title()
 
 
 def format_date(value, fmt="%d %b %Y"):
@@ -120,6 +143,7 @@ def time_until(value):
 def register_template_helpers(app):
     app.jinja_env.filters["status_meta"] = status_meta
     app.jinja_env.filters["action_meta"] = action_meta
+    app.jinja_env.filters["gender_label"] = gender_label
     app.jinja_env.filters["format_date"] = format_date
     app.jinja_env.filters["format_datetime"] = format_datetime
     app.jinja_env.filters["format_currency"] = format_currency

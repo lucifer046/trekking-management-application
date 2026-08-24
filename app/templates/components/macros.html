@@ -51,6 +51,57 @@
   </div>
 {% endmacro %}
 
+{# Account-type selector for registration (spec section 14): two
+   clickable cards bound to a RadioField, not a dropdown. Icon/copy are
+   keyed off each option's own value so this doesn't hardcode "exactly
+   two options in this exact order" any harder than the form itself
+   already does. #}
+{% macro account_type_cards(field) %}
+  {% set _copy = {
+    'user': ('person', 'Trekker', 'Book and explore'),
+    'staff': ('person-badge', 'Trek Staff', 'Lead adventures'),
+  } %}
+  <div class="mb-3">
+    {{ field.label(class_="form-label-tma") }}
+    <div class="account-type-cards">
+      {% for subfield in field %}
+        {% set icon, title, tagline = _copy.get(subfield.data, ('circle', subfield.label.text, '')) %}
+        <label class="account-type-card">
+          {{ subfield }}
+          <span class="account-type-card__body">
+            <i class="bi bi-{{ icon }}" aria-hidden="true"></i>
+            <strong>{{ title }}</strong>
+            <span>{{ tagline }}</span>
+          </span>
+        </label>
+      {% endfor %}
+    </div>
+    {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+  </div>
+{% endmacro %}
+
+{# Read-only "locked" presentation for email on profile pages (spec
+   section 19): a deliberate, professional locked field, not a broken/
+   disabled input. #}
+{% macro locked_field(label, value) %}
+  <div class="mb-3">
+    <span class="form-label-tma">{{ label }}</span>
+    <div class="locked-field">
+      <span>{{ value }}</span>
+      <span class="locked-field__badge"><i class="bi bi-lock-fill"></i> Cannot be changed</span>
+    </div>
+  </div>
+{% endmacro %}
+
+{# One label/value pair inside a .profile-detail-grid; used on every
+   profile view (user/staff self-service, admin user/staff detail). #}
+{% macro profile_field(label, value) %}
+  <div>
+    <span class="profile-field__label">{{ label }}</span>
+    <span class="profile-field__value{{ ' profile-field__value--muted' if not value }}">{{ value or 'Not set' }}</span>
+  </div>
+{% endmacro %}
+
 {% macro status_badge(value) %}
   {% set meta = value | status_meta %}
   <span class="badge-tma badge-tone-{{ meta.tone }}">{{ meta.label }}</span>

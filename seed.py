@@ -26,7 +26,7 @@ def _utcnow():
 from app import create_app
 from app.extensions import db
 from app.models import (
-    ActivityLog, Booking, BookingStatus, Difficulty, Location, Notification,
+    ActivityLog, Booking, BookingStatus, Difficulty, Gender, Location, Notification,
     Review, Staff, StaffStatus, Trek, TrekStatus, User, UserRole, Wishlist,
 )
 from app.services import booking_service, review_service, staff_service, trek_service
@@ -39,12 +39,32 @@ FIRST_NAMES = ["Rohan", "Aarav", "Kabir", "Vihaan", "Aditya", "Arjun", "Rahul", 
                "Ananya", "Diya", "Priya", "Riya", "Meera", "Isha", "Kavya", "Neha", "Sanya", "Tara"]
 LAST_NAMES = ["Sharma", "Verma", "Gupta", "Kumar", "Singh", "Patel", "Mehta", "Joshi", "Nair", "Rao"]
 
+# Additional profile info (spec: "TMA Authentication and Profile System
+# Complete Redesign"). Obviously-fake demo data only; see that spec's own
+# section 47 examples for the shape this is meant to match.
+CITIES = ["Chennai", "Dehradun", "Manali", "Pune", "Bengaluru", "Mumbai", "Delhi",
+          "Hyderabad", "Kochi", "Jaipur", "Chandigarh", "Leh"]
+_GENDER_WEIGHTS = [(Gender.MALE, 4), (Gender.FEMALE, 4), (Gender.NON_BINARY, 1), (Gender.PREFER_NOT_TO_SAY, 1)]
+
 
 def unique_names(count):
     names = set()
     while len(names) < count:
         names.add(f"{random.choice(FIRST_NAMES)} {random.choice(LAST_NAMES)}")
     return list(names)
+
+
+def _random_dob(min_age, max_age):
+    today = date.today()
+    age = random.randint(min_age, max_age)
+    # Random day-of-year offset keeps birthdays from all landing on the
+    # same calendar date for a given age.
+    return date(today.year - age, 1, 1) + timedelta(days=random.randint(0, 364))
+
+
+def _random_gender():
+    population, weights = zip(*_GENDER_WEIGHTS)
+    return random.choices(population, weights=weights, k=1)[0]
 
 
 def seed():
@@ -56,7 +76,8 @@ def seed():
     cfg = current_app.config
 
     print("Creating admin account...")
-    admin = User(name=cfg["ADMIN_NAME"], email=cfg["ADMIN_EMAIL"], role=UserRole.ADMIN, is_active=True, is_blocked=False)
+    admin = User(name=cfg["ADMIN_NAME"], email=cfg["ADMIN_EMAIL"], role=UserRole.ADMIN,
+                 city=random.choice(CITIES), is_active=True, is_blocked=False)
     admin.set_password(cfg["ADMIN_PASSWORD"])
     db.session.add(admin)
     db.session.commit()
@@ -86,7 +107,8 @@ def seed():
     for i, name in enumerate(staff_names):
         email_prefix = name.lower().replace(" ", "_")
         user = User(name=name, email=f"{email_prefix}_staff@trekking.com", role=UserRole.STAFF,
-                    phone=f"+91 98{i:03d}00{i:02d}0", is_active=True, is_blocked=False)
+                    phone=f"+91 98{i:03d}00{i:02d}0", date_of_birth=_random_dob(24, 55),
+                    gender=_random_gender(), city=random.choice(CITIES), is_active=True, is_blocked=False)
         user.set_password("Staff@123")
         db.session.add(user)
         db.session.flush()
@@ -127,7 +149,8 @@ def seed():
         elif i == 12:
             is_blocked = True
         user = User(name=name, email=f"{email_prefix}@gmail.com", role=UserRole.USER,
-                    phone=f"+91 91{i:03d}00{i:02d}0", is_active=is_active, is_blocked=is_blocked)
+                    phone=f"+91 91{i:03d}00{i:02d}0", date_of_birth=_random_dob(18, 65),
+                    gender=_random_gender(), city=random.choice(CITIES), is_active=is_active, is_blocked=is_blocked)
         user.set_password("User@123")
         db.session.add(user)
         trekkers.append(user)
