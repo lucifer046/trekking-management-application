@@ -145,8 +145,13 @@
 .site-footer a { color: rgba(255, 255, 255, 0.75); }
 .site-footer a:hover { color: #fff; }
 
-.footer-brand { display: inline-flex; align-items: center; gap: 10px; font: var(--text-heading-sm); color: #fff; text-decoration: none; margin-bottom: var(--space-3); }
-.footer-brand .brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.1); color: var(--color-gold-500); font-size: 1rem; }
+/* Same mark/wordmark treatment as .navbar-brand-tma and the auth
+   pages' brand (a solid gradient squircle with a white icon, the
+   display font at 1.375rem), not its own third variant; only
+   difference is the same light border the auth mark uses, for
+   contrast against this dark footer background. */
+.footer-brand { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-display); font-weight: 700; font-size: 1.375rem; color: #fff; text-decoration: none; margin-bottom: var(--space-3); }
+.footer-brand .brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--radius-sm); background: linear-gradient(155deg, var(--color-primary-600), var(--color-primary-900)); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; flex-shrink: 0; }
 .footer-brand:hover { color: #fff; }
 .footer-tagline { color: rgba(255, 255, 255, 0.68); max-width: 42ch; margin-bottom: var(--space-4); }
 
@@ -808,26 +813,40 @@
   padding: var(--space-6) var(--space-6) var(--space-5);
 }
 
-/* Brand: a refined glass pill instead of a plain wordmark, so it reads
-   as part of the product chrome rather than a floating label. */
+/* Brand: same mark and wordmark treatment as .navbar-brand-tma (the
+   one every non-auth page uses), not a bespoke glass-pill variant.
+   Was a translucent circle with a gold icon and the body font at
+   heading-sm size; the navbar's mark is a solid gradient squircle with
+   a *white* icon and the display font at 1.375rem, and those had drifted
+   into two different-looking brand marks depending on which page you
+   were on. Only real difference here: a thin light border on the icon
+   mark, since the navbar's version relies on sitting against a light
+   page background for contrast, which the dark scene doesn't have. */
 .auth-visual__brand {
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
-  gap: 10px;
-  padding: 7px 16px 7px 7px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  font: var(--text-heading-sm);
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.375rem;
   color: #fff;
   text-decoration: none;
-  transition: background var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
-.auth-visual__brand .brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); color: var(--color-gold-500); }
-.auth-visual__brand:hover { color: #fff; background: rgba(255, 255, 255, 0.12); box-shadow: 0 0 24px rgba(212, 162, 76, 0.22); }
+.auth-visual__brand .brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(155deg, var(--color-primary-600), var(--color-primary-900));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  flex-shrink: 0;
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+}
+.auth-visual__brand:hover { color: #fff; }
+.auth-visual__brand:hover .brand-mark { box-shadow: 0 0 18px rgba(212, 162, 76, 0.35); }
 
 /* Location indicator: only ever rendered when the template actually has
    a real top_location value (see auth/routes.py's _auth_stats query);
