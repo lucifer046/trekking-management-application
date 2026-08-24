@@ -42,7 +42,7 @@
 .section-tight { padding-block: var(--space-6); }
 .max-w-prose { max-width: 68ch; }
 
-.hover-lift { transition: transform var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard); }
+.hover-lift { transition: transform var(--duration-hover) var(--ease-flow), box-shadow var(--duration-hover) var(--ease-flow); }
 .hover-lift:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 
 .count-up { font-variant-numeric: tabular-nums; }

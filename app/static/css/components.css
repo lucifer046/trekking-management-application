@@ -194,12 +194,12 @@
   overflow: hidden;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
-  transition: transform var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
+  transition: transform var(--duration-hover) var(--ease-flow), box-shadow var(--duration-hover) var(--ease-flow);
   height: 100%;
 }
 .trek-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
 .trek-card__media { position: relative; aspect-ratio: 4 / 3; overflow: hidden; }
-.trek-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--duration-slow) var(--ease-standard); }
+.trek-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--duration-hover) var(--ease-flow); }
 .trek-card:hover .trek-card__media img { transform: scale(1.06); }
 .trek-card__badges { position: absolute; top: var(--space-3); left: var(--space-3); display: flex; gap: 6px; }
 .trek-card__save { position: absolute; top: var(--space-3); right: var(--space-3); }
@@ -218,7 +218,7 @@
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   box-shadow: var(--shadow-sm);
-  transition: transform var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
+  transition: transform var(--duration-hover) var(--ease-flow), box-shadow var(--duration-hover) var(--ease-flow);
 }
 .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 .stat-card__icon { width: 44px; height: 44px; border-radius: var(--radius-md); display: grid; place-items: center; background: var(--color-primary-100); color: var(--color-primary-800); margin-bottom: var(--space-3); }
@@ -583,14 +583,26 @@
 .section-heading .eyebrow { font: var(--text-label); text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent-600); margin-bottom: 6px; display: block; }
 .section-tinted { background: var(--color-surface); }
 
-.location-card { position: relative; border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 3/4; color: #fff; box-shadow: var(--shadow-sm); }
+.location-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  aspect-ratio: 3/4;
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+  /* Previously only the inner scenery image zoomed on hover; the card
+     itself never moved, an inconsistent feel next to trek-card's lift.
+     Matching that here too. */
+  transition: transform var(--duration-hover) var(--ease-flow), box-shadow var(--duration-hover) var(--ease-flow);
+}
+.location-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
 .location-card__scenery { position: absolute; inset: 0; }
 .location-card__scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(15,26,20,0.85) 0%, rgba(15,26,20,0.05) 60%); }
 .location-card__body { position: absolute; left: 0; right: 0; bottom: 0; padding: var(--space-4); z-index: 2; }
 .location-card__body h4 { color: #fff; margin: 0; }
 .location-card__body span { font-size: 0.8125rem; color: rgba(255,255,255,0.8); }
 .location-card:hover .location-card__scenery svg { transform: scale(1.08); }
-.location-card__scenery svg { transition: transform var(--duration-slow) var(--ease-standard); width: 100%; height: 100%; }
+.location-card__scenery svg { transition: transform var(--duration-hover) var(--ease-flow); width: 100%; height: 100%; }
 
 .step-card { text-align: center; padding: var(--space-5); }
 .step-card__number {
@@ -622,6 +634,24 @@
    JS is disabled; content is visible by default, this only enhances). */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity var(--duration-slow) var(--ease-standard), transform var(--duration-slow) var(--ease-standard); }
 .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+/* .trek-card / .stat-card / .location-card are combined with .reveal on
+   scroll-in (see the templates). Both rules set the `transition`
+   shorthand, which is all-or-nothing per declaration: whichever wins the
+   cascade replaces the full list, not just the properties it names.
+   Without this rule, .reveal (same specificity, later in the file)
+   silently overwrote each card's own transition, forcing hover motion
+   onto --duration-slow/--ease-standard and dropping box-shadow from the
+   list entirely. That collision, not the token values themselves, was
+   the real cause hovers still read as an instant "pop": box-shadow
+   snapped with no transition at all, and transform rode a curve that
+   mostly finishes early and coasts. Restoring the intended transition
+   here for elements carrying both classes, via a more specific selector,
+   so it wins regardless of source order. */
+.trek-card.reveal, .stat-card.reveal, .location-card.reveal {
+  transition: opacity var(--duration-slow) var(--ease-standard), transform var(--duration-hover) var(--ease-flow), box-shadow var(--duration-hover) var(--ease-flow);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
 }

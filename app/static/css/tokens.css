@@ -98,6 +98,16 @@
   --duration-base: 240ms;
   --duration-slow: 420ms;
 
+  /* Dedicated to hover-triggered card motion specifically (lift, image
+     zoom) — kept separate from --duration-base/--ease-standard, which
+     buttons, dropdowns and toasts also use and need to stay snappy for.
+     --ease-flow decelerates smoothly the whole way through instead of
+     mostly finishing early and coasting, which is what actually reads
+     as an instant "pop" even at a longer duration; --duration-hover is
+     noticeably slower than --duration-base on top of that. */
+  --ease-flow: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-hover: 480ms;
+
   --container-max: 1240px;
 
   /* Bootstrap variable remap; lets native Bootstrap components (buttons
