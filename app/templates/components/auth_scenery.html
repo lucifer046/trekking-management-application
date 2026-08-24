@@ -20,7 +20,14 @@
       <stop offset="0%" stop-color="#d4a24c" stop-opacity="0.55"/>
       <stop offset="100%" stop-color="#d4a24c" stop-opacity="0"/>
     </radialGradient>
-    <filter id="auth-blur" x="-50%" y="-50%" width="200%" height="200%">
+    {# The cloud ellipses are wide but short (ry 22-30px); a -50%/200%
+       filter region gives them only ~15-22px of vertical margin, not
+       enough for a stdDeviation:14 blur to fade out before it hits the
+       filter region's own edge, so it was clipping to a visible hard-
+       edged rectangle instead of dissolving to nothing. A much more
+       generous region (relative to each ellipse's own small bbox)
+       fixes that regardless of which cloud group it's applied to. #}
+    <filter id="auth-blur" x="-200%" y="-200%" width="500%" height="500%">
       <feGaussianBlur stdDeviation="14"/>
     </filter>
   </defs>
@@ -49,12 +56,16 @@
     <ellipse cx="460" cy="700" rx="120" ry="22" fill="#ffffff"/>
   </g>
 
-  <!-- The trail draws itself once toward the summit marker. Deliberately
-       kept to the right two-thirds of the scene (x >= ~400): the brand/
-       heading/copy text block below is left-aligned in the same lower
-       area, and a line drawn straight through it read as visual clutter
-       rather than depth. -->
-  <path class="scenery-route" d="M 520,860 C 470,810 560,750 500,700 S 560,600 495,545 S 555,450 480,400 S 460,335 430,300"/>
+  <!-- The trail draws itself once toward the summit marker: three
+       alternating switchback bulges (right, left, right), each its own
+       simple quadratic curve rather than a chained S-curve, so it
+       reads as a coherent mountain path climbing straight-ish toward
+       the summit instead of a wandering, erratic squiggle. Deliberately
+       kept to the right two-thirds of the scene (x >= ~400 at its
+       leftmost point): the brand/heading/copy text block below is
+       left-aligned in the same lower area, and a line drawn through it
+       read as visual clutter rather than depth. -->
+  <path class="scenery-route" d="M 520,860 Q 580,780 500,700 Q 430,630 480,540 Q 530,460 430,300"/>
   <circle class="scenery-summit" cx="430" cy="300" r="7" fill="#d4a24c"/>
   <circle cx="430" cy="300" r="3" fill="#faf1ec"/>
 
