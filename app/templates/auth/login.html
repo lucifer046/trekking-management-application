@@ -4,6 +4,7 @@
 {% block content %}
 <section class="auth-visual">
   <div class="auth-visual__scene" aria-hidden="true">{% include "components/auth_scenery.html" %}</div>
+  <div class="auth-visual__scrim" aria-hidden="true"></div>
   <div class="auth-visual__content">
     <a href="{{ url_for('public.home') }}" class="auth-visual__brand">
       <span class="brand-mark" aria-hidden="true"><i class="bi bi-triangle-fill"></i></span>
@@ -46,7 +47,7 @@
       <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next')) }}" novalidate>
         {{ form.hidden_tag() }}
         {{ m.render_field(form.email, placeholder="you@example.com", autocomplete="email") }}
-        {{ m.render_password_field(form.password, autocomplete="current-password") }}
+        {{ m.render_password_field(form.password, placeholder="Enter your password", autocomplete="current-password") }}
         <div class="d-flex justify-content-between align-items-center mb-4">
           <div class="form-check">
             {{ form.remember_me(class_="form-check-input") }}

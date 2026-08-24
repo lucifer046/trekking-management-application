@@ -784,6 +784,19 @@
 }
 .auth-visual__scene { position: absolute; inset: 0; }
 .auth-visual__scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* The scene's mountains/clouds/trail sit directly behind the brand,
+   heading, copy and stats below; without this, dark text (or even
+   white text over the sun-glow's brightest patch) reads inconsistently
+   depending on exactly what part of the illustration happens to be
+   behind it. A fixed bottom-weighted scrim guarantees every line of
+   text sits on a consistently dark, low-detail patch regardless of
+   the scene underneath, the same trick a photo-hero would use. */
+.auth-visual__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(0deg, rgba(6, 14, 9, 0.88) 0%, rgba(6, 14, 9, 0.55) 38%, rgba(6, 14, 9, 0.08) 68%, transparent 85%);
+}
 .auth-visual__content {
   position: relative;
   z-index: 2;
@@ -793,14 +806,14 @@
   height: 100%;
   padding: var(--space-6) var(--space-6) var(--space-5);
 }
-.auth-visual__brand { display: inline-flex; align-items: center; gap: 10px; font: var(--text-heading-sm); color: #fff; text-decoration: none; }
+.auth-visual__brand { display: inline-flex; align-items: center; gap: 10px; font: var(--text-heading-sm); color: #fff; text-decoration: none; text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5); }
 .auth-visual__brand .brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.12); color: var(--color-gold-500); }
 .auth-visual__brand:hover { color: #fff; }
 .auth-visual__copy { max-width: 26ch; }
-.auth-visual__copy h1 { color: #fff; font: var(--text-display-lg); margin-bottom: var(--space-3); }
-.auth-visual__copy p { color: rgba(255, 255, 255, 0.72); font: var(--text-body-lg); margin: 0; }
+.auth-visual__copy h1 { color: #fff; font: var(--text-display-lg); margin-bottom: var(--space-3); text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55); }
+.auth-visual__copy p { color: rgba(255, 255, 255, 0.88); font: var(--text-body-lg); margin: 0; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55); }
 .auth-visual__stats { display: flex; gap: var(--space-5); flex-wrap: wrap; }
-.auth-visual__stat { display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.85); font-size: 0.875rem; }
+.auth-visual__stat { display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.9); font-size: 0.875rem; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5); }
 .auth-visual__stat i { color: var(--color-gold-500); font-size: 1rem; }
 .auth-visual__stat strong { color: #fff; font-family: var(--font-display); font-size: 1.05rem; }
 

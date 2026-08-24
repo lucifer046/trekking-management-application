@@ -4,6 +4,7 @@
 {% block content %}
 <section class="auth-visual">
   <div class="auth-visual__scene" aria-hidden="true">{% include "components/auth_scenery.html" %}</div>
+  <div class="auth-visual__scrim" aria-hidden="true"></div>
   <div class="auth-visual__content">
     <a href="{{ url_for('public.home') }}" class="auth-visual__brand">
       <span class="brand-mark" aria-hidden="true"><i class="bi bi-triangle-fill"></i></span>
@@ -46,10 +47,10 @@
       <form method="POST" novalidate>
         {{ form.hidden_tag() }}
         <div class="row">
-          <div class="col-md-6">{{ m.render_field(form.name, autocomplete="name") }}</div>
+          <div class="col-md-6">{{ m.render_field(form.name, placeholder="Your full name", autocomplete="name") }}</div>
           <div class="col-md-6">{{ m.render_field(form.phone, placeholder="Optional") }}</div>
         </div>
-        {{ m.render_field(form.email, autocomplete="email") }}
+        {{ m.render_field(form.email, placeholder="you@example.com", autocomplete="email") }}
 
         <div class="row">
           <div class="col-md-6">{{ m.render_field(form.date_of_birth) }}</div>
@@ -66,10 +67,10 @@
 
         <div class="row">
           <div class="col-md-6">
-            {{ m.render_password_field(form.password, autocomplete="new-password") }}
+            {{ m.render_password_field(form.password, placeholder="At least 8 characters", autocomplete="new-password") }}
           </div>
           <div class="col-md-6">
-            {{ m.render_password_field(form.confirm_password, autocomplete="new-password") }}
+            {{ m.render_password_field(form.confirm_password, placeholder="Re-enter your password", autocomplete="new-password") }}
           </div>
         </div>
 

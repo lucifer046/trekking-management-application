@@ -49,10 +49,14 @@
     <ellipse cx="460" cy="700" rx="120" ry="22" fill="#ffffff"/>
   </g>
 
-  <!-- the trail: draws itself once toward the summit marker -->
-  <path class="scenery-route" d="M 40,860 C 120,820 100,760 170,730 S 260,650 250,600 S 340,520 330,470 S 380,410 360,380"/>
-  <circle class="scenery-summit" cx="360" cy="380" r="7" fill="#d4a24c"/>
-  <circle cx="360" cy="380" r="3" fill="#faf1ec"/>
+  <!-- The trail draws itself once toward the summit marker. Deliberately
+       kept to the right two-thirds of the scene (x >= ~400): the brand/
+       heading/copy text block below is left-aligned in the same lower
+       area, and a line drawn straight through it read as visual clutter
+       rather than depth. -->
+  <path class="scenery-route" d="M 520,860 C 470,810 560,750 500,700 S 560,600 495,545 S 555,450 480,400 S 460,335 430,300"/>
+  <circle class="scenery-summit" cx="430" cy="300" r="7" fill="#d4a24c"/>
+  <circle cx="430" cy="300" r="3" fill="#faf1ec"/>
 
   <!-- floating mist particles -->
   <circle class="scenery-particle" cx="120" cy="300" r="3" fill="#d4a24c" style="animation-delay:0s;"/>

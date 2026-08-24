@@ -87,8 +87,8 @@
           <p class="fs-sm text-muted-tma">Sets a brand new password for this account. Share it with the user through a secure channel; TMA never displays or stores their old one.</p>
           <form method="POST" action="{{ url_for('admin.reset_user_password', user_id=user.id) }}" novalidate>
             {{ reset_password_form.hidden_tag() }}
-            {{ m.render_password_field(reset_password_form.new_password) }}
-            {{ m.render_password_field(reset_password_form.confirm_new_password) }}
+            {{ m.render_password_field(reset_password_form.new_password, placeholder="At least 8 characters") }}
+            {{ m.render_password_field(reset_password_form.confirm_new_password, placeholder="Re-enter the new password") }}
             <button type="submit" class="btn-tma btn-tma--outline btn-tma--block">Reset password</button>
           </form>
         </div>
