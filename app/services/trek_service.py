@@ -94,6 +94,8 @@ def transition_status(trek, new_status, actor):
         _complete_active_bookings(trek)
     elif new_status == TrekStatus.CANCELLED:
         _cancel_active_bookings(trek, reason="Trek was cancelled by the operator.")
+    elif new_status == TrekStatus.STARTED:
+        _notify_active_bookers_trek_started(trek)
 
     activity_log_service.log(
         actor=actor,
@@ -115,6 +117,21 @@ def _complete_active_bookings(trek):
             "trek_completed",
             "Trek completed",
             f"Hope you enjoyed {trek.name}! You can now leave a review.",
+            link_url=f"/user/bookings/{booking.id}",
+        )
+
+
+def _notify_active_bookers_trek_started(trek):
+    """Spec section 24 names 'Trek started' as a notification trigger.
+    Unlike the completed/cancelled cases, no booking field changes here;
+    this only pings the trekkers who are actually on the trip today."""
+    active_bookings = Booking.query.filter_by(trek_id=trek.id, status=BookingStatus.BOOKED).all()
+    for booking in active_bookings:
+        notification_service.notify(
+            booking.trekker,
+            "trek_started",
+            "Your trek has started",
+            f"{trek.name} has officially started. Have a great trek!",
             link_url=f"/user/bookings/{booking.id}",
         )
 

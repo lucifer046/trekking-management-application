@@ -24,11 +24,19 @@
 
     <div class="section-heading"><h2 class="h5 mb-0">Staff ({{ staffs|length }})</h2></div>
     {% if staffs %}
-      <div class="table-tma-wrap">
+      <div class="table-tma-wrap mb-6">
         <table class="table-tma"><thead><tr><th>ID</th><th>Name</th><th>Status</th><th></th></tr></thead>
         <tbody>{% for s in staffs %}<tr><td data-label="ID" class="text-mono">{{ s.id }}</td><td data-label="Name">{{ s.user.name }}</td><td data-label="Status">{{ m.status_badge(s.staff_status) }}</td><td data-label=""><a href="{{ url_for('admin.manage_staff') }}" class="btn-tma btn-tma--outline btn-tma--sm">Open</a></td></tr>{% endfor %}</tbody></table>
       </div>
-    {% else %}<p class="text-muted-tma">No matching staff.</p>{% endif %}
+    {% else %}<p class="text-muted-tma mb-6">No matching staff.</p>{% endif %}
+
+    <div class="section-heading"><h2 class="h5 mb-0">Bookings ({{ bookings|length }})</h2></div>
+    {% if bookings %}
+      <div class="table-tma-wrap">
+        <table class="table-tma"><thead><tr><th>Reference</th><th>Trekker</th><th>Trek</th><th>Status</th><th></th></tr></thead>
+        <tbody>{% for b in bookings %}<tr><td data-label="Reference" class="text-mono">{{ b.booking_reference or b.id }}</td><td data-label="Trekker">{{ b.trekker.name }}</td><td data-label="Trek">{{ b.trek.name }}</td><td data-label="Status">{{ m.status_badge(b.status) }}</td><td data-label=""><a href="{{ url_for('admin.manage_bookings', q=b.booking_reference) }}" class="btn-tma btn-tma--outline btn-tma--sm">Open</a></td></tr>{% endfor %}</tbody></table>
+      </div>
+    {% else %}<p class="text-muted-tma">No matching bookings.</p>{% endif %}
   </div>
 </section>
 {% endblock %}

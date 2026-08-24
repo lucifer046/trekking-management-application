@@ -22,7 +22,7 @@ from app.models import (
     User,
     UserRole,
 )
-from app.services import activity_log_service, staff_service, trek_service
+from app.services import activity_log_service, notification_service, staff_service, trek_service
 from app.services.exceptions import ServiceError
 from app.utils.decorators import admin_required
 from app.utils.uploads import UploadRejected, delete_trek_image_file, save_trek_image
@@ -79,7 +79,12 @@ def search():
         staff_filters.append(User.id == id_match)
     staffs = Staff.query.join(Staff.user).filter(or_(*staff_filters)).limit(25).all()
 
-    return render_template("admin/search_results.html", query=query, treks=treks, users=users, staffs=staffs)
+    booking_filters = [Booking.booking_reference.ilike(like)]
+    if id_match is not None:
+        booking_filters.append(Booking.id == id_match)
+    bookings = Booking.query.join(Trek).filter(or_(*booking_filters)).order_by(Booking.booked_at.desc()).limit(25).all()
+
+    return render_template("admin/search_results.html", query=query, treks=treks, users=users, staffs=staffs, bookings=bookings)
 
 
 # ------------------------------------------------------------------- treks
@@ -501,6 +506,16 @@ def blacklist_user(user_id):
     if form.validate_on_submit():
         user.is_blocked = True
         activity_log_service.log(actor=current_user, action="user_blacklisted", description=f"{current_user.name} blacklisted {user.name}.", target_type="user", target_id=user.id)
+        # Written even though the user is force-logged-out before they
+        # could ever see it live (see the before_request guard in
+        # app/__init__.py): it becomes a historical record waiting for
+        # them if the account is ever unblocked and they log back in.
+        notification_service.notify(
+            user,
+            "account_deactivated",
+            "Your account was deactivated",
+            "Your account has been deactivated by a platform admin. Contact support if you believe this is a mistake.",
+        )
         db.session.commit()
         flash("User blacklisted. Their active session will be signed out on their next request.", "success")
     return redirect(url_for("admin.manage_users"))
@@ -515,6 +530,12 @@ def unblacklist_user(user_id):
     if form.validate_on_submit():
         user.is_blocked = False
         activity_log_service.log(actor=current_user, action="user_unblacklisted", description=f"{current_user.name} removed {user.name} from the blacklist.", target_type="user", target_id=user.id)
+        notification_service.notify(
+            user,
+            "account_reactivated",
+            "Your account is active again",
+            "Your account has been reactivated. You can now log back in.",
+        )
         db.session.commit()
         flash("User unblacklisted.", "success")
     return redirect(url_for("admin.manage_users"))
