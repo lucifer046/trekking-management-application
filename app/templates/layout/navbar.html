@@ -32,10 +32,12 @@
               <i class="bi bi-bell"></i>
               {% if unread_notification_count > 0 %}<span class="dot" aria-hidden="true"></span>{% endif %}
             </button>
-            <div class="dropdown-menu dropdown-menu-end p-0" style="width: 320px;" data-notification-panel>
+            <div class="dropdown-menu dropdown-menu-end notification-panel p-0">
               <div class="p-3 border-bottom fw-semibold fs-sm">Notifications</div>
-              <div class="skeleton skeleton-line mx-3 my-2"></div>
-              <div class="skeleton skeleton-line mx-3 my-2" style="width: 70%;"></div>
+              <div data-notification-list>
+                <div class="skeleton skeleton-line mx-3 my-2"></div>
+                <div class="skeleton skeleton-line mx-3 my-2" style="width: 70%;"></div>
+              </div>
               <a href="{{ url_for('user.notifications') }}" class="dropdown-item text-center border-top py-2 fs-sm text-brand">View all</a>
             </div>
           </div>

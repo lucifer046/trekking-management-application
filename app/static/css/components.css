@@ -80,6 +80,8 @@
   background: var(--color-accent-600);
   border: 2px solid var(--color-surface);
 }
+.notification-panel { width: 320px; max-width: calc(100vw - 2rem); }
+.notification-panel [data-notification-list] { max-height: 320px; overflow-y: auto; }
 
 /* ---------------------------------- Dropdowns ---------------------------- */
 /* Bootstrap's .dropdown-menu defaults its background to --bs-body-bg,

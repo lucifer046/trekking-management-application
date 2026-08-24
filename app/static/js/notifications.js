@@ -4,17 +4,21 @@
 (function () {
   "use strict";
   var toggle = document.querySelector("[data-notification-toggle]");
-  var panel = document.querySelector("[data-notification-panel]");
-  if (!toggle || !panel || !window.fetch) return;
+  // Only this inner list gets replaced on load; the panel's own header
+  // and "View all" footer are siblings of it, not descendants, so a
+  // previous version of this script that set the *panel's* innerHTML
+  // wiped both of them out the moment notifications finished loading.
+  var list = document.querySelector("[data-notification-list]");
+  if (!toggle || !list || !window.fetch) return;
 
   var loaded = false;
 
   function render(data) {
     if (!data.notifications.length) {
-      panel.innerHTML = '<div class="empty-state py-4"><p class="mb-0 fs-sm">You\'re all caught up.</p></div>';
+      list.innerHTML = '<div class="empty-state py-4"><p class="mb-0 fs-sm">You\'re all caught up.</p></div>';
       return;
     }
-    panel.innerHTML = data.notifications
+    list.innerHTML = data.notifications
       .map(function (n) {
         var href = n.link_url || "/user/notifications";
         return (
@@ -44,7 +48,7 @@
         render(data);
       })
       .catch(function () {
-        panel.innerHTML = '<div class="p-3 fs-sm text-muted-tma">Couldn\'t load notifications.</div>';
+        list.innerHTML = '<div class="p-3 fs-sm text-muted-tma">Couldn\'t load notifications.</div>';
       });
   });
 })();
