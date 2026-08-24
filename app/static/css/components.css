@@ -125,14 +125,41 @@
 
 /* ---------------------------------- Footer ------------------------------ */
 .site-footer {
+  position: relative;
   background: var(--color-primary-900);
   color: rgba(255, 255, 255, 0.82);
   margin-top: var(--space-9);
   padding-block: var(--space-8) var(--space-6);
 }
-.site-footer h5 { color: #fff; font: var(--text-heading-sm); margin-bottom: var(--space-3); }
+/* Thin brand-gradient hairline; the one spot on the page the accent
+   and gold tokens get to share a line, marking the content/footer
+   boundary without a hard, flat-looking border. */
+.site-footer::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent-600), var(--color-gold-500), var(--color-primary-500));
+}
+.site-footer h5 { color: #fff; font: var(--text-label); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: var(--space-4); }
 .site-footer a { color: rgba(255, 255, 255, 0.75); }
 .site-footer a:hover { color: #fff; }
+
+.footer-brand { display: inline-flex; align-items: center; gap: 10px; font: var(--text-heading-sm); color: #fff; text-decoration: none; margin-bottom: var(--space-3); }
+.footer-brand .brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.1); color: var(--color-gold-500); font-size: 1rem; }
+.footer-brand:hover { color: #fff; }
+.footer-tagline { color: rgba(255, 255, 255, 0.68); max-width: 42ch; margin-bottom: var(--space-4); }
+
+.footer-links a { display: inline-flex; transition: transform var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
+.footer-links a:hover { transform: translateX(3px); }
+
+/* Sets this column apart from the plain nav-link columns beside it,
+   since it's a note about the site rather than a place to navigate. */
+.footer-note { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-md); padding: var(--space-4); }
+.footer-note h5 { text-transform: none; letter-spacing: normal; font: var(--text-heading-sm); margin-bottom: var(--space-2); }
+.footer-note h5 i { color: var(--color-gold-500); }
+.footer-note p { color: rgba(255, 255, 255, 0.7); }
+
 .site-footer .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   margin-top: var(--space-6);
@@ -140,6 +167,8 @@
   font-size: 0.875rem;
   color: rgba(255, 255, 255, 0.55);
 }
+.footer-top-link { display: inline-flex; align-items: center; gap: 6px; color: rgba(255, 255, 255, 0.75); }
+.footer-top-link:hover { color: #fff; }
 
 /* ---------------------------------- Buttons ------------------------------ */
 .btn-tma {
@@ -421,6 +450,9 @@
 .badge-tone-info { background: var(--color-info-100); color: var(--color-info-700); }
 .badge-tone-brand { background: var(--color-primary-100); color: var(--color-primary-800); }
 .badge-tone-neutral { background: var(--color-neutral-100); color: var(--color-neutral-600); }
+/* For dark surfaces (footer's tech-stack chips); the tinted tones above
+   assume a light card background and disappear against a dark one. */
+.badge-tone-inverse { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(255, 255, 255, 0.16); }
 
 .difficulty-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 .difficulty-dot--easy { background: var(--color-success-600); }
