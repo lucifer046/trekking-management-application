@@ -105,6 +105,21 @@ python seed.py                  # resets the DB and populates realistic demo dat
 python run.py                   # http://127.0.0.1:5000
 ```
 
+## Deployment
+
+**Render is the supported path** (a persistent process, which this app's SQLite storage needs). `pyproject.toml`'s `[tool.vercel]` entrypoint only exists so a Vercel build doesn't fail outright if someone points one at this repo; see the persistence caveat below for why Vercel specifically isn't recommended.
+
+Deployable to [Render](https://render.com) via the included `render.yaml` blueprint (Dashboard → New → Blueprint → point at this repo). It provisions one free web service running `gunicorn run:app`.
+
+Two env vars are marked `sync: false` in the blueprint, meaning Render will prompt for them instead of storing a value in the repo:
+
+- `SECRET_KEY`: generate one with `python -c "import secrets; print(secrets.token_hex(32))"`.
+- `ADMIN_PASSWORD`: whatever you want the seeded admin account's password to be.
+
+**Why this isn't a fully persistent deployment:** the app stores its data in a single SQLite file (`instance/trekking.db`) and locally-saved trek photo uploads, which assumes a persistent disk. Render's free tier doesn't include one. The start command (`test -f instance/trekking.db || python seed.py; gunicorn ...`) only reseeds when that file is missing, so a warm instance keeps whatever a visitor does (bookings, reviews, wishlist, uploaded photos) across requests just fine; but the free plan's disk resets on every redeploy and on the cold start after a free instance spins down from inactivity, at which point it seeds fresh again. That's an acceptable trade-off for a portfolio demo (see the "Demo project" note at the top of this README) but not something you'd want for a real deployment.
+
+To make it fully persistent instead: upgrade the Render service to a paid plan, add a [persistent disk](https://render.com/docs/disks) mounted at the app's working directory (so `instance/` and `app/static/uploads/` survive), and drop the `test -f ... || python seed.py` re-seed guard from `startCommand` (or keep it; it's a no-op once the DB file exists on real persistent storage). A from-scratch serverless platform (Vercel, AWS Lambda) is a worse fit than a paid Render disk for this app specifically, since SQLite needs a real writable filesystem that's still there on the next request, which serverless deliberately doesn't guarantee.
+
 ## Environment variables
 
 See `.env.example`. `SECRET_KEY` is the only one that actually matters for local dev (it ships an insecure default so the app runs out of the box); `python -c "import secrets; print(secrets.token_hex(32))"` generates a real one. `DATABASE_URL` is optional (defaults to `instance/trekking.db`). `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` control the bootstrap admin account created by `seed.py` / `flask create-admin`.
@@ -133,6 +148,8 @@ trekking-management-application/
 ├── run.py                 dev entry point: python run.py
 ├── seed.py                 resets + populates demo data
 ├── requirements.txt
+├── render.yaml            Render deployment blueprint (see Deployment)
+├── pyproject.toml          [tool.vercel] entrypoint marker (see Deployment)
 ├── .env.example
 └── README.md
 ```

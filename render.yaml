@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: trekking-management-application
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # instance/trekking.db lives on the free plan's ephemeral local disk
+    # (no persistent disk on the free tier): it survives fine across
+    # requests on a warm instance, but a redeploy or a cold start after
+    # the free instance spins down starts from an empty disk again. This
+    # only reseeds when the file is actually missing, so it never wipes
+    # data mid-session; see the README's Deployment section for the
+    # trade-off and how to upgrade to a persistent disk.
+    startCommand: "test -f instance/trekking.db || python seed.py; gunicorn run:app --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: SECRET_KEY
+        sync: false
+      - key: ADMIN_EMAIL
+        value: admin@trekking.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_NAME
+        value: Platform Admin
