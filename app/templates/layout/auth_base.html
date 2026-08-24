@@ -37,6 +37,14 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+{# This layout never included custom-select.js: register.html's Gender
+   field has used the browser's raw native <select> popup this whole
+   time, the exact inconsistency this custom-datepicker.js pass is
+   fixing for date fields; fixed alongside it here rather than leaving
+   one native popup behind on this page while every other select in
+   the app already got the custom treatment. #}
+<script defer src="{{ url_for('static', filename='js/custom-select.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/custom-datepicker.js') }}"></script>
 {% block extra_scripts %}{% endblock %}
 </body>
 </html>

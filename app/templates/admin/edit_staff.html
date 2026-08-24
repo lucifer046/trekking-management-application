@@ -19,7 +19,7 @@
               <div class="col-md-6">{{ m.render_field(form.phone) }}</div>
             </div>
             <div class="row">
-              <div class="col-md-6">{{ m.render_field(form.date_of_birth) }}</div>
+              <div class="col-md-6">{{ m.render_field(form.date_of_birth, max=now().date().isoformat()) }}</div>
               <div class="col-md-6">{{ m.render_field(form.gender) }}</div>
             </div>
             {{ m.render_field(form.city) }}

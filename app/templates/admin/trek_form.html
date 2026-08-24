@@ -124,3 +124,27 @@
   </div>
 </section>
 {% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Keeps end_date's minimum in sync with whatever start_date currently
+  // holds, so the calendar visually prevents picking an end date before
+  // the start date instead of only catching it after submit (the
+  // "end_date >= start_date" rule already enforced server-side in
+  // TrekForm.validate_end_date; this is a UI convenience on top of it,
+  // not a replacement for it). Listens on "change" rather than assuming
+  // custom-datepicker.js has run: that's the same event it dispatches
+  // on the real underlying <input type="date"> either way.
+  (function () {
+    var startInput = document.getElementById("start_date");
+    var endInput = document.getElementById("end_date");
+    if (!startInput || !endInput) return;
+    function sync() {
+      if (startInput.value) endInput.min = startInput.value;
+      else endInput.removeAttribute("min");
+    }
+    startInput.addEventListener("change", sync);
+    sync();
+  })();
+</script>
+{% endblock %}
