@@ -532,6 +532,19 @@
 .alert-warning { background: var(--color-warning-100); color: var(--color-warning-700); border-color: var(--color-warning-100); }
 .alert-info { background: var(--color-info-100); color: var(--color-info-700); border-color: var(--color-info-100); }
 
+/* main.js upgrades every server-rendered [data-flash] alert into a
+   floating toast on DOMContentLoaded, then removes the original node;
+   that removal is correct, but it happens after the browser has
+   already painted the page once, so the raw alert box was visible on
+   screen for a beat before JS caught up and swapped it, reading as two
+   different flash messages back to back. Hiding it by default (it's
+   only ever meant to be the no-JS fallback, per that script's own
+   comment) means there's nothing to paint before the swap; .no-js
+   brings it back for the genuinely no-JS case, the same pattern
+   already used for .reveal below. */
+[data-flash] { display: none; }
+.no-js [data-flash] { display: block; }
+
 .toast-stack { position: fixed; top: calc(var(--space-6) + 56px); right: var(--space-5); z-index: 1080; display: flex; flex-direction: column; gap: 10px; width: min(360px, 90vw); }
 .toast-tma {
   background: var(--color-ink);
