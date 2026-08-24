@@ -5,12 +5,12 @@
       TMA
     </a>
 
-    <button class="navbar-toggler d-lg-none ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
-      <i class="bi bi-list" aria-hidden="true"></i>
-    </button>
-
-    <div class="collapse navbar-collapse d-lg-flex flex-lg-row align-items-lg-center flex-grow-1" id="navbarMain">
-      <ul class="nav-links-tma flex-column flex-lg-row mt-3 mt-lg-0">
+    {# Desktop only (>=992px); a completely separate block from the
+       mobile menu below, not the same markup reflowed. Hidden with
+       display:none under that breakpoint, so it takes no layout space
+       and never overlaps anything on mobile. #}
+    <div class="navbar-desktop-nav">
+      <ul class="nav-links-tma">
         <li><a href="{{ url_for('public.home') }}" class="{{ 'active' if request.endpoint == 'public.home' }}">Home</a></li>
         <li><a href="{{ url_for('public.explore') }}" class="{{ 'active' if request.endpoint == 'public.explore' }}">Explore Treks</a></li>
         {% if current_user.is_authenticated %}
@@ -25,7 +25,7 @@
         {% endif %}
       </ul>
 
-      <div class="navbar-actions mt-3 mt-lg-0">
+      <div class="navbar-actions">
         {% if current_user.is_authenticated %}
           <div class="dropdown">
             <button class="btn-tma btn-tma--ghost btn-tma--icon notification-bell" type="button" data-bs-toggle="dropdown" data-notification-toggle aria-expanded="false" aria-label="Notifications">
@@ -69,5 +69,64 @@
         {% endif %}
       </div>
     </div>
+
+    {# Mobile only (<992px): a single compact toggle, nothing else. #}
+    <button class="navbar-toggler d-lg-none" type="button" data-mobile-menu-toggle aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation">
+      <i class="bi bi-list" aria-hidden="true"></i>
+    </button>
   </nav>
+
+  {# Mobile slide-down menu: a real overlay panel anchored to the header
+     (position: absolute; top: 100%, so it always sits right below the
+     header regardless of the header's exact height, no magic-number
+     positioning), closed by default via the hidden attribute so it
+     occupies zero layout space and isn't reachable by keyboard/screen
+     reader until opened. Primary navigation and account actions are
+     visually and structurally separated, per the spec. #}
+  <div class="mobile-menu d-lg-none" id="mobileMenu" data-mobile-menu hidden>
+    <ul class="mobile-menu__nav">
+      <li><a href="{{ url_for('public.home') }}" class="{{ 'active' if request.endpoint == 'public.home' }}"><i class="bi bi-house" aria-hidden="true"></i>Home</a></li>
+      <li><a href="{{ url_for('public.explore') }}" class="{{ 'active' if request.endpoint == 'public.explore' }}"><i class="bi bi-compass" aria-hidden="true"></i>Explore Treks</a></li>
+      {% if current_user.is_authenticated %}
+        {% if current_user.is_admin %}
+          <li><a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.blueprint == 'admin' }}"><i class="bi bi-speedometer2" aria-hidden="true"></i>Admin Console</a></li>
+        {% elif current_user.is_staff %}
+          <li><a href="{{ url_for('staff.dashboard') if current_user.is_approved_staff else url_for('staff.pending_status') }}" class="{{ 'active' if request.blueprint == 'staff' }}"><i class="bi bi-speedometer2" aria-hidden="true"></i>Staff Dashboard</a></li>
+        {% else %}
+          <li><a href="{{ url_for('user.dashboard') }}" class="{{ 'active' if request.endpoint == 'user.dashboard' }}"><i class="bi bi-speedometer2" aria-hidden="true"></i>My Dashboard</a></li>
+          <li><a href="{{ url_for('user.wishlist') }}" class="{{ 'active' if request.endpoint == 'user.wishlist' }}"><i class="bi bi-heart" aria-hidden="true"></i>Wishlist</a></li>
+        {% endif %}
+      {% endif %}
+    </ul>
+
+    <div class="mobile-menu__divider" role="separator"></div>
+
+    <ul class="mobile-menu__account">
+      {% if current_user.is_authenticated %}
+        <li>
+          <a href="{{ url_for('user.notifications') }}">
+            <i class="bi bi-bell" aria-hidden="true"></i>Notifications
+            {% if unread_notification_count > 0 %}<span class="mobile-menu__dot" aria-hidden="true"></span>{% endif %}
+          </a>
+        </li>
+        {% if current_user.is_trekker %}
+          <li><a href="{{ url_for('user.profile') }}"><i class="bi bi-person" aria-hidden="true"></i>Profile</a></li>
+          <li><a href="{{ url_for('user.booking_history') }}"><i class="bi bi-journal-bookmark" aria-hidden="true"></i>My Bookings</a></li>
+        {% elif current_user.is_staff %}
+          <li><a href="{{ url_for('staff.profile') }}"><i class="bi bi-person" aria-hidden="true"></i>Profile</a></li>
+        {% endif %}
+        <li>
+          <form method="POST" action="{{ url_for('auth.logout') }}">
+            {{ confirm_form.hidden_tag() }}
+            <button type="submit" class="text-danger"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Logout</button>
+          </form>
+        </li>
+      {% else %}
+        <li><a href="{{ url_for('auth.login') }}"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>Log in</a></li>
+        <li><a href="{{ url_for('auth.register') }}"><i class="bi bi-person-plus" aria-hidden="true"></i>Sign up</a></li>
+      {% endif %}
+    </ul>
+  </div>
+
+  <div class="mobile-menu-backdrop" data-mobile-menu-backdrop hidden></div>
 </header>

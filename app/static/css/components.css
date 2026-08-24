@@ -20,21 +20,28 @@
   border-bottom-color: var(--color-border);
   box-shadow: var(--shadow-sm);
 }
+/* Mobile and desktop deliberately use two separate navigation blocks
+   (.navbar-desktop-nav vs. the .mobile-menu panel below), not one
+   structure reflowed by breakpoint: trying to make one set of nav
+   links/actions serve both a horizontal desktop bar and a slide-down
+   mobile panel is exactly what produced the earlier bug where the
+   "collapsed" mobile menu still visually and structurally fought with
+   the header row it lived inside. Whichever one doesn't apply at the
+   current width is display:none, so it never occupies layout space or
+   overlaps the other. */
 .navbar-tma {
   display: flex;
-  /* Bootstrap's own .navbar sets flex-wrap: wrap for exactly this
-     reason: .navbar-collapse already carries flex-basis: 100% (from
-     Bootstrap's base .navbar-collapse rule, which isn't gated behind
-     the .navbar class), but that only does anything if its flex
-     parent is actually allowed to wrap. Ours defaulted to nowrap, so
-     on mobile the opened menu never dropped onto its own line below
-     the brand/toggler row: it just got squeezed into the leftover
-     space in that same row instead, overlapping and cramped. */
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-5);
+  justify-content: space-between;
+  gap: var(--space-4);
   padding-block: var(--space-3);
+  position: relative; /* anchors .mobile-menu's `top: 100%` below */
 }
+.navbar-desktop-nav { display: none; align-items: center; gap: var(--space-5); flex: 1; min-width: 0; }
+@media (min-width: 992px) {
+  .navbar-desktop-nav { display: flex; }
+}
+
 /* Bootstrap's default .navbar-toggler-icon is a background-image
    driven entirely by --bs-navbar-toggler-icon-bg, a custom property
    Bootstrap only ever defines inside its own `.navbar { ... }` rule
@@ -46,13 +53,14 @@
    completely invisible, no icon and no border. Styled entirely
    ourselves here instead of depending on that variable scoping, using
    a real bi-list icon glyph (the icon-font path this app uses
-   everywhere else) rather than Bootstrap's SVG data-URI. */
+   everywhere else) rather than Bootstrap's SVG data-URI. 44px square:
+   the spec's own minimum comfortable touch target. */
 .navbar-toggler {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
@@ -60,24 +68,77 @@
   color: var(--color-heading);
   font-size: 1.375rem;
   line-height: 1;
+  flex-shrink: 0;
   transition: background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .navbar-toggler:hover { background: var(--color-primary-50); border-color: var(--color-primary-500); }
 .navbar-toggler:focus { outline: none; }
 .navbar-toggler[aria-expanded="true"] { background: var(--color-primary-50); border-color: var(--color-primary-600); color: var(--color-primary-700); }
-/* Bootstrap's base .navbar-collapse rule sets flex-basis: 100% (needed
-   for it to wrap onto its own full-width line below the toggler on
-   mobile), unconditionally, and only cancels that back to auto inside
-   `.navbar-expand-lg .navbar-collapse`, a class this navbar doesn't
-   carry (it's fully custom-styled, see .navbar-tma). Without this, the
-   flex-wrap: wrap added to .navbar-tma below (needed to let the mobile
-   menu wrap at all) also wrapped the collapse panel onto a second row
-   at desktop, since it still nominally "wanted" the full row's width
-   there too. Restoring auto-basis at the same >=992px point the rest
-   of this navbar already switches to desktop behavior (d-lg-flex etc.)
-   keeps it on the same row as the brand there. */
-@media (min-width: 992px) {
-  .navbar-collapse { flex-basis: auto; flex-grow: 0; }
+
+/* ------------------------------ Mobile slide-down menu ------------------- */
+/* Anchored to .site-header (top: 100%) rather than a hardcoded pixel
+   offset, so it always sits exactly below the header regardless of
+   its rendered height; `hidden` (removed/added by mobile-menu.js)
+   keeps it out of the layout and off the accessibility tree entirely
+   while closed, not just visually hidden. */
+.mobile-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 41;
+  background: var(--color-surface);
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.22s var(--ease-standard), transform 0.22s var(--ease-standard);
+}
+.mobile-menu.is-open { opacity: 1; transform: translateY(0); }
+
+.mobile-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 39; /* below the header (40) and the menu (41), above page content */
+  background: rgba(15, 26, 20, 0.4);
+  opacity: 0;
+  transition: opacity 0.22s var(--ease-standard);
+}
+.mobile-menu-backdrop.is-visible { opacity: 1; }
+
+.mobile-menu__nav, .mobile-menu__account { list-style: none; margin: 0; padding: var(--space-2) 0; }
+.mobile-menu__nav a, .mobile-menu__account a, .mobile-menu__account button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-body);
+  font-weight: 500;
+  font-size: 1rem;
+  text-align: left;
+}
+.mobile-menu__nav a i, .mobile-menu__account a i, .mobile-menu__account button i { font-size: 1.125rem; color: var(--color-muted); flex-shrink: 0; }
+.mobile-menu__nav a:hover, .mobile-menu__account a:hover, .mobile-menu__account button:hover { background: var(--color-primary-50); color: var(--color-primary-800); }
+.mobile-menu__nav a:hover i, .mobile-menu__account a:hover i { color: var(--color-primary-700); }
+.mobile-menu__nav a.active { background: var(--color-primary-100); color: var(--color-primary-900); font-weight: 600; }
+.mobile-menu__nav a.active i { color: var(--color-primary-700); }
+.mobile-menu__account button.text-danger { color: var(--color-danger-700); }
+.mobile-menu__account button.text-danger i { color: var(--color-danger-600); }
+.mobile-menu__account button.text-danger:hover { background: var(--color-danger-100); color: var(--color-danger-700); }
+.mobile-menu__divider { height: 1px; background: var(--color-border); margin: var(--space-2) 4px; }
+.mobile-menu__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent-600); margin-left: -4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu, .mobile-menu-backdrop { transition: none; }
 }
 
 .navbar-brand-tma {
