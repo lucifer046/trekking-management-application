@@ -22,6 +22,15 @@
 }
 .navbar-tma {
   display: flex;
+  /* Bootstrap's own .navbar sets flex-wrap: wrap for exactly this
+     reason: .navbar-collapse already carries flex-basis: 100% (from
+     Bootstrap's base .navbar-collapse rule, which isn't gated behind
+     the .navbar class), but that only does anything if its flex
+     parent is actually allowed to wrap. Ours defaulted to nowrap, so
+     on mobile the opened menu never dropped onto its own line below
+     the brand/toggler row: it just got squeezed into the leftover
+     space in that same row instead, overlapping and cramped. */
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-5);
   padding-block: var(--space-3);
@@ -56,6 +65,20 @@
 .navbar-toggler:hover { background: var(--color-primary-50); border-color: var(--color-primary-500); }
 .navbar-toggler:focus { outline: none; }
 .navbar-toggler[aria-expanded="true"] { background: var(--color-primary-50); border-color: var(--color-primary-600); color: var(--color-primary-700); }
+/* Bootstrap's base .navbar-collapse rule sets flex-basis: 100% (needed
+   for it to wrap onto its own full-width line below the toggler on
+   mobile), unconditionally, and only cancels that back to auto inside
+   `.navbar-expand-lg .navbar-collapse`, a class this navbar doesn't
+   carry (it's fully custom-styled, see .navbar-tma). Without this, the
+   flex-wrap: wrap added to .navbar-tma below (needed to let the mobile
+   menu wrap at all) also wrapped the collapse panel onto a second row
+   at desktop, since it still nominally "wanted" the full row's width
+   there too. Restoring auto-basis at the same >=992px point the rest
+   of this navbar already switches to desktop behavior (d-lg-flex etc.)
+   keeps it on the same row as the brand there. */
+@media (min-width: 992px) {
+  .navbar-collapse { flex-basis: auto; flex-grow: 0; }
+}
 
 .navbar-brand-tma {
   display: flex;
